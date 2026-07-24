@@ -8,6 +8,8 @@ theme_set(theme_cowplot());
 library(ggpubr);
 library(geomtextpath);
 
+#Own Libraries
+library(AnaMTG);
 
 
 #Functions

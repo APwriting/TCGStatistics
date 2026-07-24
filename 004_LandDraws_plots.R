@@ -9,16 +9,19 @@ library(ggpubr);
 library(geomtextpath);
 library(reshape);
 
+#Own Libraries
+library(AnaMTG);
+
 #Functions
 
 #Functions
 #These are not needed here but will be kept
-probability_exact <- function(x, draws, y, deck_size) {
-  dhyper(x, y, deck_size - y, draws)
-}
-probability_at_least <- function(x, draws, y, deck_size) {
-  1 - phyper(x - 1, y, deck_size - y, draws)
-}
+#probability_exact <- function(x, draws, y, deck_size) {
+#  dhyper(x, y, deck_size - y, draws)
+#}
+#probability_at_least <- function(x, draws, y, deck_size) {
+#  1 - phyper(x - 1, y, deck_size - y, draws)
+#}
 
 hypergeo_variance <- function(N, K, n) {
   #mean <- n * K / N

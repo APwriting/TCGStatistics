@@ -29,6 +29,18 @@ probability_at_least <- function(x, draws, y, deck_size) {
   1 - phyper(x - 1, y, deck_size - y, draws)
 }
 
+#' hypergeometric variance
+#'
+#'
+#' @param N population size, K is the sample size, n the number of accesses
+#' @return Variance of a probability
+#' @export
+hypergeo_variance <- function(N, K, n) {
+  #mean <- n * K / N
+
+  variance <- n * (K / N) * (1 - K / N) * ((N - n) / (N - 1))
+}
+
 
 ##
 

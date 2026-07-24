@@ -7,14 +7,8 @@ library(cowplot);
 theme_set(theme_cowplot());
 library(ggpubr);
 
-#Functions
-#These are not needed here but will be kept
-probability_exact <- function(x, draws, y, deck_size) {
-  dhyper(x, y, deck_size - y, draws)
-}
-probability_at_least <- function(x, draws, y, deck_size) {
-  1 - phyper(x - 1, y, deck_size - y, draws)
-}
+#Own Libraries
+library(AnaMTG);
 
 
 # Generating or loading plot data

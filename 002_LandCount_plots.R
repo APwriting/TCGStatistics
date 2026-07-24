@@ -8,14 +8,10 @@ theme_set(theme_cowplot());
 library(ggpubr);
 library(geomtextpath);
 
-#Functions
-#These are not needed here but will be kept
-probability_exact <- function(x, draws, y, deck_size) {
-  dhyper(x, y, deck_size - y, draws)
-}
-probability_at_least <- function(x, draws, y, deck_size) {
-  1 - phyper(x - 1, y, deck_size - y, draws)
-}
+#Own Libraries
+library(AnaMTG);
+
+
 
 #Function to run a test
 run_Atleast_land_base_test <- function(At_least_x, max_number_in_deck, 

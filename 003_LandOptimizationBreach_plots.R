@@ -9,14 +9,9 @@ library(ggpubr);
 library(geomtextpath);
 library(reshape);
 
-#Functions
-#These are not needed here but will be kept
-probability_exact <- function(x, draws, y, deck_size) {
-  dhyper(x, y, deck_size - y, draws)
-}
-probability_at_least <- function(x, draws, y, deck_size) {
-  1 - phyper(x - 1, y, deck_size - y, draws)
-}
+#Own Libraries
+library(AnaMTG);
+
 
 #Function to have the test with at least amount
 run_exact_land_base_test <- function(exactX, max_number_in_deck, 

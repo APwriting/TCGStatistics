@@ -13,95 +13,22 @@ library(AnaMTG);
 
 
 
-#Function to run a test
-run_Atleast_land_base_test <- function(At_least_x, max_number_in_deck, 
-                                       deck_size = 99, draws = 7) {
-  num = c()
-  Probability_X = c()
-  Variation = c()
-  
-  for (at_least_so_many in 1:At_least_x){
-    
-    
-    for (number_in_deck in 1:max_number_in_deck) {
-      prob_result <-
-        probability_at_least(
-          x = at_least_so_many,
-          draws = draws,
-          y = number_in_deck,
-          deck_size = deck_size
-        )
-      Probability_X = c(Probability_X, prob_result)
-      Variation = c(Variation, as.character(at_least_so_many))
-      num = c(num, number_in_deck)
-    }
-    
-    #data.df[[paste0("col", at_least_so_many)]] = Probability_X
-  }
-  data.df = data.frame(N=num, P=Probability_X, V=Variation)
-  
-  return(data.df)
-}
-
-#Function to have the test with at least amount
-run_exact_land_base_test <- function(At_least_x, max_number_in_deck, 
-                                     deck_size = 99, draws = 7) {
-  num = c()
-  Probability_X = c()
-  Variation = c()
-  
-  for (at_least_so_many in 1:At_least_x){
-    
-    
-    for (number_in_deck in 1:max_number_in_deck) {
-      prob_result <-
-        probability_exact(
-          x = at_least_so_many,
-          draws = draws,
-          y = number_in_deck,
-          deck_size = deck_size
-        )
-      Probability_X = c(Probability_X, prob_result)
-      Variation = c(Variation, as.character(at_least_so_many))
-      num = c(num, number_in_deck)
-    }
-    
-    #data.df[[paste0("col", at_least_so_many)]] = Probability_X
-  }
-  data.df = data.frame(N=num, P=Probability_X, V=Variation)
-  
-  return(data.df)
-}
-
-  
-  
-plot_land_base_test <- function(df) {
-  library(ggplot2)
-  
-  ggplot(df, aes(x = number_in_deck, y = probability)) +
-    geom_line() +
-    geom_point() +
-    labs(
-      title = "Probability vs Number of Cards in Deck",
-      x = "Number of cards in deck (Y)",
-      y = "Probability of ≥ X copies in opening hand"
-    ) +
-    theme_minimal()
-}
+exactX, max_number_in_deck, min_number_in_deck = 1,
+deck_size = 99, draws = 7)
 
 #Plot1
-data.exact1 <- run_exact_land_base_test(At_least_x = 1, max_number_in_deck = 50)
+data.exact1 <- run_exact_land_base_test(exactX = 1, max_number_in_deck = 50)
 
 #Plot2
 data.atleast1 <- run_Atleast_land_base_test(At_least_x = 1, max_number_in_deck = 50)
 
 #Plot3
-data.next_draws <- run_exact_land_base_test(At_least_x = 1, max_number_in_deck = 50, 
+data.next_draws <- run_exact_land_base_test(exactX = 1, max_number_in_deck = 50, 
                                      deck_size = 92, draws = 1)
 data.next_draws$N=data.next_draws$N+1;
 
 
-data.next_2draws <- run_exact_land_base_test(At_least_x = 1, max_number_in_deck = 50, 
+data.next_2draws <- run_exact_land_base_test(exactX = 1, max_number_in_deck = 50, 
                                             deck_size = 92, draws = 2)
 data.next_2draws$N=data.next_2draws$N+1;
 
@@ -110,9 +37,9 @@ data.next_2draws$N=data.next_2draws$N+1;
 data.turn2all_draws <- run_Atleast_land_base_test(At_least_x = 1, max_number_in_deck = 50, 
                                                   deck_size = 99, draws = 9)
 
-#data.df = run_land_base_test(7,50)
 
-plot_land_base_test(df)
+
+
 #
 #Plot1
 Optimization_point = data.exact1$N[which( data.exact1$P == max(data.exact1$P ))];
@@ -181,9 +108,6 @@ Plot3_draws = plot_grid( next_draw_prob_plot, next_2draw_prob_plot, labels = c("
 Plot3_draws;
 
 
-
-
-df.test <- run_land_base_test(At_least_x = 1, max_number_in_deck = 20)
   
 ###
 #Saving the plots

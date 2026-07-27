@@ -80,8 +80,42 @@ run_exact_land_base_test <- function(exactX, max_number_in_deck, min_number_in_d
 }
 
 
+##
+#Functions for hypergeometric data creation
+#' Hypergeoemtric data gathering function. At least so many probabilities
+#'
+#'
+#' @param X, max number in deck, min number in deck, deck or population size, draws or sample size
+#' @return A database of probabilities
+#' @export
+run_Atleast_land_base_test <- function(At_least_x, max_number_in_deck, min_number_in_deck = 1,
+                                       deck_size = 99, draws = 7) {
+  num = c()
+  Probability_X = c()
+  Variation = c()
+
+  for (at_least_so_many in 1:At_least_x){
 
 
+    for (number_in_deck in min_number_in_deck:max_number_in_deck) {
+      prob_result <-
+        probability_at_least(
+          x = at_least_so_many,
+          draws = draws,
+          y = number_in_deck,
+          deck_size = deck_size
+        )
+      Probability_X = c(Probability_X, prob_result)
+      Variation = c(Variation, as.character(at_least_so_many))
+      num = c(num, number_in_deck)
+    }
+
+    #data.df[[paste0("col", at_least_so_many)]] = Probability_X
+  }
+  data.df = data.frame(N=num, P=Probability_X, V=Variation)
+
+  return(data.df)
+}
 
 
 

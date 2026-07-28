@@ -12,6 +12,7 @@
 #devtools::create("AnaMTG")
 #setwd("C:/Users/falkn/Documents/Projects/Magic_Deck_building_Statistics/AnaMTG");
 #devtools::document();
+#devtools::install(".");
 
 #' Exact hypergeometric probability
 #'
@@ -116,6 +117,46 @@ run_Atleast_land_base_test <- function(At_least_x, max_number_in_deck, min_numbe
 
   return(data.df)
 }
+
+
+
+
+
+
+
+#Functions for analyzing specific magic data
+
+
+#' Functions to return mana value distribution from individual values
+#'
+#'
+#' @param vector of mana values
+#' @return A database of mana value counts
+#' @export
+return_mv_count <- function( mana_values ){
+  return( as.data.frame( table(mana_values) ) )
+}
+
+
+
+
+#Scryfall tools
+#' Function loads the JSON card data from Scryfall
+#'
+#'
+#' @param scryfall ID
+#' @return a list derived from the JSON given by the Scryfall API that represents a single card
+#' @export
+Load_ScryfallCard <- function( id ){
+  APIurl <- paste0("https://api.scryfall.com/cards/", id)
+  APIurl;
+
+  commander.card <- jsonlite::fromJSON(paste0("https://api.scryfall.com/cards/", id))
+  return(commander.card);
+}
+
+
+
 
 
 

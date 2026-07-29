@@ -1,0 +1,1 @@
+Example mana curves based on random trophy limited deck, an Izzet Standart deck, and the Hit-Monkey Commander deck.

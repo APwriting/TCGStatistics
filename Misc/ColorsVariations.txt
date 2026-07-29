@@ -1,0 +1,6 @@
+For mana curves:
+fill = "darkseagreen1", colour = "darkgreen", sometimes variation for different commanders
+
+
+for statistics:
+Keep Standard colorations, which means red also for standard single curves.

@@ -1,4 +1,4 @@
-Count,Name,Set,Category,Secondary Category,Salt Score,Color,Manavalue,Rarity,ScryfallCode,Cardtype
+Quantity,Name,Set,Category,SecondaryCategory,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtype
 "1,Abstergo Entertainment,Assassin's Creed,Land,"""",0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"""
 "1,Ancient Tomb,The List,Land,"""",1.41,"""",0,uncommon,2189b1cb-94c4-4477-a5ef-17a1ae2c6708,""Land"""
 "1,Ash Barrens,Teenage Mutant Ninja Turtles Eternal,Land,"""",0.12,"""",0,common,e8510205-4baa-4f1c-bf64-5d931e2ddf48,""Land"""

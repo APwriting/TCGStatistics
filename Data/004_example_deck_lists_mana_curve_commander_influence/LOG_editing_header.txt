@@ -1,0 +1,162 @@
+Done.
+Checking legendary_keywords.csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Checking legendray_rainbow party.csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Checking nathan.csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Checking planeswalker_parties.csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Checking squirrel_food.csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Checking winter_(7).csv...
+Quantity,Name,Set,SetCode;CollectorNumner,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+Header missing. Adding it.
+Done.
+Checking legendary_keywords.csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Checking legendray_rainbow party.csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Checking nathan.csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Checking planeswalker_parties.csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Checking squirrel_food.csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Checking winter_(7).csv...
+Quantity,Name,Set,SetCode;CollectorNumber,Category,SecondaryCategory,Label,Price;Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext
+
+  Header already present.
+Done.
+Checking legendary_keywords.csv...
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking legendray_rainbow party.csv...
+"1,Abstergo Entertainment,Assassin's Creed,acr,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned,""{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"""
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned,""{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking nathan.csv...
+1,Abrade,Secrets of Strixhaven Commander,soc,Removal,"",default,Normal,234,0.16,"Red",2,uncommon,1add1757-c1f8-448a-b279-c6940fb7ad5f,"Instant",0.08,not owned,"Choose one — • Abrade deals 3 damage to target creature. • Destroy target artifact."
+
+Altering
+
+
+1,Abrade,Secrets of Strixhaven Commander,soc,Removal,"",default,Normal,234,0.16,"Red",2,uncommon,1add1757-c1f8-448a-b279-c6940fb7ad5f,"Instant",0.08,not owned,"Choose one — • Abrade deals 3 damage to target creature. • Destroy target artifact.
+
+Header missing. Adding it.
+Checking planeswalker_parties.csv...
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking squirrel_food.csv...
+1,Academy Manufactor,Bloomburrow Commander,blc,Tokens,"",default,Normal,264,0.94,"",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,"Creature,Artifact",5.52,not owned,"If you would create a Clue, Food, or Treasure token, instead create one of each."
+
+Altering
+
+
+1,Academy Manufactor,Bloomburrow Commander,blc,Tokens,"",default,Normal,264,0.94,"",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,"Creature,Artifact",5.52,not owned,"If you would create a Clue, Food, or Treasure token, instead create one of each.
+
+Header missing. Adding it.
+Checking winter_(7).csv...
+1,Alpha Deathclaw,Fallout,pip,Removal,"",default,Normal,91,0.36,"Green,Black",6,rare,ca4c8b04-66af-4cb3-8003-9088d8344b20,"Creature",2.73,not owned,"Menace, trample When this creature enters or becomes monstrous, destroy target permanent. {5}{B}{G}: Monstrosity 4. (If this creature isn't monstrous, put four +1/+1 counters on it and it becomes monstrous.)"
+
+Altering
+
+
+1,Alpha Deathclaw,Fallout,pip,Removal,"",default,Normal,91,0.36,"Green,Black",6,rare,ca4c8b04-66af-4cb3-8003-9088d8344b20,"Creature",2.73,not owned,"Menace, trample When this creature enters or becomes monstrous, destroy target permanent. {5}{B}{G}: Monstrosity 4. (If this creature isn't monstrous, put four +1/+1 counters on it and it becomes monstrous.)
+
+Header missing. Adding it.
+Done.
+Checking legendary_keywords.csv...
+Checking legendary_keywords.csv...
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking legendray_rainbow party.csv...
+"1,Abstergo Entertainment,Assassin's Creed,acr,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned,""{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"""
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned,""{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking nathan.csv...
+1,Abrade,Secrets of Strixhaven Commander,soc,Removal,"",default,Normal,234,0.16,"Red",2,uncommon,1add1757-c1f8-448a-b279-c6940fb7ad5f,"Instant",0.08,not owned,"Choose one — • Abrade deals 3 damage to target creature. • Destroy target artifact."
+
+Altering
+
+
+1,Abrade,Secrets of Strixhaven Commander,soc,Removal,"",default,Normal,234,0.16,"Red",2,uncommon,1add1757-c1f8-448a-b279-c6940fb7ad5f,"Instant",0.08,not owned,"Choose one — • Abrade deals 3 damage to target creature. • Destroy target artifact.
+
+Header missing. Adding it.
+Checking planeswalker_parties.csv...
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)"
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,Land,"",default,Normal,79,0.31,"",0,rare,4d197866-7633-493c-80dd-ec3a09165934,"Land",2.99,not owned,"{T}: Add {C}. {1}, {T}: Add one mana of any color. {3}, {T}, Exile Abstergo Entertainment: Return up to one target historic card from your graveyard to your hand, then exile all graveyards. (Artifacts, legendaries, and Sagas are historic.)
+
+Header missing. Adding it.
+Checking squirrel_food.csv...
+1,Academy Manufactor,Bloomburrow Commander,blc,Tokens,"",default,Normal,264,0.94,"",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,"Creature,Artifact",5.52,not owned,"If you would create a Clue, Food, or Treasure token, instead create one of each."
+
+Altering
+
+
+1,Academy Manufactor,Bloomburrow Commander,blc,Tokens,"",default,Normal,264,0.94,"",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,"Creature,Artifact",5.52,not owned,"If you would create a Clue, Food, or Treasure token, instead create one of each.
+
+Header missing. Adding it.
+Checking winter_(7).csv...
+1,Alpha Deathclaw,Fallout,pip,Removal,"",default,Normal,91,0.36,"Green,Black",6,rare,ca4c8b04-66af-4cb3-8003-9088d8344b20,"Creature",2.73,not owned,"Menace, trample When this creature enters or becomes monstrous, destroy target permanent. {5}{B}{G}: Monstrosity 4. (If this creature isn't monstrous, put four +1/+1 counters on it and it becomes monstrous.)"
+
+Altering
+
+
+1,Alpha Deathclaw,Fallout,pip,Removal,"",default,Normal,91,0.36,"Green,Black",6,rare,ca4c8b04-66af-4cb3-8003-9088d8344b20,"Creature",2.73,not owned,"Menace, trample When this creature enters or becomes monstrous, destroy target permanent. {5}{B}{G}: Monstrosity 4. (If this creature isn't monstrous, put four +1/+1 counters on it and it becomes monstrous.)
+
+Header missing. Adding it.
+Done.

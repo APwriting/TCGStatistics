@@ -21,9 +21,7 @@ deck_lists = read_archidekt_export(path_to_examples);
 path = path_to_examples;
 
 current_path = getwd();
-if (0){
-  setwd(path);
-}
+
 decks = list();
 deck_list_paths = list.files( path = path,pattern = "\\.csv$",full.names = TRUE);
 for (deck_path in deck_list_paths){
@@ -62,7 +60,7 @@ for (Commander.deck.df in decks){
   commander_mv = commander.df$Mana.Value;
   
   #Creat count data 
-  mana_values = Commander.deck.df[which(Commander.deck.df$Types!="Land"),];
+  mana_values = Commander.deck.df[which(!grepl("Land", Commander.deck.df$Category)),];
   mana_values = mana_values$Mana.Value;
   mv.df = return_mv_count( mana_values );
   mv.df;
@@ -83,8 +81,9 @@ for (Commander.deck.df in decks){
 Whole_mv_plot = plot_grid(plotlist = Mana_curves);
 Whole_mv_plot;
 
-
-data.df = decks[1];
+#For testing;
+data.df = decks[[4]];
+Commander.deck.df = decks[[4]];
 
 
 #Saving

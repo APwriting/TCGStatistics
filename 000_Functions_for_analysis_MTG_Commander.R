@@ -145,8 +145,12 @@ return_mv_count <- function( mana_values ){
 
 
 ##Function for plotting data
-
-
+#' FFunctions for plotting mana curves
+#'
+#'
+#' @param data base, title, fill, color, and y limites
+#' @return A mana value plot
+#' @export
 Create_Mana_curve_plot <- function( data.df, title, fill = "darkseagreen1", colour = "darkgreen",
                                     ylimitlow = 0, ylimhigh = 35){
   
@@ -179,7 +183,7 @@ Load_ScryfallCard <- function( id ){
 
 ##Load deck data
 
-#' remove Maybebaord and Sideboard from loaded deck.df
+#' remove Maybeboard and Sideboard from loaded deck.df
 #'
 #'
 #' @param data base with deck data

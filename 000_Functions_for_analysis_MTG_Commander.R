@@ -47,6 +47,8 @@ hypergeo_variance <- function(N, K, n) {
 
 ##
 #Functions for hypergeometric data creation
+
+
 #' Hypergeoemtric data gathering function. Exact probabilities
 #'
 #'
@@ -142,6 +144,23 @@ return_mv_count <- function( mana_values ){
 
 
 
+##Function for plotting data
+
+
+Create_Mana_curve_plot <- function( data.df, title, fill = "darkseagreen1", colour = "darkgreen",
+                                    ylimitlow = 0, ylimhigh = 35){
+  
+  Bar_plot = ggplot(data.df, aes(x=mana_values,y=Freq))+
+    geom_col(fill = fill, colour = colour)+
+    ggtitle(title)+
+    scale_x_continuous( name = "Mana values", labels  = 1:max(mv.df$mana_values),
+                        breaks = 1:max(mv.df$mana_values   ))+
+    scale_y_continuous(limits = c(ylimitlow,ylimhigh), name = "Count");
+  return(Bar_plot)
+}
+
+
+
 #Scryfall tools
 #' Function loads the JSON card data from Scryfall
 #'
@@ -158,9 +177,37 @@ Load_ScryfallCard <- function( id ){
 }
 
 
+##Load deck data
 
+#' remove Maybebaord and Sideboard from loaded deck.df
+#'
+#'
+#' @param data base with deck data
+#' @return same data abse without Maybeboard and Sideboard
+#' @export
+remove_maybe_and_sideboard <-function(Commander.deck.df){
+  Commander.deck.df = Commander.deck.df[ which(Commander.deck.df$Category!="Maybeboard" & Commander.deck.df$Category!="Sideboard"),]; 
+  return(Commander.deck.df)
+}
 
-
+#' Function reads allarchidekt export csv file in a folder
+#'
+#'
+#' @param reads csv data from archidekt, considers the quotation marks it exports with. 
+#' @return Commander data base, note that the header may not be the right one and needs to be edited in file. There is a python script for this.
+#' @export
+read_archidekt_export <-function(path){
+  
+  
+  decks = list();
+  deck_list_paths = list.files( path = path,pattern = "\\.csv$",full.names = TRUE);
+  for (deck_path in deck_list_paths){
+    Commander.deck.df <- read.csv(file   = deck_path);
+    decks = append(decks, Commander.deck.df);
+  }
+  
+  return(decks)
+}
 
 
 

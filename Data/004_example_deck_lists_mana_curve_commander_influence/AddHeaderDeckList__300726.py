@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 # The header you want every CSV file to have
-HEADER = "Quantity,Name,Set,SetCode,CollectorNumber,Category,SecondaryCategory,Label,Price,Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes,Cardtext"
+HEADER = "Quantity,Name,Set,SetCode,CollectorNumber,Category,SecondaryCategory,Label,Price,Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes"
 
 LOG = open("LOG_editing_header.txt","a")
 

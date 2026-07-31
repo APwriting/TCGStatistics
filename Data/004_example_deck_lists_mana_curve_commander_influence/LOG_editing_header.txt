@@ -160,3 +160,42 @@ Altering
 
 Header missing. Adding it.
 Done.
+Checking squirrel_food.csv...
+"1,Academy Manufactor,Bloomburrow Commander,blc,2.8.2024,Tokens,"""",default,Normal,264,0.94,"""",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,""Creature,Artifact"",5.52,not owned"
+
+Altering
+
+
+1,Academy Manufactor,Bloomburrow Commander,blc,2.8.2024,Tokens,"""",default,Normal,264,0.94,"""",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,""Creature,Artifact"",5.52,not owned
+
+Header missing. Adding it.
+Checking squirrel_food.csv...
+"1,Academy Manufactor,Bloomburrow Commander,blc,2.8.2024,Tokens,"""",default,Normal,264,0.94,"""",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,""Creature,Artifact"",5.52,not owned"
+
+Altering
+
+
+1,Academy Manufactor,Bloomburrow Commander,blc,2.8.2024,Tokens,"""",default,Normal,264,0.94,"""",3,rare,2f5b4544-70d9-45ee-84a3-fa6253a53a82,""Creature,Artifact"",5.52,not owned
+
+Header missing. Adding it.
+Done.
+Checking legendary_keywords.csv...
+"1,Abstergo Entertainment,Assassin's Creed,acr,5.7.2024,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned"
+
+Altering
+
+
+1,Abstergo Entertainment,Assassin's Creed,acr,5.7.2024,Land,"""",default,Normal,79,0.31,"""",0,rare,4d197866-7633-493c-80dd-ec3a09165934,""Land"",2.99,not owned
+
+Header missing. Adding it.
+Checking legendray_rainbow_party.csv...
+Checking legendary_keywords.csv...
+Quantity,Name,Set,SetCode,CollectorNumber,Category,SecondaryCategory,Label,Price,Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes
+
+Altering
+
+
+Quantity,Name,Set,SetCode,CollectorNumber,Category,SecondaryCategory,Label,Price,Collection,Modifier,Salt,Color,Manavalue,Rarity,ScryfallCode,Cardtypes
+
+  Header already present.
+Checking legendray_rainbow_party.csv...

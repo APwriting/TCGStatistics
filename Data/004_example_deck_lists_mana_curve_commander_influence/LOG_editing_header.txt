@@ -199,3 +199,40 @@ Quantity,Name,Set,SetCode,CollectorNumber,Category,SecondaryCategory,Label,Price
 
   Header already present.
 Checking legendray_rainbow_party.csv...
+Checking legendary_keywords.csv...
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Altering
+
+
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Header missing. Adding it.
+Checking legendray_rainbow_party.csv...
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Altering
+
+
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Header missing. Adding it.
+Checking squirrel_food.csv...
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Altering
+
+
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Header missing. Adding it.
+Checking winter.csv...
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Altering
+
+
+Quantity,Name,Category,Secondary categories,Colors,Mana Value,Scryfall ID,Types
+
+Header missing. Adding it.
+Done.

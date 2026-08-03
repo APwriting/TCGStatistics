@@ -47,7 +47,7 @@ def main():
     Basic_count = define_basic_land_count( colors )
     print(Basic_count)
     Combinatorics = Get_combinations( Sample_Size = Draws, at_least = Land_cutoff)
-    sys.exit()
+    #sys.exit()
     Basics = [ land for land in sorted(list(Basic_count.keys()))]
     land_combinations = [ Basic_count[land] for land in Basics]
     land_combinations.append( Decksize-Lands )
@@ -73,7 +73,7 @@ def main():
             m=land_combinations,   # category sizes
             n=Draws             # cards drawn
             ) 
-        sys.exit()
+        #sys.exit()
         Combination_probabilities[ hand_drawn_key ] = Probability
 
         Cumulative_basic_present[ Basic_lands_present[ hand_drawn_key ] ] = Cumulative_basic_present.get(Basic_lands_present[ hand_drawn_key ],0)+Probability
@@ -120,7 +120,7 @@ def Get_combinations(Sample_Size, at_least = 0, ):
         #for j in range(Sample_Size):
     List_of_Combinations = list()
     for i in range(colors):
-        print(i)
+        #print(i)
         print( "Reality", List_of_Combinations)
         if not List_of_Combinations:
             temp_list = [Combinatorics_list[::]]
@@ -133,28 +133,12 @@ def Get_combinations(Sample_Size, at_least = 0, ):
         List_of_Combinations = new_temp[::]
         print( "Reality2", List_of_Combinations)
                 
+    for ele in List_of_Combinations:
+        total = sum(ele)
+        if total <= Sample_Size and total >= at_least:
+            Combinatorics.append(ele)
+    print(Combinatorics, "Finished counting combinations")
 
-        if 0:
-            for j in range(Sample_Size):
-                if List_of_Combinations:
-                    for ele in List_of_Combinations:
-                        ele.append(j)
-                        temp_list.append( ele )
-                        print(temp_list)
-                    
-                else:
-                    print("J",j)
-                    temp_list.append( [j] )
-        #List_of_Combinations = temp_list[:]
-        
-    if 0:
-        for i in range(Sample_Size):
-            for j in range(Sample_Size):
-                for k in range(Sample_Size):
-                    total = i+j+k
-                    if total <= Sample_Size and total >= at_least:
-                        Combinatorics.append([i,j,k])
-                        #print(Combinatorics[-1])
     return(Combinatorics)
 
 def define_basic_land_count( colors ):

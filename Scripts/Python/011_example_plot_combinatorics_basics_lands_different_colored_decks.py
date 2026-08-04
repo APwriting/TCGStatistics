@@ -56,37 +56,49 @@ def main():
     print(Basic_lands_present)
     
     Probability_results =  Add_up_combinations( Basic_lands_present, Combination_probabilities  )
-    print(Probability_results)
+    print("\n\nProbability_results",Probability_results)
     
     #print(land_combinations)
 
     #print( Cumulative_basic_present )
     #After_sh_prob = dict()
     #Get the combinatoric for the draws until turn 5, no extra draws
-    Combinatorics_after_SH = Get_combinations( Sample_Size = Adraws, at_least = 0 )
+    Combinatorics_after_SH = Get_combinations( Sample_Size = Adraws, at_least = 0 )[::]
     print( "\n\n\n\n\n\nCombinatorics_after_SH#############", Combinatorics_after_SH )
     #sys.exit()
     starting_hand_combinations = list([keys for keys in Combination_probabilities.keys()])
+    print( "starting_hand_combinations", starting_hand_combinations )
+    proxy = input()
     Probability_results_after_draw = dict()
     Truth_keys = list(Probability_results.keys())
-
+    print( "Truth_keys", Truth_keys )
+    proxy = input()
     Counter = 0
 
     for hand_drawn_key in starting_hand_combinations:
         Counter+=1
         print("Counter",Counter, hand_drawn_key, "hand_drawn_key")
-
+        proxy = input()
         if not Basic_lands_present[ hand_drawn_key ]:
             print( hand_drawn_key )
+            proxy = input()
             print( hand_drawn_key, Combination_probabilities[ hand_drawn_key ], Basic_lands_present[ hand_drawn_key ] )
             #for Combinatorics in Combinatorics_after_SH:
+            proxy = input()
             print(Combinatorics,"FFFFFFFFFFFFFFFFFFFF",Combinatorics_after_SH)
             print("\n\n")
+            proxy = input()
             print(Basic_count, "Basic_count", hand_drawn_key)
-            Adjusted_Basic_lands_present, Adjusted_Combination_probabilities = Combinatorics_Probabilities_Basics( Combinatorics_after_SH, Basic_count, previous_draw = hand_drawn_key.split("_") )
-            print( Adjusted_Basic_lands_present, Adjusted_Combination_probabilities)
+            proxy = input()
+            Combinations_to_use = Combinatorics_after_SH[::][:]
+            print("This mistake: Combinations_to_use", Combinations_to_use)
+            proxy = input()
+            Adjusted_Basic_lands_present, Adjusted_Combination_probabilities = Combinatorics_Probabilities_Basics( Combinations_to_use, Basic_count, previous_draw = hand_drawn_key.split("_") )
+            print( "Adjusted_Basic_lands_present, Adjusted_Combination_probabilities",Adjusted_Basic_lands_present, Adjusted_Combination_probabilities)
+            proxy = input()
             Adjusted_Probability_results =  Add_up_combinations( Adjusted_Basic_lands_present, Adjusted_Combination_probabilities  )
             #    sys.exit()
+            print( "Adjusted_Probability_results", Adjusted_Probability_results)
             #Truth_keys = list(Adjusted_Probability_results.keys())
             for Tkey in Truth_keys:
                 Probability_results_after_draw[ hand_drawn_key ] = dict()
@@ -94,12 +106,15 @@ def main():
                 Probability_results_after_draw[ hand_drawn_key ][Tkey] = Combination_probabilities[hand_drawn_key]*Adjusted_Probability_results[Tkey]
             print("Adjusted_Probability_results",Adjusted_Probability_results)
             print("\n\n")
+        else: 
+            print("Is true: ", hand_drawn_key, "hand_drawn_key")
+            proxy = input()
     print( Probability_results_after_draw )
 
     sys.exit()
     sys.exit()
 
-
+    print(proxy)
 
     Basic_lands_present_turn5, Combination_probabilities_turn5 = Combinatorics_Probabilities_Basics( Combinatorics, Basic_count )
     Basics = [ category for category in sorted(list(Basic_count.keys()))]
@@ -159,6 +174,7 @@ def main():
 #Need to simplifiy by making probability calculaiton into a function
 #Then making the first and second combinatorics calculations summarized into their own functions.
 
+
 def Add_up_combinations( Basic_lands_present, Combination_probabilities  ):
     #Function for adding the single probabilites of each key pair from Combinatorics_Probabilities_Basics
     Cumulative_basic_present = dict()
@@ -187,7 +203,8 @@ def Combinatorics_Probabilities_Basics( Combinatorics, Basic_count, previous_dra
     basic_keys = list()
     Combination_probabilities = dict()
     
-    for Combination in Combinatorics:
+    for ele in Combinatorics:
+        Combination = ele[:]
         print()
         leftover_hand = Draws - sum(Combination) #adds the amount of non lands
         Combination.append(leftover_hand)#adds the amount of non lands to sample

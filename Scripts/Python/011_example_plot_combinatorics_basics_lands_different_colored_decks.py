@@ -65,9 +65,9 @@ def main():
         Combination.append(leftover_hand)#adds the amount of non lands
 
         Basic_lands_present[ hand_drawn_key ] = Check_if_all_land_types(Previous_draw = [], New_draws = Combination)
-        print(Combination)
-        print(land_combinations)
-        print(Draws)
+        #print(Combination)
+        #print(land_combinations)
+        #print(Draws)
         Probability  = multivariate_hypergeom.pmf(
             x=Combination,      # drawn from each category
             m=land_combinations,   # category sizes
@@ -79,7 +79,8 @@ def main():
         Cumulative_basic_present[ Basic_lands_present[ hand_drawn_key ] ] = Cumulative_basic_present.get(Basic_lands_present[ hand_drawn_key ],0)+Probability
 
         if Basic_lands_present[ hand_drawn_key ] :
-            print("See")
+            #print("See")
+            pass
         if 0:
             print( multivariate_hypergeom.pmf(
             x=Combination,      # drawn from each category
@@ -87,6 +88,64 @@ def main():
             n=Draws             # cards drawn
             ) )
     print( Cumulative_basic_present )
+    After_sh_prob = dict()
+    Combinatorics_after_SH = Get_combinations( Sample_Size = Adraws, at_least = 0)
+    print( Combinatorics_after_SH )
+   # sys.exit()
+    print( Combinatorics_after_SH)
+    Probability_to_fix_after_draws = dict()
+    print(basic_keys)
+   #sys.exit()
+    for hand_drawn_key in basic_keys:
+        previous_combination = hand_drawn_key.split("_")
+        print( Basics, previous_combination )
+        after_sh_lands = [ Basic_count[land+1]-int( previous_combination[land]) for land in range(len(Basics))]
+        print( "Basics", Basics)
+        print( hand_drawn_key )
+        print( after_sh_lands )
+        after_sh_lands.append( Decksize-Draws-sum(after_sh_lands) )#reduce by the draws.
+        print("Test", after_sh_lands)
+        #hand_drawn_key = "_".join([ str(i) for i in Combination])
+        if not Basic_lands_present[ hand_drawn_key ]:
+            print("Wait", hand_drawn_key, Combination_probabilities[ hand_drawn_key ])
+            print("SCHLEIFE BEGIN")
+            for Combination in Combinatorics_after_SH:
+
+                
+                print( id(Combination))
+                leftover_hand = Adraws - sum(Combination)
+                Combination.append(leftover_hand)#adds the amount of non lands
+                print( Combination, after_sh_lands, Adraws )
+                print( [ id(i) for i in [Combination, after_sh_lands, Adraws]] )
+                #sys.exit()
+                Probability  = multivariate_hypergeom.pmf(
+                    x=Combination,      # drawn from each category
+                    m=after_sh_lands,   # category sizes
+                    n=Adraws             # cards drawn
+                    ) 
+                print( Probability)
+                previous_probability = Combination_probabilities[ hand_drawn_key ]
+                #Get the new land drawn amount
+                new_total_lands = previous_combination[::]
+                #new_total_lands.pop() #remove total non lands
+                new_total_lands = [ int(new_total_lands[i])+int(Combination[i]) for i in range( len(new_total_lands ) ) ]
+                print( new_total_lands, previous_combination, Combination, "new_total_lands, previous_combination, Combination"  )
+                print( [ id(i) for i in [new_total_lands, previous_combination, Combination]], "new_total_lands, previous_combination, Combination"  )
+
+                Is_now_all_types = Check_if_all_land_types(Previous_draw = [], New_draws = new_total_lands)
+                print(Is_now_all_types)
+                print("\n\n")
+                Probability_to_fix_after_draws[Is_now_all_types] = Probability_to_fix_after_draws.get(Is_now_all_types,0) + previous_probability * Probability
+                #sys.exit()
+                #Add the combinations
+                #Check_if_all_land_types(Previous_draw = [], New_draws = Combination)
+            print("SCHLEIFE Ende")
+    #Probability_to_fix_after_draws
+
+#Need to simplifiy by making probability calculaiton into a function
+#Then making the first and second combinatorics calculations summarized into their own functions.
+
+
 
 
 

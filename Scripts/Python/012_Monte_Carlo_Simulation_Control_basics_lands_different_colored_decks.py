@@ -1,10 +1,9 @@
 #/usr/bin/python
 
-#Script for hypergeometric calculations 
+#Script for Monte Carlo Simulaton Confirmation of 011
 
-from scipy.stats import hypergeom
-from scipy.stats import multivariate_hypergeom
-
+import numpy as np
+SamplingDraw = np.random.default_rng()
 
 import sys
 
@@ -51,23 +50,37 @@ Simulations = 100
 def main():
     Basic_count = define_basic_land_count( colors )
 
-    for round in Simulations:
+    Category_identities = sorted( list( Basic_count.keys() ) )
+    Category_identities.append( "Other" )
+
+    land_combinations = return_basicland_combinations( Basic_count, Population = Decksize, Land_count = Lands, previous_draw = [] )
+    land_combinations = dict(zip(Category_identities, land_combinations))#This is the deck population!
+
+    deck = form_deck( combinations = land_combinations )
+
+
+    for round in range(Simulations):
         
-        land_combinations = return_basicland_combinations( Basic_count, Population = Decksize, Land_count = Lands, previous_draw = [] )
-        print( round, land_combinations)
+        sample_deck = deck[:]
+
+        Starting_hand_sample = SamplingDraw.choice(sample_deck, size=7, replace=False)
+        print( round,  land_combinations, Starting_hand_sample )
 
 
-
+def form_deck( combinations ):
+    Category_identities = list( combinations.keys() )
+    deck = []
+    for Category in Category_identities:
+        deck += [str(Category)]*combinations[Category]
+    return(deck)
 
 def return_basicland_combinations( Basic_count, Population = Decksize , Land_count = Lands, previous_draw = [] ):
     #returns the combination distribution of basic lands, given how many colors are there.
     #Adds all the non lands at the end
     #Adjusts for previous draw combinations
-    
-    if previous_draw:
-        if "_".join(previous_draw) == "0_3_4":
-            print( "Basic_count ", Basic_count )
 
+    #Uses dictionaries
+    
     Basics = [ category for category in sorted(list(Basic_count.keys()))]
 
     if previous_draw:

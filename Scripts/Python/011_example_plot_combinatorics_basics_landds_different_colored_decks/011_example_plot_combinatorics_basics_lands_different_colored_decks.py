@@ -33,6 +33,7 @@ Land_cutoff = 2
 #Additional turns/draws after starting hand
 global Adraws
 Adraws = 5
+#Adraws = 1
 #Number of lands
 global Lands
 Lands = 40
@@ -47,39 +48,55 @@ def main():
 
     Basic_count = define_basic_land_count( colors )
     print(Basic_count)
+    file_name = "011_Basic_data_saved__{}_colors.txt".format(colors)
+    Basic_data_line = "Color_comb:\t"+" ".join([str(i)+":"+str(Basic_count[i]) for i in list(Basic_count.keys())])
+    Basic_data_saving(filename = file_name, linetbs = Basic_data_line, mode="w")
+
+
     #Combinations for starting hand
     Combinatorics = Get_combinations( Sample_Size = Draws, at_least = Land_cutoff)
     #sys.exit()
 
     #Results for starting hand
     Basic_lands_present, Combination_probabilities = Combinatorics_Probabilities_Basics( Combinatorics, Basic_count, previous_draw = [] )
-    print(Basic_lands_present)
+
+
+    #Saving results for review
+    file_name = "011_Starting_hand_combinations__after_mulligan__{}_colors.txt".format(colors)
+    print_draw_combinations( comblist=Combinatorics, filename=file_name, delimiter = "_" )
+    file_name = "011_Starting_hand_ALL_COLORS_PRESENT__{}_colors.txt".format(colors)
+    print_info_dictionary( Data=Basic_lands_present, filename=file_name, delimiter = "\t" )
+    file_name = "011_Starting_hand_Probabilities__{}_colors.txt".format(colors)
+    print_info_dictionary( Data=Combination_probabilities, filename=file_name, delimiter = "\t" )
+
+
+    #print(Basic_lands_present)
     
     Probability_results =  Add_up_combinations( Basic_lands_present, Combination_probabilities  )
     
-    
-    #print(land_combinations)
 
-    #print( Cumulative_basic_present )
-    #After_sh_prob = dict()
     #Get the combinatoric for the draws until turn 5, no extra draws
     Combinatorics_after_SH = Get_combinations( Sample_Size = Adraws, at_least = 0 )[::]
     print( "\n\n\n\n\n\nCombinatorics_after_SH#############", Combinatorics_after_SH )
-    #sys.exit()
+    #Save Combinations for review
+    file_name = "011_Draws_after_SH__{}_turns_no_extra_draw__{}_colors.txt".format(Adraws,colors)
+    print_draw_combinations( comblist=Combinatorics_after_SH, filename=file_name, delimiter = "_" )
+
+
     starting_hand_combinations = list([keys for keys in Combination_probabilities.keys()])
-    print( "starting_hand_combinations", starting_hand_combinations )
+    print( "starting_hand_combinations", starting_hand_combinations, len(starting_hand_combinations) )
     #proxy = input()
-    Probability_results_after_draw = dict()
+    #Probability_results_after_draw = dict()
     Truth_keys = list(Probability_results.keys())
     print( "Truth_keys", Truth_keys )
-    #proxy = input()
-    Counter = 0
+    proxy = input()
+    Counter = 0#For counting how many iterations there are later on
     # After the draw probability to get basic lands yes or no
     Draw_into_land_colors_probability = dict()
 
 
     for hand_drawn_key in starting_hand_combinations:
-        Counter+=1
+        
         #print("Counter",Counter, hand_drawn_key, "hand_drawn_key")
         #proxy = input()
 
@@ -95,7 +112,7 @@ def main():
             #print(Basic_count, "Basic_count", hand_drawn_key)
             #proxy = input()
 
-
+            Counter+=1
             #Define probabilities
             Combinations_to_use = Combinatorics_after_SH[::][:]
             #print("This mistake: Combinations_to_use", Combinations_to_use)
@@ -124,19 +141,19 @@ def main():
     for hand_drawn_key in starting_hand_combinations:
         Probabiliy_of_drawing_into_all_basics_after_missed_in_hand = 0
         if Draw_into_land_colors_probability[hand_drawn_key]:
-            print( Draw_into_land_colors_probability[ hand_drawn_key ]  )
+            #print( Draw_into_land_colors_probability[ hand_drawn_key ]  )
             Adjusted_Basic_lands_present, Adjusted_Combination_probabilities =  Draw_into_land_colors_probability[ hand_drawn_key ] 
             secondary_keys = list( Adjusted_Basic_lands_present.keys() )
             print(secondary_keys)
             
 
             for sec_key in secondary_keys:
-                print( secondary_keys )
-                print( Adjusted_Basic_lands_present )
+                #print( secondary_keys )
+                #print( Adjusted_Basic_lands_present )
                 #proxy = input()
                 All_basics_present_after_draw = Adjusted_Basic_lands_present[sec_key]
                 if All_basics_present_after_draw:
-                    print( "All_basics_present_after_draw",All_basics_present_after_draw )
+                    #print( "All_basics_present_after_draw",All_basics_present_after_draw )
                     Probability_of_draws = Adjusted_Combination_probabilities[sec_key]
                     print(Probability_of_draws, "Probability_of_draws")
                     Probability_of_initial_hand = Combination_probabilities[hand_drawn_key]
@@ -151,6 +168,13 @@ def main():
             print("Probability_sum_after_missed_colors", hand_drawn_key, Probability_sum_after_missed_colors )
             #proxy = input()
             print( "Probabiliy_of_drawing_into_all_basics_after_missed_in_hand", Probabiliy_of_drawing_into_all_basics_after_missed_in_hand)
+
+
+
+
+ 
+ 
+
             #proxy = input()
             #print( hand_drawn_key, Draw_into_land_colors_probability[ hand_drawn_key ], id(Draw_into_land_colors_probability[ hand_drawn_key ]), "Draw_into_land_colors_probability" ) 
             #print(  Combination_probabilities[hand_drawn_key], "Combination_probabilities")
@@ -158,12 +182,13 @@ def main():
             #print( Probability_sum_after_missed_colors, "Probability_sum_after_missed_colors")
             #proxy = input()
     print( "Results:")
+    print( "{} Combinations of {} starting hands that had missing colors".format(Counter, len(starting_hand_combinations)))
     print("\n\nProbability_results initial draw True",Probability_results[True])
     print("\n\nProbability_results initial draw False",Probability_results.get(False,0))
-    print("\n\nProbability_results adjustment after first 5 turns", Probability_sum_after_missed_colors )
+    print("\n\nProbability_results adjustment after {} turns".format(Adraws), Probability_sum_after_missed_colors )
     print( "Percentage of hands with not thing", Probability_results.get(False,0), "and how many of those this work out", Probability_sum_after_missed_colors)
     return(1)
-    sys.exit()
+
 
 
 #Need to simplifiy by making probability calculaiton into a function
@@ -172,6 +197,7 @@ def main():
 
 def Add_up_combinations( Basic_lands_present, Combination_probabilities  ):
     #Function for adding the single probabilites of each key pair from Combinatorics_Probabilities_Basics
+    #Sorts them into all basic lands present or not present by truth and false values
     Cumulative_basic_present = dict()
     combination_keys = list(Basic_lands_present.keys())
     for hand_drawn_key in combination_keys:
@@ -313,7 +339,8 @@ def Get_combinations(Sample_Size, at_least = 0, ):
     
     Combinatorics = list()
     Combinatorics_list = [ 0 for i in range(colors)]
-    print( "Combinatorics_list", Combinatorics_list )
+    #print( "Combinatorics_list", Combinatorics_list )
+    #print( "Combinatorics Length:", len(Combinatorics_list) )
         #for j in range(Sample_Size):
     List_of_Combinations = list()
     for i in range(colors):
@@ -324,21 +351,21 @@ def Get_combinations(Sample_Size, at_least = 0, ):
             temp_list = [Combinatorics_list[::]]
         else:
             temp_list = List_of_Combinations[::]
-        print("Temp",temp_list)
+        #print("Temp",temp_list)
         temp_list_list = list()
         #Extend current list
         new_temp = fill_in_space( list_of_lists = temp_list, max_range = Sample_Size, pos = i)
-        print("new_temp",new_temp)
+        #print("new_temp",new_temp)
         #proxy = input()
         List_of_Combinations = new_temp[::]
-        print( "Reality2", List_of_Combinations)
+        #print( "Reality2", List_of_Combinations)
         #proxy = input()
                 
     for ele in List_of_Combinations:
         total = sum(ele)
         if total <= Sample_Size and total >= at_least:
             Combinatorics.append(ele)
-    print(Combinatorics, "Finished counting combinations")
+    #print(Combinatorics, "Finished counting combinations")
 
     return(Combinatorics)
 
@@ -357,6 +384,47 @@ def define_basic_land_count( colors ):
 
     return(Basic_count)
 
+#Functions for saving and reviewing data results
+def print_draw_combinations( comblist, filename, delimiter = "_" ):
+    #prints Combonations for review
+    with open( filename, "w") as COMB:
+        for ele in comblist:
+            print( ele )
+            print( delimiter.join( [ str(i) for i in ele ] ), file= COMB)
+    return(1)
+    
+def print_info_dictionary( Data, filename, delimiter = "\t" ):
+    #Prints informations dictionaries for review
+    keys = list(Data.keys())
+    with open( filename, "w") as COMB:
+        for key in keys:
+            print( "{}\t{}".format(key, Data[key]), file= COMB)
+    return(1)
+
+def Basic_data_saving(filename, linetbs, mode="w"):
+    with open( filename, mode) as DATA:
+        if type(linetbs) == list:
+            for line in linebts:
+                print( line, file= DATA  )
+        else:
+            print( linetbs, file= DATA  )
+    return(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -366,3 +434,6 @@ def define_basic_land_count( colors ):
 
 
 main()
+
+
+

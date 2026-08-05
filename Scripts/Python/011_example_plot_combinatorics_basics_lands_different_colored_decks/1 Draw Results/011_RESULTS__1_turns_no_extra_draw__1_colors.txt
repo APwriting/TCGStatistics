@@ -1,0 +1,12 @@
+Results:
+0 Combinations of 6 starting hands that had missing colors
+
+
+Probability_results initial draw True 0.8560190861647369
+
+
+Probability_results initial draw False 0
+
+
+Probability_results adjustment after 1 turns 0.0
+Percentage of hands with not thing 0 and how many of those this work out 0.0

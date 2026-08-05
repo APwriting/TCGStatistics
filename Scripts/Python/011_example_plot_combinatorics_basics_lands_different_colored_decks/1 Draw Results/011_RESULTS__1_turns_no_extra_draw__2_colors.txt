@@ -1,3 +1,4 @@
+Results:
 12 Combinations of 33 starting hands that had missing colors
 
 

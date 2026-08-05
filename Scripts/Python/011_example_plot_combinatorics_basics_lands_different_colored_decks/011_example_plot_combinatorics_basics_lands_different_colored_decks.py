@@ -32,8 +32,8 @@ global Land_cutoff
 Land_cutoff = 2
 #Additional turns/draws after starting hand
 global Adraws
-#Adraws = 5
-Adraws = 1
+Adraws = 5
+#Adraws = 1
 #Number of lands
 global Lands
 Lands = 40
@@ -163,7 +163,7 @@ def main():
     #Writng results
     file_name = "011_RESULTS__{}_turns_no_extra_draw__{}_colors.txt".format(Adraws,colors)
     OUT = open(file_name, "w")
-    print( "Results:", , file = OUT)
+    print( "Results:", file = OUT)
     print( "{} Combinations of {} starting hands that had missing colors".format(Counter, len(starting_hand_combinations)), file = OUT)
     print("\n\nProbability_results initial draw True",Probability_results[True], file = OUT)
     print("\n\nProbability_results initial draw False",Probability_results.get(False,0), file = OUT)

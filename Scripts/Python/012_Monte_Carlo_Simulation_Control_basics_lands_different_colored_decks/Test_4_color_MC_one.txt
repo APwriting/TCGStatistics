@@ -2,12 +2,12 @@ Colorcount entered: 4
 {False: 80575, True: 4992, 'Mulligan': 14433}
 
 
-Therer were 85567 viable hands in total from a total of 100000 hands.
+There were 85567 viable hands in total from a total of 100000 hands.
 
 Of these there were 14433 Mulligans. A proportion of 0.14433.
 Of the viable hands 0.058340247992800964 (4992) had all basic and 0.9416597520071991 (80575) not all basics.
 
 
 After 5 draws, the following adjustment were present:
-of the 80575 startings hands without all basis, 26.47223084083152 \% drew into their colors.
-of the 80575 startings hands without all basis, 73.52776915916847 \% missed colors.
+of the 80575 starting hands without all basis, 26.47223084083152 \% drew into their colors.
+of the 80575 starting hands without all basis, 73.52776915916847 \% missed colors.

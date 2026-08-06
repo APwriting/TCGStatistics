@@ -1,0 +1,2 @@
+Colorcount entered: 3
+Over 100000 Simulations, it took an average of 5.200911476639018 turns until all colors are reached for a 3 color deck with only basics

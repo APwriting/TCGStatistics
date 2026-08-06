@@ -40,11 +40,15 @@ Lands = 40
 #Population/Deck
 global Decksize 
 Decksize = 99
+#Number of Simulations, duh
 global Simulations
 Simulations = 100000
+#The limit of lands so that a mulligan is not necessary
 global Mulligan_limit
 Mulligan_limit = 2
-
+#Toggle for saving the individual run statistics
+global Save_Monte_Carlo
+Save_Monte_Carlo = True
 
 
 
@@ -59,6 +63,11 @@ def main():
     land_combinations = dict(zip(Category_identities, land_combinations))#This is the deck population!
 
     deck = form_deck( combinations = land_combinations )
+
+    if Save_Monte_Carlo:
+        file_name = "012_Saved_run_for_plotting__{}_colors.txt".format(colors)
+        SAVE = open( file_name, "w")
+        print(  "\t".join( [ "Total_runs","Proportion_of_Starting_failure","Proportion_failure_after_draws" ] ) ,file=SAVE)
 
     Starting_hand_all_basics = dict()
     All_basics_after_draws = dict()#counts the one, where after certain draws all basics were represented.
@@ -88,6 +97,12 @@ def main():
                 #print( "After",Card_counts )
                 All_basics_present = Are_all_basics_present( Categories = Category_identities, Counts = Card_counts )
                 All_basics_after_draws[All_basics_present] = All_basics_after_draws.get(All_basics_present,0)+1
+        if Save_Monte_Carlo:
+            Total_runs = round+1
+            Proportion_of_Starting_failure = Starting_hand_all_basics.get( False,0 )/Total_runs
+            Proportion_failure_after_draws = All_basics_after_draws.get( False,0 )/Total_runs
+            print(  "\t".join( [ str(ele) for ele in [Total_runs,Proportion_of_Starting_failure,Proportion_failure_after_draws ]] ) ,file=SAVE)
+    SAVE.close()
 
     #Get the results numbers for starting hands
     All_viable_hands = Starting_hand_all_basics[ True ]+Starting_hand_all_basics[ False ]

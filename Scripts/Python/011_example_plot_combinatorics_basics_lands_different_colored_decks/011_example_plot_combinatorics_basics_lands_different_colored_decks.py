@@ -42,6 +42,7 @@ global Decksize
 Decksize = 99
 
 
+
 def main():
 
     #Define Categories, number of basic land types

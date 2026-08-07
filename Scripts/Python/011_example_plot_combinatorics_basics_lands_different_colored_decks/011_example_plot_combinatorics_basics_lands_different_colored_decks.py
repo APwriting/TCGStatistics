@@ -190,7 +190,7 @@ def Add_up_combinations( Basic_lands_present, Combination_probabilities  ):
     return( Cumulative_basic_present )
 
 
-    #Basic_count = define_basic_land_count( colors )
+
 def Combinatorics_Probabilities_Basics( Combinatorics, Basic_count, Sample_Size = 7 , previous_draw = [] ):
     #first get the basic land combinations with all non lands
     #global Decksize
@@ -238,10 +238,6 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
     #returns the combination distribution of basic lands, given how many colors are there.
     #Adds all the non lands at the end
     #Adjusts for previous draw combinations
-    
-    if previous_draw:
-        if "_".join(previous_draw) == "0_3_4":
-            print( "Basic_count ", Basic_count )
 
     Basics = [ category for category in sorted(list(Basic_count.keys()))]
 

@@ -180,6 +180,34 @@ Load_ScryfallCard <- function( id ){
   return(commander.card);
 }
 
+#' Function tom combine to scryfall images, for example two commander pairs for plotting
+#'
+#'
+#' @param scryfall links
+#' @return a combined picture
+#' @export
+combine_images <- function(img1_url, img2_url, output_file = "combined.png") {
+  
+  # Read images from URLs
+  img1 <- magick::image_read(img1_url)
+  img2 <- magick::image_read(img2_url)
+  
+  # Resize to same height
+  height <- min(image_info(img1)$height, image_info(img2)$height)
+  
+  img1 <- magick::image_resize(img1, paste0("x", height))
+  img2 <- magick::image_resize(img2, paste0("x", height))
+  
+  # Append horizontally
+  combined <- magick::image_append(c(img1, img2))
+  
+  # Save
+  magick::image_write(combined, output_file)
+  
+  return(output_file)
+}
+
+
 
 ##Load deck data
 

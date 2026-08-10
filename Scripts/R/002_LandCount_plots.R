@@ -13,8 +13,6 @@ library(AnaMTG);
 
 
 
-exactX, max_number_in_deck, min_number_in_deck = 1,
-deck_size = 99, draws = 7)
 
 #Plot1
 data.exact1 <- run_exact_land_base_test(exactX = 1, max_number_in_deck = 50)

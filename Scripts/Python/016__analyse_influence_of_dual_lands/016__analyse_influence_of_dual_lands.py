@@ -45,24 +45,14 @@ def main():
 
     #Define Categories, number of basic land types
 
-    Basic_count = define_basic_land_count( colors )
-    #print(Basic_count)
-    #proxy = input()
-
-
-
-    #Combinations for starting hand
-    Combinatorics = Get_combinations( Sample_Size = Draws, at_least = Land_cutoff)
-
-    Deck_combinations = return_category_combinations( Basic_count, Population = Decksize, Land_count = Lands, previous_draw = [] )
-    All_colors_present, Combination_probabilities = Combinatorics_Probabilities_Basics( Combinatorics, Deck_combinations, previous_draw = [] )
+    Basic_count = define_basic_land_count( colors ) #Define basics for later on
 
     #Generate possible dual land categories from the colors
     Basic_names = list(Basic_count.keys())
 
     Duals = create_dual_land_categories( Basic_names )
 
-    to_write_list = list()
+    to_write_list = list()  #Easier to save the lines in the for loop and write everything clean later.
 
     Different_probabilities_numbers = [ i for i in range(colors+1) ]
 
@@ -94,7 +84,7 @@ def main():
         for combination in sorted( list(Combination_probabilities_dual.keys())):
 
             Combination_counter = Convert_combination_to_counter( combination = combination, keys= Ordered_keys )
-            Combination_counter = remove_zeros(Combination_counter)
+            #Combination_counter = remove_zeros(Combination_counter)
             comb_available_colors = count_available_colors(Combination_counter)
             #print("comb_available_colors",comb_available_colors)
 
@@ -289,74 +279,6 @@ def Combinatorics_Probabilities_General( Combinatorics, Card_count, Sample_Size 
     return( Combination_probabilities )
 
 
-
-
-
-
-def Combinatorics_Probabilities_Basics( Combinatorics, Card_count, Sample_Size = 7 , previous_draw = [] ):
-    #first get the basic land combinations with all non lands
-    #global Decksize
-    Deck_combinations = Card_count
-    print( Deck_combinations )
-
-    #Define deictionary to give back later
-    Basic_lands_present = dict()
-    basic_keys = list()
-    Combination_probabilities = dict()
-    
-    for ele in Combinatorics:
-        Combination = ele[:]    #making sure that this is its own object
-        #print()
-        leftover_sample = Sample_Size - sum(Combination) #adds the amount of non lands
-        Combination.append(leftover_sample)#adds the amount of non lands (non-defined category) to sample
-
-        #Create Key to identify each pair
-        hand_drawn_key = "_".join([ str(i) for i in Combination])
-        basic_keys.append(hand_drawn_key)
-        #Create a check whether all colors are represented in combinatorics sample
-        Basic_lands_present[ hand_drawn_key ] = Check_if_all_land_types(Previous_draw = previous_draw, New_draws = Combination)
-
-        Probability  = multivariate_hypergeom.pmf(
-            x=Combination,      # drawn from each category
-            m=Deck_combinations,   # category sizes
-            n=Sample_Size             # cards drawn
-            ) 
-
-        Combination_probabilities[ hand_drawn_key ] = Probability
-
-
-    return( Basic_lands_present, Combination_probabilities )
-
-
-
-
-def return_category_combinations( Card_count, Population = Decksize , Land_count = Lands, previous_draw = [] ):
-    #returns the combination distribution of card categories.
-    #Adds all the non lands at the end
-    #Adjusts for previous draw combinations 
-
-    Card_types = [ category for category in sorted(list(Card_count.keys()))]
-
-    if previous_draw:
-        #print(previous_draw)
-        Categories_in_previous_draw = int(previous_draw.pop())
-
-        lands_in_previous_draw = sum([int(ele) for ele in previous_draw ])
-
-        Land_count -= Categories_in_previous_draw #redunant but good for understanding
-        Population -= (Other_category_previous_draw + Categories_in_previous_draw)
-        
-        Category_combinations = [ Card_count[land+1]-int( previous_draw[land]) for land in range(len(Card_types))]#dictionary Basiccount starts with 1
-        
-    else:
-        Category_combinations = [ Card_count[category] for category in Card_types]
-    Category_combinations.append( Population-Land_count )
-    
-
-    return( Category_combinations )
-
-
-
 def Check_if_all_land_types(Previous_draw = [], New_draws = []):
     if Previous_draw:
         List_to_check = [ int(Previous_draw[i])+int(New_draws[i]) for i in range(colors)]
@@ -433,35 +355,7 @@ def Get_combinations_Updated(Sample_Size, Categories, at_least = 0 ):
 
     return(filtered_counters)
 
-def Get_combinations(Sample_Size, Categories = range(colors), at_least = 0 ):
-    #For the number of Categories defined, a combination of how many of each possible is defined 
-    #for a given sample size
-    #at_least defines how many of each category have to be filled at least to account for mulligans
-    
-    Combinatorics = list()
-    Combinatorics_list = [ 0 for i in range(colors)]
 
-    List_of_Combinations = list()
-    for i in Categories:
-        #print( i )
-        #print( "Reality", List_of_Combinations)
-
-        if not List_of_Combinations:
-            temp_list = [Combinatorics_list[::]]
-        else:
-            temp_list = List_of_Combinations[::]
-
-        new_temp = fill_in_space( list_of_lists = temp_list, max_range = Sample_Size, pos = i)
-
-        List_of_Combinations = new_temp[::]
-
-    #Corrects for categories that have not enough of their category. For example, for mulligans in starting hands
-    for ele in List_of_Combinations:
-        total = sum(ele)
-        if total <= Sample_Size and total >= at_least:
-            Combinatorics.append(ele)
-
-    return(Combinatorics)
 
 
 def define_basic_land_count( colors ):

@@ -267,6 +267,9 @@ def Combinatorics_Probabilities_General( Combinatorics, Card_count, Sample_Size 
         basic_keys.append(hand_drawn_key)
         #Create a check whether all colors are represented in combinatorics sample
 
+        #    x=Combination,      # drawn from each category
+        print( "Doing Probabilitiy Calculation now for:{}\n{}\nStarting now:".format(Combination,Deck_combinations))
+
         Probability  = multivariate_hypergeom.pmf(
             x=Combination,      # drawn from each category
             m=Deck_combinations,   # category sizes

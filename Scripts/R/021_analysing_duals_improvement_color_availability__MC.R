@@ -20,7 +20,7 @@ setwd("../../")
 
 # Read the data
 data.df <- read.table(
-  "Scripts/Python/020_analysis_draws_dual_lands_MC/020_Saved_run_for_plotting__2_colors_test.txt",
+  "Scripts/Python/020_analysis_draws_dual_lands_MC/020_Saved_run_for_plotting__2_colors.txt",
   header = TRUE,
   sep = "\t"
 )
@@ -138,6 +138,17 @@ diffs_4_color = diff(digested_4_color_duals.df$proportion  );
 diffs_4_color_perc = diffs_4_color[-1] / diffs_4_color[-length(diffs_4_color)];
 diffs_4_color_perc;
 
+#5 color
+average_change_5_color <- mean(diff(digested_5_color_duals.df$proportion  ))
+average_change_5_color;
+
+
+average_change_5_color_first_10 <- mean(diff(digested_5_color_duals.df$proportion[1:10]  ))
+average_change_5_color_first_10;
+
+diffs_5_color = diff(digested_5_color_duals.df$proportion  );
+diffs_5_color_perc = diffs_5_color[-1] / diffs_5_color[-length(diffs_5_color)];
+diffs_5_color_perc;
 
 
 

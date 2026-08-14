@@ -79,7 +79,7 @@ def main():
 
 
     #Go through each possible number of dual_lands
-    for Dual_trial in range( Lands+1 ):
+    for Dual_trial in range( 36 ):
         Updated_duals = distribute_land_count(counter = Duals, land_count = Dual_trial)
 
 
@@ -88,13 +88,14 @@ def main():
 
         Updated_land_base = add_all_color_land_to_land_base(Basic_color_land_base = Basic_count.copy(), lands_to_add = Dual_trial)#Dual trial is only a proxy for number of lands to add.
         Updated_land_base = Add_other_category(counter = Updated_land_base)
-
+        print( Updated_land_base, "Updated_land_base")
+        #proxy = input()
 
         #Start tinkering
         Updated_land_base_keys = sorted([str(ele) for ele in list( Updated_land_base.keys() )])
 
 
-        Category_identities = sorted( [ str( ele ) for ele in list( Updated_land_base.keys() ) ] )
+        #Category_identities = sorted( [ str( ele ) for ele in list( Updated_land_base.keys() ) ] )
 
         deck = form_deck( combinations = Updated_land_base )
         #print( deck )
@@ -122,14 +123,20 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
         higher_range = 8
 
     Sample_runs_2_color_count = dict()
-    
+    #print( Category_identities, "I need these right?")
+    Color_set_to_test_availability = Category_identities[:]
+    if "ALL" in Color_set_to_test_availability:
+        Color_set_to_test_availability.remove("ALL")
+    Color_set_to_test_availability.remove("Other")
+    #print( Color_set_to_test_availability, "I need these right?")
+    #proxy = input()
     for sample_size in range( lower_range, higher_range ):
-        print( sample_size, "sample_size")
+        #print( sample_size, "sample_size")
         Color_count = dict()
         for round in range(repertitions ):
         
             sample_deck = deck[:]
-
+            #Color_count = Color_count_base.copy()
             MC_Sample = SamplingDraw.choice(sample_deck, size=sample_size, replace=False)
             Card_counts = Count_categories( Sample=MC_Sample )
             if Starting_hand:   #extra test fpr mulligan if the whole ordeal is supposed to test the starting hand.
@@ -143,14 +150,14 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
             #Count Colors
             #Counte Colors function
-            available_colors = count_available_colors( Card_counts )
+            available_colors = count_available_colors( Card_counts, Color_set_to_test_availability )
             MC_run_color_count = str( len( available_colors ) )
 
             #Draws untila all colors
             sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, MC_Sample )
 
-            turn_file_path = Path("021_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
-
+            #turn_file_path = Path("021_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
+            turn_file_path = Path("021_turns_until_all_colors__{}__allcolor_lands__MC_simulation.txt".format(colors))
             if (not turn_file_path.exists() or Trial_count == 0) and round == 0:
                 print("File does not exists")
                 OUT = open( turn_file_path, "w")
@@ -168,15 +175,15 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
                     for card in Next_draw:
                         Card_counts[str(card)] = Card_counts.get(str(card),0)+1
-                    available_colors = count_available_colors( Card_counts )
+                    available_colors = count_available_colors( Card_counts, Color_set_to_test_availability )
                     MC_run_color_count = str( len( available_colors ) )
                     
-                    print( turn, MC_run_color_count, Next_draw, Card_counts )
+                    #print( turn, MC_run_color_count, Next_draw, Card_counts )
             print_list = [str(ele) for ele in [ Trial_count, colors, round, turn  ] ]
 
             print( "\t".join(print_list), file = OUT)
             Color_count[ MC_run_color_count ] = Color_count.get( MC_run_color_count, 0 )+1
-            print( "Color_count", Color_count )
+            #print( "Color_count", Color_count )
     
         Sample_runs_2_color_count[ sample_size ] = Color_count
         OUT.close()
@@ -263,25 +270,32 @@ def create_dual_land_categories( basics ):
     return( Counter(duals) )
 
 
-def add_colors_from_all_color_land( all_color_land_count, colors_present, colors_possible = set([1,2,3,4,5])):
+def add_colors_from_all_color_land( all_color_land_count, colors_present, colors_possible = set(["1","2","3","4","5"])):
     for i in range(all_color_land_count):
+        #print( colors_present, "colors_present" )
+        #proxy = input()
         if colors_possible == colors_present:
-            return( colors_possible )
+            return( colors_present )
         missing_colors = colors_possible - colors_present
         color = next(iter(missing_colors))
         colors_present.add( color )
+        #print( colors_present, "colors_present" )
+        #proxy = input()
     return( colors_present )
 
-def count_available_colors(counter):
+def count_available_colors(counter, Color_set_to_test_availability):
     #Counts available colors. Uses different decisions for different keys.
     available_colors = set()
-
+    All_present_checked = False
     for key in counter.keys():
         if key == "Other":
             continue
-        if key == "All":
-            All_color_land_count = counter["All"]
-            available_colors = add_colors_from_all_color_land( all_color_land_count = All_color_land_count, colors_present = available_colors, colors_possible = set([1,2,3,4,5]))
+        if key == "ALL" and not All_present_checked:
+            #print( "Testing keys",counter.keys())
+            #proxy = input()
+            All_color_land_count = counter["ALL"]
+            #available_colors = add_colors_from_all_color_land( all_color_land_count = All_color_land_count, colors_present = available_colors, colors_possible = set(Color_set_to_test_availability))
+            All_present_checked = True
 
         elif counter[key] != 0:
 
@@ -289,7 +303,8 @@ def count_available_colors(counter):
 
             for color in colors:
                 available_colors.add(color)
-
+    if All_present_checked:
+        available_colors = add_colors_from_all_color_land( all_color_land_count = All_color_land_count, colors_present = available_colors, colors_possible = set(Color_set_to_test_availability))
 
     return available_colors
 

@@ -128,8 +128,7 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
     if "ALL" in Color_set_to_test_availability:
         Color_set_to_test_availability.remove("ALL")
     Color_set_to_test_availability.remove("Other")
-    #print( Color_set_to_test_availability, "I need these right?")
-    #proxy = input()
+
     for sample_size in range( lower_range, higher_range ):
         #print( sample_size, "sample_size")
         Color_count = dict()
@@ -139,12 +138,12 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
             #Color_count = Color_count_base.copy()
             MC_Sample = SamplingDraw.choice(sample_deck, size=sample_size, replace=False)
             Card_counts = Count_categories( Sample=MC_Sample )
-            if Starting_hand:   #extra test fpr mulligan if the whole ordeal is supposed to test the starting hand.
-                Mulligan_necessary = Test_for_mulligan( Categories = Category_identities, Counts = Card_counts )
-                if Mulligan_necessary:
-                    Color_count[ Mulligan_necessary ] = Color_count.get( Mulligan_necessary, 0 )+1
-            else:
-                Mulligan_necessary = False
+            #if Starting_hand:   #extra test fpr mulligan if the whole ordeal is supposed to test the starting hand.
+            Mulligan_necessary = Test_for_mulligan( Categories = Category_identities, Counts = Card_counts )
+            #    if Mulligan_necessary:
+            #        Color_count[ Mulligan_necessary ] = Color_count.get( Mulligan_necessary, 0 )+1
+            #else:
+            #    Mulligan_necessary = False
             
             print( MC_Sample, Mulligan_necessary, Card_counts )
 
@@ -156,12 +155,12 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
             #Draws untila all colors
             sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, MC_Sample )
 
-            #turn_file_path = Path("021_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
-            turn_file_path = Path("021_turns_until_all_colors__{}__allcolor_lands__MC_simulation.txt".format(colors))
+            #turn_file_path = Path("022_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
+            turn_file_path = Path("022_turns_until_all_colors__{}__allcolor_lands__MC_simulation.txt".format(colors))
             if (not turn_file_path.exists() or Trial_count == 0) and round == 0:
                 print("File does not exists")
                 OUT = open( turn_file_path, "w")
-                print( "Trial_land_count\tcolors\ttrial_number\tturns_until_all_colors", file = OUT)
+                print( "Trial_land_count\tcolors\ttrial_number\tturns_until_all_colors\tMulligan", file = OUT)
             else:
                 OUT = open( turn_file_path, "a")
 
@@ -179,7 +178,7 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
                     MC_run_color_count = str( len( available_colors ) )
                     
                     #print( turn, MC_run_color_count, Next_draw, Card_counts )
-            print_list = [str(ele) for ele in [ Trial_count, colors, round, turn  ] ]
+            print_list = [str(ele) for ele in [ Trial_count, colors, round, turn, Mulligan_necessary  ] ]
 
             print( "\t".join(print_list), file = OUT)
             Color_count[ MC_run_color_count ] = Color_count.get( MC_run_color_count, 0 )+1

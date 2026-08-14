@@ -73,7 +73,7 @@ def main():
     ####################
     
 
-    file_name = "021_Saved_run_for_plotting__{}_colors.txt".format(colors)
+    file_name = "022_Saved_run_for_plotting__{}_colors.txt".format(colors)
     SAVE = open( file_name, "w")
     print(  "\t".join( [ "Dual_land","Cards_drawn","Color_Counts","Color_Counts_during_trials" ] ) ,file=SAVE)
 

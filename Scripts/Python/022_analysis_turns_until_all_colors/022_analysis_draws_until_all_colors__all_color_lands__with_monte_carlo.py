@@ -170,7 +170,7 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
                     turn +=1
                     Next_draw = SamplingDraw.choice(sample_deck_after_sh, size=1, replace=False)
-                    sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, Next_draw )
+                    sample_deck_after_sh = Adjust_deck_by_sample( sample_deck_after_sh, Next_draw )
 
                     for card in Next_draw:
                         Card_counts[str(card)] = Card_counts.get(str(card),0)+1

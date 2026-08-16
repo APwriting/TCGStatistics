@@ -95,6 +95,14 @@ comparisons.df <- do.call(rbind, lapply(results_all_colors, function(df) {
   df[positions + 1, c("Trial_land_count", "color", "mean_turns")]
 }))
 
+comparisons.df <- comparisons.df |>
+  pivot_wider(
+    names_from = color,
+    values_from = mean_turns
+  )
+
+comparisons.df = round(comparisons.df, 2);
+
 write.table(
   comparisons.df,
   "7_4_1_table_results_average_turns.txt",

@@ -85,7 +85,7 @@ mean(diff(result.starting.3.df$starting_ava*100));
 mean(diff(result.starting.4.df$starting_ava[1:10]*100));
 mean(diff(result.starting.5.df$starting_ava[1:10]*100));
 
-positions <- c(0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35);
+positions <- c(0, 1, 2, 3, 4, 5, 10, 15);
 
 comparisons.df <- do.call(rbind, lapply(results_all_colors, function(df) {
   df[positions + 1, 1]

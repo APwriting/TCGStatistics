@@ -43,7 +43,7 @@ global Decksize
 Decksize = 99
 #Number of Simulations, duh
 global Simulations
-Simulations = 1000
+Simulations = 10000
 #The limit of lands so that a mulligan is not necessary
 global Mulligan_limit
 Mulligan_limit = 2
@@ -93,28 +93,24 @@ def main():
 
         #Updated_land_base = add_all_color_land_to_land_base(Basic_color_land_base = Basic_count.copy(), lands_to_add = Dual_trial)#Dual trial is only a proxy for number of lands to add.
         #Updated_land_base = Add_other_category(counter = Updated_land_base)
-        #print( Updated_land_base, "Updated_land_base")
 
         Updated_land_base = add_fetch_land_to_land_base(Basic_color_land_base = Basic_count.copy(), lands_to_add = Dual_trial)#Dual trial is only a proxy for number of lands to add.
         Updated_land_base = Add_other_category(counter = Updated_land_base)
         print( Updated_land_base, "Updated_land_base")
 
-        #proxy = input()
 
         #Start tinkering
         Updated_land_base_keys = sorted([str(ele) for ele in list( Updated_land_base.keys() )])
 
 
-        #Category_identities = sorted( [ str( ele ) for ele in list( Updated_land_base.keys() ) ] )
-
         deck = form_deck( combinations = Updated_land_base )
-        #print( deck )
+
         Sample_runs_2_color_count = Monte_carlo_simulation( repertitions= Simulations, deck = deck, Category_identities = Updated_land_base_keys, Starting_hand = False, lower_range = 7, higher_range = 8, Trial_count = Dual_trial )
         number_drawn_run = sorted( list( Sample_runs_2_color_count.keys() ))
         for run in number_drawn_run:
             print( run, "RUNNNN")
             Color_count = Sample_runs_2_color_count[ run ]
-            Counts = sorted( list( Color_count.keys() ))
+            #Counts = sorted( list( Color_count.keys() ))
             for count in Different_probabilities_numbers:
                 print( "\t".join([ str(ele) for ele in [Dual_trial, run, count, Color_count.get( count, 0 ) ] ]), file=SAVE )
     SAVE.close()
@@ -133,7 +129,7 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
         higher_range = 8
 
     Sample_runs_2_color_count = dict()
-    #print( Category_identities, "I need these right?")
+
     Color_set_to_test_availability = Category_identities[:]
     if "ALL" in Color_set_to_test_availability:
         Color_set_to_test_availability.remove("ALL")
@@ -147,14 +143,9 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
         for round in range(repertitions ):
         
             sample_deck = deck[:]
-            #sample_deck[ 0 ] = "FETCH"
-            #sample_deck[ 1 ] = "FETCH"
-            #sample_deck[ 2 ] = "FETCH"
-            #print( sample_deck)
-            #Color_count = Color_count_base.copy()
+
+
             MC_Sample = SamplingDraw.choice(sample_deck, size=sample_size, replace=False)
-            #For testing!!!!!!!Testing Fetch repalcing function
-            #MC_Sample[0]="FETCH"
 
 
             Card_counts = Count_categories( Sample=MC_Sample )
@@ -166,20 +157,20 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
             #Count Colors
             #Counte Colors function
-            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT" )
+            #print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT" )
            # proxy = input()
             available_colors = count_available_colors( Card_counts )
             MC_run_color_count = str( len( available_colors ) )
-            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
+            #print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
           #  proxy = input()
             #Draws untila all colors
             sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, MC_Sample )
-            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
-          # proxy = input()
+            #print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
             if "FETCH" in Card_counts:  #For purpose of other sumulation this would not work for turn 0
                 sample_deck_after_sh, Card_counts = change_Fetch_in_draw( sample_deck = sample_deck_after_sh, draw = Card_counts,  Color_set_to_test_availability = Color_set_to_test_availability, available_colors = available_colors )
+                available_colors = count_available_colors( Card_counts )
+                MC_run_color_count = str( len( available_colors ) )
 
-                #sys.exit()
             #turn_file_path = Path("022_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
             turn_file_path = Path("024_turns_until_all_colors__{}__fetch_lands__MC_simulation.txt".format(colors))
             if (not turn_file_path.exists() or Trial_count == 0) and round == 0:

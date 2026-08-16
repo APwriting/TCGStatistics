@@ -78,13 +78,13 @@ def main():
     ####################
     
 
-    file_name = "022_Saved_run_for_plotting__{}_colors.txt".format(colors)
+    file_name = "024_Saved_run_for_plotting__{}_colors.txt".format(colors)
     SAVE = open( file_name, "w")
     print(  "\t".join( [ "Dual_land","Cards_drawn","Color_Counts","Color_Counts_during_trials" ] ) ,file=SAVE)
 
 
     #Go through each possible number of dual_lands
-    for Dual_trial in range( 36 ):
+    for Dual_trial in range( 16 ):
         Updated_duals = distribute_land_count(counter = Duals, land_count = Dual_trial)
 
 
@@ -137,6 +137,8 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
     Color_set_to_test_availability = Category_identities[:]
     if "ALL" in Color_set_to_test_availability:
         Color_set_to_test_availability.remove("ALL")
+    if "FETCH" in Color_set_to_test_availability:
+        Color_set_to_test_availability.remove("FETCH")
     Color_set_to_test_availability.remove("Other")
 
     for sample_size in range( lower_range, higher_range ):
@@ -145,10 +147,14 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
         for round in range(repertitions ):
         
             sample_deck = deck[:]
+            #sample_deck[ 0 ] = "FETCH"
+            #sample_deck[ 1 ] = "FETCH"
+            #sample_deck[ 2 ] = "FETCH"
+            #print( sample_deck)
             #Color_count = Color_count_base.copy()
             MC_Sample = SamplingDraw.choice(sample_deck, size=sample_size, replace=False)
             #For testing!!!!!!!Testing Fetch repalcing function
-            MC_Sample[0]="FETCH"
+            #MC_Sample[0]="FETCH"
 
 
             Card_counts = Count_categories( Sample=MC_Sample )
@@ -160,18 +166,22 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
             #Count Colors
             #Counte Colors function
-            sample_deck, available_colors = count_available_colors( Card_counts, Color_set_to_test_availability, sample_deck )
+            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT" )
+           # proxy = input()
+            available_colors = count_available_colors( Card_counts )
             MC_run_color_count = str( len( available_colors ) )
-
+            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
+          #  proxy = input()
             #Draws untila all colors
             sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, MC_Sample )
-
+            print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
+          # proxy = input()
             if "FETCH" in Card_counts:  #For purpose of other sumulation this would not work for turn 0
                 sample_deck_after_sh, Card_counts = change_Fetch_in_draw( sample_deck = sample_deck_after_sh, draw = Card_counts,  Color_set_to_test_availability = Color_set_to_test_availability, available_colors = available_colors )
 
-                sys.exit()
+                #sys.exit()
             #turn_file_path = Path("022_turns_until_all_colors__{}__dual_lands__MC_simulation.txt".format(colors))
-            turn_file_path = Path("022_turns_until_all_colors__{}__allcolor_lands__MC_simulation.txt".format(colors))
+            turn_file_path = Path("024_turns_until_all_colors__{}__fetch_lands__MC_simulation.txt".format(colors))
             if (not turn_file_path.exists() or Trial_count == 0) and round == 0:
                 print("File does not exists")
                 OUT = open( turn_file_path, "w")
@@ -185,13 +195,21 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
                     turn +=1
                     Next_draw = SamplingDraw.choice(sample_deck_after_sh, size=1, replace=False)
+                    #Next_draw = ["FETCH"]
                     #print( len( sample_deck_after_sh), "Before")
                     sample_deck_after_sh = Adjust_deck_by_sample( sample_deck_after_sh, Next_draw )
                     #print( len( sample_deck_after_sh), "After")
+                    if "FETCH" in Next_draw:  #For purpose of other sumulation this would not work for turn 0
+                        print( Next_draw, "BEFORE" )
+                        sample_deck_after_sh, Next_draw = change_Fetch_in_draw( sample_deck = sample_deck_after_sh, draw = Next_draw,  Color_set_to_test_availability = Color_set_to_test_availability, available_colors = available_colors )
+                        print( len(sample_deck_after_sh ), "sample_deck_after_sh")
+                        print( Next_draw, "AFTER" )
+                        #sys.exit()
+
                     #proxy = input()
                     for card in Next_draw:
                         Card_counts[str(card)] = Card_counts.get(str(card),0)+1
-                    sample_deck_after_sh, available_colors = count_available_colors( Card_counts, Color_set_to_test_availability, sample_deck_after_sh )
+                    available_colors = count_available_colors( Card_counts )
                     MC_run_color_count = str( len( available_colors ) )
                     
                     #print( turn, MC_run_color_count, Next_draw, Card_counts )
@@ -225,18 +243,27 @@ def Adjust_deck_by_sample( sample_deck, past_draws ):
 def change_Fetch_in_draw( sample_deck, draw,  Color_set_to_test_availability, available_colors = [] ):
     #looks into draw and counts the FETCH,
     print( draw )
-    if type(draw) not Counter:
+    if type(draw) != Counter:
         draw = Counter(draw)
     print( draw )
-    proxy = input()
+    #proxy = input()
     Count_fetch = draw["FETCH"]
-    proxy = input()
+    if type(Color_set_to_test_availability) != set:
+        print( Color_set_to_test_availability )
+        Color_set_to_test_availability = set(Color_set_to_test_availability)
+        print( Color_set_to_test_availability )
+
+    #proxy = input()
     draw.pop("FETCH", None)#removes FETCH
 
     if not available_colors:
-        available_colors = count_available_colors( draw, Color_set_to_test_availability, sample_deck )
-
+        available_colors = count_available_colors( draw )
+    if type(available_colors) != set:
+        print( available_colors, "ERROROOROROROOR" )
+        available_colors = set(available_colors)
     #looks at available colors, defines missing colors
+    print( type(Color_set_to_test_availability) )
+    print( type(available_colors), "available_colors" )
     missing_colors = Color_set_to_test_availability-available_colors
     print( missing_colors, available_colors )
 
@@ -246,23 +273,29 @@ def change_Fetch_in_draw( sample_deck, draw,  Color_set_to_test_availability, av
         draw[ color ] = 1
         print( len(sample_deck))
         #remove from deck
-        sample_deck.remove(color)
+        try:
+            sample_deck.remove(color)
+        except:
+            print( sample_deck )
+            print("OHH NO")
+            print( color )
+            sys.exit()
         print( len(sample_deck))
-        proxy = input()
-        Counter_fetch -= 1
-        if Counter_fetch == 0:
+        #proxy = input()
+        Count_fetch -= 1
+        if Count_fetch == 0:
             return( sample_deck, draw )
-        print( Counter_fetch, "Counter_fetch")
-        proxy = input()
-        pass
+        print( Count_fetch, "Counter_fetch")
+        #proxy = input()
+
     #for fetches where all colors are available
     for i in range(Count_fetch):
         #get random color
-        color = random.choice(tuple(Color_set_to_test_availability))
+        color = SamplingDraw.choice(list(Color_set_to_test_availability))
         #remove from deck
         sample_deck.remove(color)
-        print( Counter_fetch, "Counter_fetch")
-        proxy = input()
+        print( Count_fetch, "Counter_fetch")
+        #proxy = input()
         #pass
 
     return( sample_deck, draw )
@@ -366,7 +399,7 @@ def add_colors_from_all_color_land( Fetch_land_count, colors_present, colors_pos
         print( deck )
         deck.remove( color )
         print( len( deck), "After")
-        proxy = input()
+        #proxy = input()
         colors_present.add( color )
         #print( colors_present, "colors_present" )
         #proxy = input()
@@ -374,7 +407,7 @@ def add_colors_from_all_color_land( Fetch_land_count, colors_present, colors_pos
     print( colors_present)
     return( deck, colors_present )
 
-def count_available_colors(counter, Color_set_to_test_availability, deck = []):
+def count_available_colors(counter):
     #Counts available colors. Uses different decisions for different keys.
     available_colors = set()
     #All_present_checked = False
@@ -402,7 +435,7 @@ def count_available_colors(counter, Color_set_to_test_availability, deck = []):
         pass
         #deck, available_colors = add_colors_from_all_color_land( Fetch_land_count = Fetch_land_count, colors_present = available_colors, colors_possible = set(Color_set_to_test_availability), deck = deck)
 
-    return deck, available_colors
+    return available_colors
 
 #def create_dual_land_categories( basics ):
 

@@ -43,7 +43,7 @@ global Decksize
 Decksize = 99
 #Number of Simulations, duh
 global Simulations
-Simulations = 10000
+Simulations = 1000
 #The limit of lands so that a mulligan is not necessary
 global Mulligan_limit
 Mulligan_limit = 2
@@ -52,12 +52,6 @@ global Save_Monte_Carlo
 Save_Monte_Carlo = False
 
 ################################################################################################
-
-#Add fetch land adding function
-#Add funcitonality to look for FETCH when looking for categories.
-#Add checker and changer for deck
-
-#Other approach is to directly fix FETCH in draws, if it works, remove deck functionality from color counting functions for FETCHEs
 
 def main():
 
@@ -89,12 +83,13 @@ def main():
 
         #Updated_land_base = add_fetch_land_to_land_base(Basic_color_land_base = Basic_count.copy(), lands_to_add = Dual_trial)#Dual trial is only a proxy for number of lands to add.
         #Updated_land_base = Add_other_category(counter = Updated_land_base)
-        #print( Updated_land_base, "Updated_land_base")
+        #print( Updated_duals, "Updated_land_base")
 
+        #print( Basic_count, "Basic_count")
         Updated_land_base = add_colorless_land_to_land_base(Basic_color_land_base = Basic_count.copy(), lands_to_add = Dual_trial)#Colorless trial is only a proxy for number of lands to add.
         Updated_land_base = Add_other_category(counter = Updated_land_base)
-        print( Updated_land_base, "Updated_land_base")
-
+        #print( Updated_land_base, "Updated_land_base")
+        #proxy = input()
 
         #Start tinkering
         Updated_land_base_keys = sorted([str(ele) for ele in list( Updated_land_base.keys() )])
@@ -107,7 +102,6 @@ def main():
         for run in number_drawn_run:
             print( run, "RUNNNN")
             Color_count = Sample_runs_2_color_count[ run ]
-            #Counts = sorted( list( Color_count.keys() ))
             for count in Different_probabilities_numbers:
                 print( "\t".join([ str(ele) for ele in [Dual_trial, run, count, Color_count.get( count, 0 ) ] ]), file=SAVE )
     SAVE.close()
@@ -154,8 +148,6 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
             #Count Colors
             #Counte Colors function
-            #print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT" )
-           # proxy = input()
             available_colors = count_available_colors( Card_counts )
             MC_run_color_count = str( len( available_colors ) )
             #print( Color_set_to_test_availability, "Color_set_to_test_availability TESTTTTTTTT2222" )
@@ -183,29 +175,25 @@ def Monte_carlo_simulation( repertitions, deck, Category_identities, Starting_ha
 
                     turn +=1
                     Next_draw = SamplingDraw.choice(sample_deck_after_sh, size=1, replace=False)
-                    #Next_draw = ["FETCH"]
-                    #print( len( sample_deck_after_sh), "Before")
+
                     sample_deck_after_sh = Adjust_deck_by_sample( sample_deck_after_sh, Next_draw )
-                    #print( len( sample_deck_after_sh), "After")
+
                     if "FETCH" in Next_draw:  #For purpose of other sumulation this would not work for turn 0
                         print( Next_draw, "BEFORE" )
                         sample_deck_after_sh, Next_draw = change_Fetch_in_draw( sample_deck = sample_deck_after_sh, draw = Next_draw,  Color_set_to_test_availability = Color_set_to_test_availability, available_colors = available_colors )
                         print( len(sample_deck_after_sh ), "sample_deck_after_sh")
                         print( Next_draw, "AFTER" )
-                        #sys.exit()
 
-                    #proxy = input()
+
                     for card in Next_draw:
                         Card_counts[str(card)] = Card_counts.get(str(card),0)+1
                     available_colors = count_available_colors( Card_counts )
                     MC_run_color_count = str( len( available_colors ) )
-                    
-                    #print( turn, MC_run_color_count, Next_draw, Card_counts )
+
             print_list = [str(ele) for ele in [ Trial_count, colors, round, turn, Mulligan_necessary  ] ]
 
             print( "\t".join(print_list), file = OUT)
             Color_count[ MC_run_color_count ] = Color_count.get( MC_run_color_count, 0 )+1
-            #print( "Color_count", Color_count )
     
         Sample_runs_2_color_count[ sample_size ] = Color_count
         OUT.close()
@@ -234,14 +222,13 @@ def change_Fetch_in_draw( sample_deck, draw,  Color_set_to_test_availability, av
     if type(draw) != Counter:
         draw = Counter(draw)
     print( draw )
-    #proxy = input()
+
     Count_fetch = draw["FETCH"]
     if type(Color_set_to_test_availability) != set:
         print( Color_set_to_test_availability )
         Color_set_to_test_availability = set(Color_set_to_test_availability)
         print( Color_set_to_test_availability )
 
-    #proxy = input()
     draw.pop("FETCH", None)#removes FETCH
 
     if not available_colors:
@@ -265,16 +252,15 @@ def change_Fetch_in_draw( sample_deck, draw,  Color_set_to_test_availability, av
             sample_deck.remove(color)
         except:
             print( sample_deck )
-            print("OHH NO")
+            print("OHH NO could not remove color category!")
             print( color )
             sys.exit()
-        print( len(sample_deck))
-        #proxy = input()
+        print( len(sample_deck) )
+
         Count_fetch -= 1
         if Count_fetch == 0:
             return( sample_deck, draw )
         print( Count_fetch, "Counter_fetch")
-        #proxy = input()
 
     #for fetches where all colors are available
     for i in range(Count_fetch):
@@ -283,8 +269,6 @@ def change_Fetch_in_draw( sample_deck, draw,  Color_set_to_test_availability, av
         #remove from deck
         sample_deck.remove(color)
         print( Count_fetch, "Counter_fetch")
-        #proxy = input()
-        #pass
 
     return( sample_deck, draw )
 
@@ -395,8 +379,7 @@ def create_dual_land_categories( basics ):
 def add_colors_from_all_color_land( Fetch_land_count, colors_present, colors_possible = set(["1","2","3","4","5"]), deck=[]):
     #all_color_land_count fo r all color lands. FOr this version if the script only focus on Fetch lands
     for i in range(Fetch_land_count):
-        #print( colors_present, "colors_present" )
-        #proxy = input()
+
         if colors_possible == colors_present:
             return( colors_present )
         missing_colors = colors_possible - colors_present
@@ -407,10 +390,8 @@ def add_colors_from_all_color_land( Fetch_land_count, colors_present, colors_pos
         print( deck )
         deck.remove( color )
         print( len( deck), "After")
-        #proxy = input()
         colors_present.add( color )
-        #print( colors_present, "colors_present" )
-        #proxy = input()
+
     print( deck )
     print( colors_present)
     return( deck, colors_present )
@@ -418,15 +399,10 @@ def add_colors_from_all_color_land( Fetch_land_count, colors_present, colors_pos
 def count_available_colors(counter):
     #Counts available colors. Uses different decisions for different keys.
     available_colors = set()
-    #All_present_checked = False
     Fetch_presentchecked = False
     for key in counter.keys():
-        if key == "Other":
+        if key == "Other" or key == "COLORLESS":
             continue
-        #if key == "ALL" and not All_present_checked:
-        #    All_color_land_count = counter["ALL"]
-            #available_colors = add_colors_from_all_color_land( all_color_land_count = All_color_land_count, colors_present = available_colors, colors_possible = set(Color_set_to_test_availability))
-        #    All_present_checked = True
 
         if key == "FETCH" and not Fetch_presentchecked:
             Fetch_land_count = counter["FETCH"]
@@ -439,14 +415,8 @@ def count_available_colors(counter):
 
             for color in colors:
                 available_colors.add(color)
-    if Fetch_presentchecked:     #All_present_checked:
-        pass
-        #deck, available_colors = add_colors_from_all_color_land( Fetch_land_count = Fetch_land_count, colors_present = available_colors, colors_possible = set(Color_set_to_test_availability), deck = deck)
 
     return available_colors
-
-#def create_dual_land_categories( basics ):
-
 
 
 def distribute_land_count(counter, land_count):
@@ -503,7 +473,6 @@ def Are_all_basics_present( Categories, Counts ):
 def Count_categories( Sample ):
     return( dict(Counter(Sample)) )
 
-
 def form_deck( combinations ):
     Category_identities = list( combinations.keys() )
     deck = []
@@ -535,8 +504,7 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
     else:
         land_combinations = [ Basic_count[category] for category in Basics]
     land_combinations.append( Population-Land_count )
-    
-    #print(land_combinations )
+
     return( land_combinations )
 
 

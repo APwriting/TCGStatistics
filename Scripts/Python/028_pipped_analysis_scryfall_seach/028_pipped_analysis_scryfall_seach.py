@@ -4,6 +4,7 @@
 
 import requests
 import sys
+import time
 
 ################################################################################################
 
@@ -18,7 +19,7 @@ def main():
     query = "name:avatar"
 
     query_color_pattern = "\\{INSERT_COLOR\\}"
-    scry_fall_template = "mana:/^(?:\\{[0-9]+\\})?INSERT_PIPS$/"
+    scry_fall_template = "mana:/^(?:\\{[0-9]+\\})?INSERT_PIPS$/ game:paper"
     Colors = ["W", "U" , "B", "R", "G" ]
 
     OUT = open("028_results_colored_pips_scryfall_search.txt", "w")
@@ -42,6 +43,39 @@ def main():
             print( "\t".join(result_list), file = OUT)
             #sys.exit()
     OUT.close()
+
+    OUT = open("028_results__by_year__colored_pips_scryfall_search.txt", "w")
+    print( "Year\tPips\tresults", file = OUT)
+    for year in range(2018, 2027):  #start 1993
+
+        yearly_base_pattern = scry_fall_template + " is:firstprint format:commander year:{}".format(year)
+
+        pip_number2count = dict()
+
+        for color in Colors:
+            color_search_pattern = query_color_pattern.replace(  "INSERT_COLOR", color )
+            for i in range(2,7):
+                total_color_search_pattern = color_search_pattern*i
+                print( total_color_search_pattern )
+                scryfall_search_pattern = yearly_base_pattern.replace( "INSERT_PIPS",total_color_search_pattern )
+                print( scryfall_search_pattern )
+                #scryfall_result = number_of_cards(search_query = scryfall_search_pattern)
+                try:
+                    scryfall_result = number_of_cards(search_query = scryfall_search_pattern)
+                except:
+                    scryfall_result = 0
+                print( scryfall_result, "TESTTT")
+                pip_number2count[ i ] = pip_number2count.get( i, 0 ) + scryfall_result
+        print( pip_number2count, "Test")
+        proxy = input()
+        for i in range( 2,7 ):
+            result_list = [ str(year), str(i), str(pip_number2count[ i ]) ]
+            print( "\t".join(result_list), file = OUT)
+
+    
+
+    OUT.close()
+
     return(1)
     #sys.exit()
 
@@ -63,6 +97,7 @@ def main():
 ################################################################################################
 
 def number_of_cards(search_query):
+    time.sleep(0.1)
     url = "https://api.scryfall.com/cards/search"
 
     headers = {

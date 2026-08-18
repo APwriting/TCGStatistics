@@ -46,7 +46,7 @@ def main():
 
     OUT = open("028_results__by_year__colored_pips_scryfall_search.txt", "w")
     print( "Year\tPips\tresults", file = OUT)
-    for year in range(2018, 2027):  #start 1993
+    for year in range(1993, 2027):  #start 1993
 
         yearly_base_pattern = scry_fall_template + " is:firstprint format:commander year:{}".format(year)
 

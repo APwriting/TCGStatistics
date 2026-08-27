@@ -63,7 +63,6 @@ def main():
 
 
     Starting_hand_all_basics = dict()
-    All_basics_after_draws = dict()#counts the one, where after certain draws all basics were represented.
     turns_until_all_colors = list()
     for round in range(Simulations):
 
@@ -77,7 +76,6 @@ def main():
             Starting_hand_all_basics[ Mulligan_necessary ] = Starting_hand_all_basics.get( Mulligan_necessary, 0 )+1
         else:
             All_basics_present = Are_all_basics_present( Categories = Category_identities, Counts = Card_counts )
-            #print( round,  land_combinations, Starting_hand_sample, Card_counts, All_basics_present )
             Starting_hand_all_basics[ All_basics_present ] = Starting_hand_all_basics.get( All_basics_present, 0 )+1
             #check if with extra draws the thing would be present.
             if not All_basics_present:
@@ -104,8 +102,6 @@ def main():
                 turns_until_all_colors.append( 0 )
                 if Save_Monte_Carlo:
                     print(  "\t".join( [ str(Total_runs),"0",str(current_colors) ] ) ,file=SAVE)
-
-    #SAVE.close()
 
     Average_number_of_turns = sum(turns_until_all_colors)/len(turns_until_all_colors)
 
@@ -161,8 +157,6 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
     #returns the combination distribution of basic lands, given how many colors are there.
     #Adds all the non lands at the end
     #Adjusts for previous draw combinations
-
-    #Uses dictionaries
     
     Basics = [ category for category in sorted(list(Basic_count.keys()))]
 
@@ -176,13 +170,11 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
         Population -= (non_lands_previous_draw + lands_in_previous_draw)
         
         land_combinations = [ Basic_count[land+1]-int( previous_draw[land]) for land in range(len(Basics))]#dictionary Basiccount starts with 1
-        #print( Basic_count, land_combinations)
         
     else:
         land_combinations = [ Basic_count[category] for category in Basics]
     land_combinations.append( Population-Land_count )
-    
-    #print(land_combinations )
+
     return( land_combinations )
 
 def define_basic_land_count( colors ):

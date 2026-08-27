@@ -82,7 +82,6 @@ def main():
             Starting_hand_all_basics[ Mulligan_necessary ] = Starting_hand_all_basics.get( Mulligan_necessary, 0 )+1
         else:
             All_basics_present = Are_all_basics_present( Categories = Category_identities, Counts = Card_counts )
-            #print( round,  land_combinations, Starting_hand_sample, Card_counts, All_basics_present )
             Starting_hand_all_basics[ All_basics_present ] = Starting_hand_all_basics.get( All_basics_present, 0 )+1
             #check if with extra draws the thing would be present.
             if not All_basics_present:
@@ -90,11 +89,10 @@ def main():
                 sample_deck_after_sh = Adjust_deck_by_sample( sample_deck, Starting_hand_sample )
                 #New draws by previously defiend threshold
                 Next_draw = SamplingDraw.choice(sample_deck_after_sh, size=Adraws, replace=False)
-                #print(Next_draw)
-                #print( "Before",Card_counts )
+
                 for card in Next_draw:
                     Card_counts[str(card)] = Card_counts.get(str(card),0)+1
-                #print( "After",Card_counts )
+
                 All_basics_present = Are_all_basics_present( Categories = Category_identities, Counts = Card_counts )
                 All_basics_after_draws[All_basics_present] = All_basics_after_draws.get(All_basics_present,0)+1
         if Save_Monte_Carlo:
@@ -172,8 +170,6 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
     #returns the combination distribution of basic lands, given how many colors are there.
     #Adds all the non lands at the end
     #Adjusts for previous draw combinations
-
-    #Uses dictionaries
     
     Basics = [ category for category in sorted(list(Basic_count.keys()))]
 
@@ -187,13 +183,11 @@ def return_basicland_combinations( Basic_count, Population = Decksize , Land_cou
         Population -= (non_lands_previous_draw + lands_in_previous_draw)
         
         land_combinations = [ Basic_count[land+1]-int( previous_draw[land]) for land in range(len(Basics))]#dictionary Basiccount starts with 1
-        #print( Basic_count, land_combinations)
         
     else:
         land_combinations = [ Basic_count[category] for category in Basics]
     land_combinations.append( Population-Land_count )
-    
-    #print(land_combinations )
+
     return( land_combinations )
 
 def define_basic_land_count( colors ):

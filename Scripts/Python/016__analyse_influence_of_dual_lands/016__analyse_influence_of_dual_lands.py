@@ -84,38 +84,29 @@ def main():
         for combination in sorted( list(Combination_probabilities_dual.keys())):
 
             Combination_counter = Convert_combination_to_counter( combination = combination, keys= Ordered_keys )
-            #Combination_counter = remove_zeros(Combination_counter)
+
             comb_available_colors = count_available_colors(Combination_counter)
-            #print("comb_available_colors",comb_available_colors)
 
             size_available_colors = len( comb_available_colors )
             probability = Combination_probabilities_dual[ combination ]
             size_percentages_sum[ size_available_colors ] = size_percentages_sum.get( size_available_colors,0 )+probability
-            #print( "\t".join( [c] ) )
-            #proxy = input()
-        #percentages_string = "\t".join( [ str(size_percentages_sum[ key ]) for key in list( size_percentages_sum.keys() )  ] )
         print( Updated_land_base , "TETSTTTT UPDATED LAND BASE")
-        #sys.exit()
+
         print( Updated_land_base)
-        #key_counter = counter_to_string(Updated_land_base)
-        
+
         key_counter = list()
         checking_colors = [ str(i) for i in range(colors+1)]
         for key in Updated_land_base_keys:
             if key in checking_colors:
                 key = int(key)
-            #print( key )
-            #key_counter.append( key )
+
             key_counter.append( str( Updated_land_base[key] ) )
-            #print( key_counter, key, "key_counter")
-            #proxy = input()
+
         for key in Different_probabilities_numbers:
             key_counter.append( str(  size_percentages_sum.get( key, 0)  ) )
         key_counter = "\t".join(key_counter)
         #prepare header
         Header_list = Updated_land_base_keys[:]
-       # for ele in sorted( [str(ele) for ele in list(size_percentages_sum.keys())] ):
-       #     Header_list.append( ele )
         for ele in Different_probabilities_numbers:
             Header_list.append( str(ele) )
         Header = "\t".join( Header_list )
@@ -123,7 +114,7 @@ def main():
         to_write_list.append( "\t".join( [ key_counter ] ) )
 
 ###     ####
-        Available_colors = count_available_colors(Updated_land_base)
+        #Available_colors = count_available_colors(Updated_land_base)
 
     with open( "016_analysis_results_{}_colors_dual_analysis.txt".format( colors ), "w" ) as OUT:
         print( Header, file = OUT )
@@ -157,7 +148,6 @@ def convert_list_counter_to_combinatorics( Counter_list, order = [] ):
 
     comb_list = list()
     for ele in Counter_list:
-        #print( ele)
         combinations = [ ele[key] for key in order]
         comb_list.append( combinations )
     return( comb_list )

@@ -1,0 +1,12 @@
+clusters:
+  - name: deckdata
+    database: postgres
+    version: "17"
+
+  - name: analytics
+    database: postgres
+    version: "16"
+
+  - name: carddata
+    database: postgres
+    version: "17"

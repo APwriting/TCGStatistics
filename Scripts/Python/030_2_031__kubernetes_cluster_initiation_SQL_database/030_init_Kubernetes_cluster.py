@@ -5,10 +5,13 @@
 import subprocess
 import yaml
 
-# Read cluster configuration
-with open("clusters.yaml", "r") as file:
-    config = yaml.safe_load(file)
 
+
+
+# Read cluster configuration
+with open("Kubernetes_cluster_names.yaml", "r") as file:
+    config = yaml.safe_load(file)
+print( config )
 cluster_name = "TCG_data_cluster"
 # Get existing Kubernetes clusters
 result = subprocess.run(

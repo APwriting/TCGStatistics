@@ -11,7 +11,7 @@ from googleapiclient.discovery import build
 #Load here the path to the credentials
 #TODO
 #
-#with open( "cred_path.txt","r") as IN:
+#with open( "path_to_token.txt","r") as IN:
 #   cred_path = 
 
 cred_path = "token.json"

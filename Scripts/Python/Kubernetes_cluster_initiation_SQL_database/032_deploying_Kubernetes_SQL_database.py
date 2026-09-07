@@ -3,6 +3,76 @@ import sys
 from pathlib import Path
 
 
+
+def get_clusters():
+    """Get running PostgreSQL clusters from Kubernetes."""
+
+    result = subprocess.run(
+        ["kubectl", "get", "clusters", "-o", "json"],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print("Could not retrieve PostgreSQL clusters.")
+        print(result.stderr)
+        sys.exit(1)
+
+    data = json.loads(result.stdout)
+
+    # Get cluster names
+    clusters = [
+        cluster["metadata"]["name"]
+        for cluster in data["items"]
+    ]
+
+    # Alphabetical order
+    clusters.sort()
+
+    return clusters
+
+
+# Get running clusters
+clusters = get_clusters()
+
+if not clusters:
+    print("No PostgreSQL clusters found.")
+    sys.exit(0)
+
+
+# Display clusters
+print("Available PostgreSQL clusters:")
+print()
+
+for number, cluster in enumerate(clusters, start=1):
+    print(f"{number}. {cluster}")
+
+print()
+
+# Ask user which cluster to use
+choice = input("Select a cluster: ")
+
+try:
+    choice = int(choice)
+except ValueError:
+    print("Please enter a number.")
+    sys.exit(1)
+
+# Check that selection is valid
+if choice < 1 or choice > len(clusters):
+    print("Invalid selection.")
+    sys.exit(1)
+
+# Get selected cluster
+selected_cluster = clusters[choice - 1]
+
+print()
+print(f"Selected cluster: {selected_cluster}")
+
+
+sys.exit()
+
+
 def kubectl_apply(filename):
     result = subprocess.run(
         ["kubectl", "apply", "-f", str(filename)],

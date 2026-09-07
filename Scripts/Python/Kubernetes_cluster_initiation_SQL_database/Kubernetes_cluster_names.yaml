@@ -5,7 +5,7 @@ clusters:
 
   - name: analytics
     database: postgres
-    version: "16"
+    version: "17"
 
   - name: carddata
     database: postgres

@@ -8,68 +8,38 @@ def get_clusters():
     """Get running PostgreSQL clusters from Kubernetes."""
 
     result = subprocess.run(
-        ["kubectl", "get", "clusters", "-o", "json"],
+        ["kind", "get", "clusters"],
         capture_output=True,
         text=True
     )
 
-    if result.returncode != 0:
-        print("Could not retrieve PostgreSQL clusters.")
-        print(result.stderr)
-        sys.exit(1)
-
-    data = json.loads(result.stdout)
-
-    # Get cluster names
-    clusters = [
-        cluster["metadata"]["name"]
-        for cluster in data["items"]
-    ]
+    existing_clusters = result.stdout.splitlines()
 
     # Alphabetical order
-    clusters.sort()
+    existing_clusters.sort()
 
-    return clusters
+    return existing_clusters
 
 
 # Get running clusters
-clusters = get_clusters()
+existing_clusters = get_clusters()
 
-if not clusters:
+if not existing_clusters:
     print("No PostgreSQL clusters found.")
     sys.exit(0)
 
+existing_clusters.sort()
 
-# Display clusters
-print("Available PostgreSQL clusters:")
-print()
+print("Available Kubernetes clusters:")
 
-for number, cluster in enumerate(clusters, start=1):
+for number, cluster in enumerate(existing_clusters, start=1):
     print(f"{number}. {cluster}")
 
-print()
+choice = int(input("Select a cluster: "))
 
-# Ask user which cluster to use
-choice = input("Select a cluster: ")
+selected_cluster = existing_clusters[choice - 1]
 
-try:
-    choice = int(choice)
-except ValueError:
-    print("Please enter a number.")
-    sys.exit(1)
-
-# Check that selection is valid
-if choice < 1 or choice > len(clusters):
-    print("Invalid selection.")
-    sys.exit(1)
-
-# Get selected cluster
-selected_cluster = clusters[choice - 1]
-
-print()
 print(f"Selected cluster: {selected_cluster}")
-
-
 sys.exit()
 
 

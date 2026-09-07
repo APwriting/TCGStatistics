@@ -40,22 +40,26 @@ choice = int(input("Select a cluster: "))
 selected_cluster = existing_clusters[choice - 1]
 
 print(f"Selected cluster: {selected_cluster}")
-sys.exit()
+#sys.exit()
+##
+#After choosing now deploying the sql files.
 
+def kubectl_apply(filename, cluster):
+    context = f"kind-{cluster}"
 
-def kubectl_apply(filename):
     result = subprocess.run(
-        ["kubectl", "apply", "-f", str(filename)],
+        ["kubectl", "--context", context, "apply", "-f", str(filename)],
         text=True,
         capture_output=True
     )
 
     if result.returncode != 0:
-        print(f"Error applying {filename}:")
+        print(f"Error applying {filename} to cluster '{cluster}':")
         print(result.stderr)
         sys.exit(result.returncode)
 
     print(result.stdout)
+    return 1
 
 
 # Check that Kubernetes is available
@@ -81,10 +85,10 @@ service = script_dir / "postgreSQL_service.yaml"
 
 # Deploy PostgreSQL
 print("Deploying PostgreSQL...")
-kubectl_apply(deployment)
+kubectl_apply(deployment, selected_cluster)
 
 # Create PostgreSQL service
 print("Creating PostgreSQL service...")
-kubectl_apply(service)
+kubectl_apply(service, selected_cluster)
 
 print("\nPostgreSQL deployment complete!")

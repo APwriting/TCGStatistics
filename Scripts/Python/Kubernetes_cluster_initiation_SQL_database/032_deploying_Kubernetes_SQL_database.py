@@ -1,0 +1,50 @@
+import subprocess
+import sys
+from pathlib import Path
+
+
+def kubectl_apply(filename):
+    result = subprocess.run(
+        ["kubectl", "apply", "-f", str(filename)],
+        text=True,
+        capture_output=True
+    )
+
+    if result.returncode != 0:
+        print(f"Error applying {filename}:")
+        print(result.stderr)
+        sys.exit(result.returncode)
+
+    print(result.stdout)
+
+
+# Check that Kubernetes is available
+print("Checking Kubernetes...")
+result = subprocess.run(
+    ["kubectl", "cluster-info"],
+    text=True,
+    capture_output=True
+)
+
+if result.returncode != 0:
+    print("Could not connect to Kubernetes.")
+    print(result.stderr)
+    sys.exit(1)
+
+
+# Find YAML files relative to this Python script
+script_dir = Path(__file__).parent
+
+deployment = script_dir / "postgreSQL_deployment.yaml"
+service = script_dir / "postgreSQL_service.yaml"
+
+
+# Deploy PostgreSQL
+print("Deploying PostgreSQL...")
+kubectl_apply(deployment)
+
+# Create PostgreSQL service
+print("Creating PostgreSQL service...")
+kubectl_apply(service)
+
+print("\nPostgreSQL deployment complete!")

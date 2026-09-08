@@ -21,10 +21,15 @@ def main():
     #############
     #Load here the path to the credentials
     cred_path = ""
+    cred_paths = dict()
     with open( "path_to_token.txt","r") as IN:
         for line in IN:
-            cred_path = line.rstrip()
+            cred_path_parts = line.rstrip().split("\t")
+            Purpose, Type, Path = cred_path_parts
+            if Purpose == "AP_Access":
+                cred_paths[Type] = Path
 
+    cred_path = cred_paths["Credentials"]
 
     print( cred_path )
 

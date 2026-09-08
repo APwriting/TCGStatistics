@@ -7,28 +7,105 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-#############
-#Load here the path to the credentials
-#TODO
-#
-#with open( "path_to_token.txt","r") as IN:
-#   cred_path = 
 
-cred_path = "token.json"
 
 SCOPES = [
     "https://www.googleapis.com/auth/documents.readonly"
 ]
 
 
-def get_google_docs_service():
+
+
+
+def main():
+    #############
+    #Load here the path to the credentials
+    cred_path = ""
+    with open( "path_to_token.txt","r") as IN:
+        for line in IN:
+            cred_path = line.rstrip()
+
+
+    print( cred_path )
+
+    if 0:
+        document_id = input(
+            "Google Docs document ID: "
+        ).strip()
+
+        chapter_title = input(
+            "Chapter heading: "
+        ).strip()
+
+        output_file = input(
+            "Output YAML file [chapter.yaml]: "
+        ).strip()
+    #For testing
+    output_file = "chapter.yaml"
+
+    if not output_file:
+        output_file = "chapter.yaml"
+
+    service = get_google_docs_service( doc_path = cred_path )
+
+
+    doc_path = "https://docs.google.com/document/d/1NqFswFlo4GzQWm7jQnHWE5XQMJhdmPngUEKbMUiM07w/edit?usp=sharing"
+
+
+                                      
+    print("Downloading Google Doc...")
+
+    document = get_document(
+        service,
+        document_id
+    )
+
+    print(
+        f"Document: {document.get('title')}"
+    )
+    sys.exit()
+    chapter = extract_chapter(
+        document,
+        chapter_title
+    )
+
+    if not chapter:
+
+        print(
+            f"Could not find chapter '{chapter_title}'."
+        )
+
+        sys.exit(1)
+
+    save_yaml(
+        chapter,
+        output_file,
+        chapter_title
+    )
+
+    print(
+        f"Chapter exported to {output_file}"
+    )
+
+
+
+
+
+
+
+
+
+#Functions
+
+
+def get_google_docs_service( doc_path ):
     """Authenticate with Google and return the Docs API service."""
 
     creds = None
 
-    if os.path.exists():
+    if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file(
-            cred_path,
+            "token.json",
             SCOPES
         )
 
@@ -39,7 +116,7 @@ def get_google_docs_service():
 
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json",
+                doc_path,
                 SCOPES
             )
 
@@ -225,61 +302,6 @@ def save_yaml(chapter, filename, chapter_title):
             allow_unicode=True,
             sort_keys=False
         )
-
-
-def main():
-
-    document_id = input(
-        "Google Docs document ID: "
-    ).strip()
-
-    chapter_title = input(
-        "Chapter heading: "
-    ).strip()
-
-    output_file = input(
-        "Output YAML file [chapter.yaml]: "
-    ).strip()
-
-    if not output_file:
-        output_file = "chapter.yaml"
-
-    service = get_google_docs_service()
-
-    print("Downloading Google Doc...")
-
-    document = get_document(
-        service,
-        document_id
-    )
-
-    print(
-        f"Document: {document.get('title')}"
-    )
-
-    chapter = extract_chapter(
-        document,
-        chapter_title
-    )
-
-    if not chapter:
-
-        print(
-            f"Could not find chapter '{chapter_title}'."
-        )
-
-        sys.exit(1)
-
-    save_yaml(
-        chapter,
-        output_file,
-        chapter_title
-    )
-
-    print(
-        f"Chapter exported to {output_file}"
-    )
-
 
 if __name__ == "__main__":
     main()

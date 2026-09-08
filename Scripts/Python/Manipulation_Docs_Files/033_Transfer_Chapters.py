@@ -68,6 +68,33 @@ def main():
     print(
         f"Document: {document.get('title')}"
     )
+    print( document.keys())
+    #doc_style = document.get('documentStyle', [])
+    #print( "headers:\n",doc_style )
+
+    #name_style = document.get('namedStyles', [])
+    #print( "headers:\n",name_style )
+
+    #print(
+    num_tabs = len( document.get("tabs"))
+
+    print( len( document.get("tabs")) )
+
+    for i in range( 1,num_tabs ):
+        tab = document.get("tabs")[ i ]
+        print( tab.keys() )
+        print( tab["tabProperties"] )
+        print( tab["documentTab"].keys() )
+        #print( tab["documentTab"]["body"]["content"] )
+        headings = get_headings(tab = tab["documentTab"])
+        print( headings )
+    #for line in document.get("tabs")[0:2]:
+    #    print( line )
+
+
+
+    #print( document.get("body").get("content")[0] )
+
     sys.exit()
     chapter = extract_chapter(
         document,
@@ -103,6 +130,48 @@ def main():
 #Functions
 
 
+
+
+
+def get_headings(tab):
+
+    headings = []
+
+    for element in tab["body"]["content"]:
+
+        if "paragraph" not in element:
+            continue
+
+        paragraph = element["paragraph"]
+
+        style = paragraph.get(
+            "paragraphStyle", {}
+        ).get(
+            "namedStyleType"
+        )
+
+        if style and style.startswith("HEADING_"):
+
+            text = ""
+
+            for elem in paragraph.get("elements", []):
+
+                if "textRun" in elem:
+                    text += elem["textRun"].get(
+                        "content", ""
+                    )
+
+            headings.append({
+                "level": int(style.split("_")[1]),
+                "text": text.strip(),
+                "startIndex": element["startIndex"],
+                "endIndex": element["endIndex"]
+            })
+
+    return headings
+
+
+
 def get_google_docs_service( doc_path, token ):
     """Authenticate with Google and return the Docs API service."""
 
@@ -136,7 +205,8 @@ def get_google_docs_service( doc_path, token ):
 def get_document(service, document_id):
 
     document = service.documents().get(
-        documentId=document_id
+        documentId=document_id,
+        includeTabsContent=True
     ).execute()
 
     return document

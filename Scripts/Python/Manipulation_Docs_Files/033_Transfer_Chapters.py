@@ -30,7 +30,7 @@ def main():
                 cred_paths[Type] = Path
 
     cred_path = cred_paths["Credentials"]
-
+    token_path = cred_paths["Token"]
     print( cred_path )
 
     if 0:
@@ -51,11 +51,11 @@ def main():
     if not output_file:
         output_file = "chapter.yaml"
 
-    service = get_google_docs_service( doc_path = cred_path )
+    service = get_google_docs_service( doc_path = cred_path, token= token_path )
 
 
     doc_path = "https://docs.google.com/document/d/1NqFswFlo4GzQWm7jQnHWE5XQMJhdmPngUEKbMUiM07w/edit?usp=sharing"
-
+    document_id = "1NqFswFlo4GzQWm7jQnHWE5XQMJhdmPngUEKbMUiM07w"
 
                                       
     print("Downloading Google Doc...")
@@ -103,14 +103,14 @@ def main():
 #Functions
 
 
-def get_google_docs_service( doc_path ):
+def get_google_docs_service( doc_path, token ):
     """Authenticate with Google and return the Docs API service."""
 
     creds = None
 
-    if os.path.exists("token.json"):
+    if os.path.exists(token):
         creds = Credentials.from_authorized_user_file(
-            "token.json",
+            token,
             SCOPES
         )
 

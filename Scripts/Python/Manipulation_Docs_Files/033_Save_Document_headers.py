@@ -13,7 +13,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/documents.readonly"
 ]
 
-
+#For this script to work you need a txt file that shows the paths for credentials and tokens.
+#This file is not saved in git and the path is also no in the repository
+#Structure:Purpose\tType\tPath
 
 
 
@@ -21,18 +23,20 @@ def main():
     #############
     #Load here the path to the credentials
     cred_path = ""
-    cred_paths = dict()
+    All_path = dict()
     with open( "path_to_token.txt","r") as IN:
         for line in IN:
             cred_path_parts = line.rstrip().split("\t")
             Purpose, Type, Path = cred_path_parts
-            if Purpose == "AP_Access":
-                cred_paths[Type] = Path
-
+            if Purpose not in All_path and Purpose != "Puspose":
+                All_path[Purpose] = dict()
+            All_path[Purpose][Type] = Path
+    Idents = "\n".join(sorted(list(All_path.keys())))
+    print( f"Found paths to the following DOC Identifier:\n{Idents}")        
+    cred_paths = All_path["AP_Access"]
     cred_path = cred_paths["Credentials"]
     token_path = cred_paths["Token"]
     print( cred_path )
-
     if 0:
         document_id = input(
             "Google Docs document ID: "
@@ -75,25 +79,30 @@ def main():
     #name_style = document.get('namedStyles', [])
     #print( "headers:\n",name_style )
 
-    #print(
     num_tabs = len( document.get("tabs"))
 
     print( len( document.get("tabs")) )
 
-    for i in range( 1,num_tabs ):
-        tab = document.get("tabs")[ i ]
-        print( tab.keys() )
+    #Save tabs
+    Doc_name = "AP_Access"
+    Tabs = document.get("tabs")
+    TABS = open( "Exisitng_tabs_for_each_document.txt", "w")
+    print( "Doc_name\ttabID\tTab_title\tTav_Index\tHeader_level\tHeader_title\tStart\tEnd", file=TABS)
+    #HEADRERS = open( "Exisitng_Header_for_each_document.txt", "w")
+    for tab_number in range( num_tabs ):
+        tab = Tabs[ tab_number ]
         print( tab["tabProperties"] )
-        print( tab["documentTab"].keys() )
-        #print( tab["documentTab"]["body"]["content"] )
+        tab_prop =  tab["tabProperties"]
+        #value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]) ]
+        #print( "\t".join(value_list), file = TABS )
         headings = get_headings(tab = tab["documentTab"])
         print( headings )
-    #for line in document.get("tabs")[0:2]:
-    #    print( line )
+        for header in headings:
+            value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"] ) ]
+            print( "\t".join(value_list), file = TABS )
 
 
-
-    #print( document.get("body").get("content")[0] )
+    TABS.close()
 
     sys.exit()
     chapter = extract_chapter(

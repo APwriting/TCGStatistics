@@ -28,78 +28,62 @@ def main():
         for line in IN:
             cred_path_parts = line.rstrip().split("\t")
             Purpose, Type, Path = cred_path_parts
-            if Purpose not in All_path and Purpose != "Puspose":
-                All_path[Purpose] = dict()
-            All_path[Purpose][Type] = Path
-    Idents = "\n".join(sorted(list(All_path.keys())))
-    print( f"Found paths to the following DOC Identifier:\n{Idents}")        
+            if Purpose != "Purpose":
+                if Purpose not in All_path:
+                    All_path[Purpose] = dict()
+                All_path[Purpose][Type] = Path
+    Documents = sorted( list( All_path.keys() ) )
+    #Idents = "\n".join(sorted(list(All_path.keys())))
+    print( f"Found paths to the following DOC Identifier:\n{Documents}")        
     cred_paths = All_path["AP_Access"]
-    cred_path = cred_paths["Credentials"]
-    token_path = cred_paths["Token"]
-    print( cred_path )
-    if 0:
-        document_id = input(
-            "Google Docs document ID: "
-        ).strip()
-
-        chapter_title = input(
-            "Chapter heading: "
-        ).strip()
-
-        output_file = input(
-            "Output YAML file [chapter.yaml]: "
-        ).strip()
-    #For testing
-    output_file = "chapter.yaml"
-
-    if not output_file:
-        output_file = "chapter.yaml"
-
-    service = get_google_docs_service( doc_path = cred_path, token= token_path )
-
-
-    doc_path = "https://docs.google.com/document/d/1NqFswFlo4GzQWm7jQnHWE5XQMJhdmPngUEKbMUiM07w/edit?usp=sharing"
-    document_id = "1NqFswFlo4GzQWm7jQnHWE5XQMJhdmPngUEKbMUiM07w"
-
-                                      
-    print("Downloading Google Doc...")
-
-    document = get_document(
-        service,
-        document_id
-    )
-
-    print(
-        f"Document: {document.get('title')}"
-    )
-    print( document.keys())
-    #doc_style = document.get('documentStyle', [])
-    #print( "headers:\n",doc_style )
-
-    #name_style = document.get('namedStyles', [])
-    #print( "headers:\n",name_style )
-
-    num_tabs = len( document.get("tabs"))
-
-    print( len( document.get("tabs")) )
-
-    #Save tabs
-    Doc_name = "AP_Access"
-    Tabs = document.get("tabs")
+    #Documents.remove("Purpose")
     TABS = open( "Exisitng_tabs_for_each_document.txt", "w")
     print( "Doc_name\ttabID\tTab_title\tTav_Index\tHeader_level\tHeader_title\tStart\tEnd", file=TABS)
-    #HEADRERS = open( "Exisitng_Header_for_each_document.txt", "w")
-    for tab_number in range( num_tabs ):
-        tab = Tabs[ tab_number ]
-        print( tab["tabProperties"] )
-        tab_prop =  tab["tabProperties"]
-        #value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]) ]
-        #print( "\t".join(value_list), file = TABS )
-        headings = get_headings(tab = tab["documentTab"])
-        print( headings )
-        for header in headings:
-            value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"] ) ]
-            print( "\t".join(value_list), file = TABS )
+    for DOCS_ID in Documents:
+        print( f"Looking at {DOCS_ID} now")
+        cred_paths = All_path[DOCS_ID]
+
+        cred_path = cred_paths["Credentials"]
+        token_path = cred_paths["Token"]
+        print( cred_path )
+
+
+        service = get_google_docs_service( doc_path = cred_path, token= token_path )
+
+        document_id = cred_paths["ID"]                    
+        print("Downloading Google Doc...")
+
+        document = get_document(
+            service,
+            document_id
+        )
+
+        print(
+            f"Document: {document.get('title')}"
+        )
+        print( document.keys())
+
+        num_tabs = len( document.get("tabs"))
+
+        print( len( document.get("tabs")) )
+
+        #Save tabs and headers
+        Doc_name = DOCS_ID
+        Tabs = document.get("tabs")
+
+        
+        #HEADRERS = open( "Exisitng_Header_for_each_document.txt", "w")
+        for tab_number in range( num_tabs ):
+            tab = Tabs[ tab_number ]
+            print( tab["tabProperties"] )
+            tab_prop =  tab["tabProperties"]
+            #value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]) ]
+            #print( "\t".join(value_list), file = TABS )
+            headings = get_headings(tab = tab["documentTab"])
+            print( headings )
+            for header in headings:
+                value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"] ) ]
+                print( "\t".join(value_list), file = TABS )
 
 
     TABS.close()
@@ -191,6 +175,7 @@ def get_google_docs_service( doc_path, token ):
             token,
             SCOPES
         )
+        print("Got Token from path...")
 
     if not creds or not creds.valid:
 

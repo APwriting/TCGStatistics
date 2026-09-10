@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 
 
 SCOPES = [
-    "https://www.googleapis.com/auth/documents.readonly"
+    "https://www.googleapis.com/auth/documents"
 ]
 
 

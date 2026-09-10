@@ -36,7 +36,7 @@ def main():
     #Idents = "\n".join(sorted(list(All_path.keys())))
     print( f"Found paths to the following DOC Identifier:\n{Documents}")        
     cred_paths = All_path["AP_Access"]
-    #Documents.remove("Purpose")
+
     TABS = open( "Exisitng_tabs_for_each_document.txt", "w")
     print( "Doc_name\ttabID\tTab_title\tTav_Index\tHeader_level\tHeader_title\tStart\tEnd", file=TABS)
     for DOCS_ID in Documents:
@@ -71,16 +71,13 @@ def main():
         Doc_name = DOCS_ID
         Tabs = document.get("tabs")
 
-        
-        #HEADRERS = open( "Exisitng_Header_for_each_document.txt", "w")
         for tab_number in range( num_tabs ):
             tab = Tabs[ tab_number ]
-            print( tab["tabProperties"] )
+            ##print( tab["tabProperties"] )
             tab_prop =  tab["tabProperties"]
-            #value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]) ]
-            #print( "\t".join(value_list), file = TABS )
+
             headings = get_headings(tab = tab["documentTab"])
-            print( headings )
+            #print( headings )
             for header in headings:
                 value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"] ) ]
                 print( "\t".join(value_list), file = TABS )
@@ -114,16 +111,7 @@ def main():
 
 
 
-
-
-
-
-
-
 #Functions
-
-
-
 
 
 def get_headings(tab):
@@ -179,6 +167,8 @@ def get_google_docs_service( doc_path, token ):
 
     if not creds or not creds.valid:
 
+        print(f"Cred validity: {creds.valid}")
+
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
 
@@ -190,8 +180,8 @@ def get_google_docs_service( doc_path, token ):
 
             creds = flow.run_local_server(port=0)
 
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
 
     return build("docs", "v1", credentials=creds)
 

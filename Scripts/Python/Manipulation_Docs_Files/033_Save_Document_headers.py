@@ -25,6 +25,7 @@ def main():
     cred_path = ""
     All_path = dict()
     with open( "path_to_token.txt","r") as IN:
+        header = IN.readline()
         for line in IN:
             cred_path_parts = line.rstrip().split("\t")
             Purpose, Type, Path = cred_path_parts

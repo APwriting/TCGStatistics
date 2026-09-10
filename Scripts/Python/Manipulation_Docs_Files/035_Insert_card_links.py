@@ -59,8 +59,8 @@ def get_google_docs_service( doc_path, token ):
 
             creds = flow.run_local_server(port=0)
 
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
 
     return build("docs", "v1", credentials=creds)
 

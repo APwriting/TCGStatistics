@@ -99,7 +99,7 @@ def main():
     for Chapter in Chapters_listed:
         Orig_ID = Chapters_to_transfer[ Chapter ][0]
         Sink_ID = Chapters_to_transfer[ Chapter ][1]
-        print( chapter_positions[Orig_ID][ Chapter ] )
+        print( "Chapter_data:\t", chapter_positions[Orig_ID][ Chapter ] )
         tabs_and_headers_Sink = Tabs_and_header_infos[Sink_ID]
         tabs_and_headers_Orig = Tabs_and_header_infos[Orig_ID]
         tabs_orig = get_tabs_for_chapter(tabs_dict = tabs_and_headers_Orig, Chapter = Chapter)
@@ -118,8 +118,19 @@ def main():
         #Get the chapter text
         #print( list(Documents[Orig_ID].keys()) )
         Tab = get_tab_by_name(document = Documents[Orig_ID], tab_name = tabs_orig)
+        properties = Tab.get("tabProperties", {})
+        tabID = properties.get("tabId")
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
         print(Chapter_text)
+        #tab_ID = get_tab_id_by_name(document =  Documents[Orig_ID], tab_name = tabs_orig)
+        if Chapters_to_transfer:
+            Chapter_insert = chapter_positions[Orig_ID][ Chapter ][1]
+            insert_chapter_into_document( service = service,
+                document_id = All_path[Sink_ID]["ID"],
+                tab_id = tabID,
+                chapter = Chapter_text,
+                insert_index = Chapter_insert
+            )
 
 
 
@@ -135,6 +146,105 @@ def main():
 
 ########
 #Functions
+
+def get_tab_id_by_name(document, tab_name):
+    """
+    Find the Google Docs tab ID from its tab title.
+    """
+
+    for tab in document.get("tabs", []):
+
+        properties = tab.get("tabProperties", {})
+
+        if properties.get("title") == tab_name:
+            return properties.get("tabId")
+
+        # Check nested tabs
+        child_id = get_tab_id_by_name(
+            {"tabs": tab.get("childTabs", [])},
+            tab_name
+        )
+
+        if child_id is not None:
+            return child_id
+
+    return None
+
+def insert_chapter_into_document(
+    service,
+    document_id,
+    tab_id,
+    chapter,
+    insert_index
+):
+    """
+    Insert a structured chapter into an existing Google Docs tab
+    without deleting existing content.
+
+    Parameters
+    ----------
+    service :
+        Authenticated Google Docs API service.
+
+    document_id : str
+        ID of the destination Google Document.
+
+    tab_id : str
+        ID of the destination tab.
+
+    chapter : dict
+        Structured chapter returned by get_chapter_structured().
+
+    insert_index : int
+        Position in the destination document where the chapter
+        should be inserted.
+
+    Returns
+    -------
+    dict
+        Response from Google Docs batchUpdate().
+    """
+
+    requests = []
+
+    # Build the text that will be inserted
+    text = ""
+
+    for element in chapter["elements"]:
+
+        if element["type"] == "heading":
+            text += element["text"] + "\n"
+
+        elif element["type"] == "paragraph":
+            text += element["text"] + "\n"
+
+        elif element["type"] == "table":
+            # Basic text representation for now
+            for row in element["rows"]:
+                text += "\t".join(row) + "\n"
+
+            text += "\n"
+
+    # Insert everything at the requested position
+    requests.append({
+        "insertText": {
+            "location": {
+                "index": insert_index,
+                "tabId": tab_id
+            },
+            "text": text
+        }
+    })
+
+    response = service.documents().batchUpdate(
+        documentId=document_id,
+        body={
+            "requests": requests
+        }
+    ).execute()
+
+    return response
+
 
 def get_tab_by_name(document, tab_name):
     """

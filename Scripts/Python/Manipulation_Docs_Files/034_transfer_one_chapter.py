@@ -14,12 +14,6 @@ SCOPES = [
 ]
 
 
-#Looks up a file where chapters are presented that are supposed to be transfered.
-
-#Looks up chapters that are in between both files
-
-#If necessary establishes the presence of the same tabs.
-
 #Starts a transfer of the data from one chapter to the next.
 def main():
 
@@ -35,7 +29,7 @@ def main():
                 if Purpose not in All_path:
                     All_path[Purpose] = dict()
                 All_path[Purpose][Type] = Path
-    Documents = sorted( list( All_path.keys() ) )
+    Documents_IDs = sorted( list( All_path.keys() ) )
 
     #Load information about chapters
     chapter_positions = dict()

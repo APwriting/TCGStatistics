@@ -60,7 +60,7 @@ def main():
             else:
                 Original_presence = chapter_positions[Original].get(Chapter_Header_name,0)
                 assert Original_presence
-                Copy_presence = chapter_positions[Copy].get(Chapter_Header_name,0)
+                Copy_presence = chapter_positions[Copy].get(Chapter_name,0)
                 if not (Original_presence and Copy_presence ):
                     Chapters_to_transfer[Chapter_name] = (Original,Copy)
                     Docs_to_load.add(Original)

@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 
 
 SCOPES = [
-    "https://www.googleapis.com/auth/documents.readonly"
+    "https://www.googleapis.com/auth/documents"
 ]
 
 
@@ -37,8 +37,20 @@ def main():
                 All_path[Purpose][Type] = Path
     Document_IDs = sorted( list( All_path.keys() ) )
 
-    #Load information about chapters to insert links
+    #Load information about chapters
     chapter_positions = dict()
+    with open( "Exisitng_tabs_for_each_document.txt","r") as IN:
+        header = IN.readline()
+        for line in IN:
+            elements = line.rstrip().split("\t")
+            Doc_ID = elements[0]
+            TabID = elements[2]
+            Chapter_Header_name = elements[5]
+            Chapter_start = elements[6]
+            Chapter_end = elements[7]
+            if Doc_ID not in chapter_positions:
+                chapter_positions[Doc_ID] = dict()
+            chapter_positions[Doc_ID][Chapter_Header_name] = [ TabID, Chapter_start, Chapter_end ]
     #Read which chapters to transfer.
     Chapters_to_transfer = dict()
     Docs_to_load = set()
@@ -50,7 +62,10 @@ def main():
                 Chapters_to_transfer[Chapter_name] = Access
                 Docs_to_load.add(Access)
             else:
-                Original_presence = chapter_positions[Access].get(Chapter_Header_name,0)
+                print( chapter_positions[Access] )
+                print( Chapter_Header_name)
+                print( "\n\n")
+                Original_presence = chapter_positions[Access].get(Chapter_name,0)
                 assert Original_presence
                 Chapters_to_transfer[Chapter_name] = Access
                 Docs_to_load.add(Access)
@@ -60,24 +75,31 @@ def main():
 
     #Load the documents
     #Later update to include different Documents
-    print(f"Loading Google Doc {ID}")
+    Access = "AP_Access"
+    print(f"Loading Google Doc {Access}")
     print(list( All_path["AP_Access"].keys()))
     cred_path = All_path["AP_Access"]["Credentials"]
     token_path = All_path["AP_Access"]["Token_write"]
     Document_key_number = All_path["AP_Access"]["ID"]
+    print( Document_key_number )
     print("Downloading Google Doc...")
+    #sys.exit()
     service = get_google_docs_service( doc_path = cred_path, token= token_path )
     Document = get_document(
         service,
         Document_key_number
     )
+    print( f"Finished reading Document {Access}")
     Tabs_and_header_infos = dict()
+    print( Docs_to_load )
     for ID in Docs_to_load:
-        Tabs_and_header_infos[ID] = get_tabs_and_headings(document = Documents[ID])
+        Tabs_and_header_infos[ID] = get_tabs_and_headings(document = Document)
+        print( "Loaded all the Tabs.")
 
 
     #Go through chapters
     for Chapter in Chapters_listed:
+        print( f"Going through {Chapter}...")
         Orig_ID = Chapters_to_transfer[ Chapter ]
 
 
@@ -91,12 +113,17 @@ def main():
 
         #Get the chapter text
 
-        Tab = get_tab_by_name(document = Documents[Orig_ID], tab_name = tabs_orig)
+        Tab = get_tab_by_name(document = Document, tab_name = tabs_orig)
+
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
         print(Chapter_text)
 
-
-
+        #Get all parts with {}
+        #Look inside if they already have a link
+        #Get the card
+        #Get scryfall picture link
+        #Open document for failed searches
+        #insert link
 
 
 
@@ -396,6 +423,42 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
         "chapter": chapter_name,
         "elements": elements
     }
+
+
+
+def get_tabs_for_chapter(tabs_dict, Chapter):
+    """
+    Find all tabs containing a given chapter heading.
+    tabs_dict from get_tabs_and_headings
+
+    Returns: List of tab names containing the chapter.
+    """
+    matching_tabs = []
+
+    for tab_name, headings in tabs_dict.items():
+
+        for heading in headings:
+
+            if heading["text"] == Chapter:
+                matching_tabs.append(tab_name)
+                break
+
+    return matching_tabs
+
+
+def get_tab_by_name(document, tab_name):
+    """
+    Return the documentTab corresponding to a tab title.
+    """
+
+    for tab in document.get("tabs", []):
+
+        properties = tab.get("tabProperties", {})
+
+        if properties.get("title") == tab_name:
+            return tab.get("documentTab")
+
+    return None
 
 
 def get_google_docs_service(doc_path, token):

@@ -114,8 +114,12 @@ def main():
         #Get the chapter text
 
         Tab = get_tab_by_name(document = Document, tab_name = tabs_orig)
-        print( Tab )
+        tab_id = Tab["tabProperties"]["tabId"]
 
+        tab_id = Tab["tabProperties"]["tabId"]  
+        print( tab_id )
+        Tab = Tab["documentTab"]
+        #sys.exit()
 
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
         #print(Chapter_text)
@@ -130,7 +134,27 @@ def main():
             card = get_card(card_name = card_name)
             card_url = card["image_uris"]["normal"]
             print( card_url )
-            (tab_id, Chapter_start, Chapter_end) = chapter_positions[Doc_ID][Chapter_Header_name]
+            (OldTABID, Chapter_start, Chapter_end) = chapter_positions[Orig_ID][Chapter]
+
+            #419#
+            if 0:
+
+                requests = []
+                requests.append({
+                    "deleteContentRange": {
+                        "range": {
+                            "startIndex": 224,
+                            "endIndex": 225,
+                            "tabId": "t.0"
+                        }
+                    }
+                })
+                service.documents().batchUpdate(
+                    documentId=Document_key_number,
+                    body={"requests": requests}
+                ).execute()
+
+            #sys.exit()
             insert_card_links(
                 service = service,
                 document_id = Document_key_number,
@@ -163,6 +187,7 @@ def insert_card_links(
     if type(braced_phrases) != list:
         braced_phrases = [braced_phrases]
 
+    insert_index = int(insert_index)    #Making sure it is int
 
     for item in sorted(
         braced_phrases,
@@ -267,18 +292,8 @@ def get_card(card_name):
     return response.json()
 
 def find_braced_phrases(chapter):
-    """
-    Find all phrases enclosed in { } in a chapter returned by
-    get_chapter_structured().
-
-    Returns a list of dictionaries containing:
-        - phrase: text inside the braces
-        - start: character position in the chapter
-        - end: character position after the closing brace
-    """
 
     results = []
-    position = 0
 
     for element in chapter["elements"]:
 
@@ -286,11 +301,18 @@ def find_braced_phrases(chapter):
             continue
 
         for run in element.get("runs", []):
+
             text = run.get("text", "")
+
+            if not text:
+                continue
+
+            run_start = run["startIndex"]
 
             i = 0
 
             while i < len(text):
+
                 start = text.find("{", i)
 
                 if start == -1:
@@ -303,16 +325,13 @@ def find_braced_phrases(chapter):
 
                 results.append({
                     "phrase": text[start + 1:end],
-                    "start": position + start,
-                    "end": position + end + 1
+
+                    # ACTUAL Google Docs indices
+                    "start": run_start + start,
+                    "end": run_start + end + 1
                 })
 
                 i = end + 1
-
-            position += len(text)
-
-        # Paragraph separator
-        position += 1
 
     return results
 
@@ -492,11 +511,20 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
                     ),
                     "textStyle": text_run.get(
                         "textStyle", {}
-                    ).copy()
+                    ).copy(),
+
+                    # IMPORTANT:
+                    # Preserve the actual Google Docs indices
+                    "startIndex": part.get(
+                        "startIndex"
+                    ),
+                    "endIndex": part.get(
+                        "endIndex"
+                    )
                 })
 
             # ---------------------------------------------
-            # Combine text for identifying headings
+            # Combine text
             # ---------------------------------------------
 
             text = "".join(
@@ -520,7 +548,15 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
                     ),
                     "text": text,
                     "paragraphStyle": paragraph_style,
-                    "runs": runs
+                    "runs": runs,
+
+                    # Preserve paragraph boundaries too
+                    "startIndex": element.get(
+                        "startIndex"
+                    ),
+                    "endIndex": element.get(
+                        "endIndex"
+                    )
                 })
 
             # ---------------------------------------------
@@ -533,7 +569,14 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
                     "type": "paragraph",
                     "text": text,
                     "paragraphStyle": paragraph_style,
-                    "runs": runs
+                    "runs": runs,
+
+                    "startIndex": element.get(
+                        "startIndex"
+                    ),
+                    "endIndex": element.get(
+                        "endIndex"
+                    )
                 })
 
         # =====================================================
@@ -588,12 +631,24 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
                                 ),
                                 "textStyle": text_run.get(
                                     "textStyle", {}
-                                ).copy()
+                                ).copy(),
+                                "startIndex": part.get(
+                                    "startIndex"
+                                ),
+                                "endIndex": part.get(
+                                    "endIndex"
+                                )
                             })
 
                         cell_data.append({
                             "paragraphStyle": paragraph_style,
-                            "runs": runs
+                            "runs": runs,
+                            "startIndex": cell_element.get(
+                                "startIndex"
+                            ),
+                            "endIndex": cell_element.get(
+                                "endIndex"
+                            )
                         })
 
                     row_data.append(cell_data)
@@ -602,15 +657,20 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
 
             elements.append({
                 "type": "table",
-                "rows": table_data
+                "rows": table_data,
+
+                "startIndex": element.get(
+                    "startIndex"
+                ),
+                "endIndex": element.get(
+                    "endIndex"
+                )
             })
 
     return {
         "chapter": chapter_name,
         "elements": elements
     }
-
-
 
 def get_tabs_for_chapter(tabs_dict, Chapter):
     """
@@ -642,7 +702,8 @@ def get_tab_by_name(document, tab_name):
         properties = tab.get("tabProperties", {})
 
         if properties.get("title") == tab_name:
-            return tab.get("documentTab")
+            #return tab.get("documentTab")
+            return tab
 
     return None
 

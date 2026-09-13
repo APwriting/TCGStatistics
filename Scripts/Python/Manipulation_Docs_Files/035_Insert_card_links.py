@@ -6,8 +6,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-
-
+import time
+import requests
 
 SCOPES = [
     "https://www.googleapis.com/auth/documents"
@@ -114,21 +114,207 @@ def main():
         #Get the chapter text
 
         Tab = get_tab_by_name(document = Document, tab_name = tabs_orig)
+        print( Tab )
+
 
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
-        print(Chapter_text)
+        #print(Chapter_text)
+        Braced_card_positions = find_braced_phrases(chapter = Chapter_text)
+        print(Braced_card_positions)
+        
 
+        for card_name_insert in Braced_card_positions:
+            print(card_name_insert)
+            card_name = get_card_text_from_braces(braced_phrases = card_name_insert, chapter = None,  get_card = False)
+            print( card_name )
+            card = get_card(card_name = card_name)
+            card_url = card["image_uris"]["normal"]
+            print( card_url )
+            (tab_id, Chapter_start, Chapter_end) = chapter_positions[Doc_ID][Chapter_Header_name]
+            insert_card_links(
+                service = service,
+                document_id = Document_key_number,
+                braced_phrases = card_name_insert,
+                card_url = card_url,
+                insert_index = Chapter_start,
+                tab_id = tab_id
+            )
         #Get all parts with {}
         #Look inside if they already have a link
         #Get the card
         #Get scryfall picture link
         #Open document for failed searches
         #insert link
-
+        #Test card: {Stingcaster Mage}
 
 
 ########
 #Functions
+
+def insert_card_links(
+    service,
+    document_id,
+    braced_phrases,
+    card_url,
+    insert_index,
+    tab_id
+):
+    requests = []
+    if type(braced_phrases) != list:
+        braced_phrases = [braced_phrases]
+
+
+    for item in sorted(
+        braced_phrases,
+        key=lambda x: x["start"],
+        reverse=True
+    ):
+
+        print(type(insert_index), insert_index)
+        print(type(item["start"]), item["start"])
+
+        start = insert_index + item["start"]
+        end = insert_index + item["end"]
+
+        phrase = item["phrase"]
+
+        requests.append({
+            "deleteContentRange": {
+                "range": {
+                    "startIndex": start,
+                    "endIndex": end,
+                    "tabId": tab_id
+                }
+            }
+        })
+
+        requests.append({
+            "insertText": {
+                "location": {
+                    "index": start,
+                    "tabId": tab_id
+                },
+                "text": phrase
+            }
+        })
+
+        requests.append({
+            "updateTextStyle": {
+                "range": {
+                    "startIndex": start,
+                    "endIndex": start + len(phrase),
+                    "tabId": tab_id
+                },
+                "textStyle": {
+                    "link": {
+                        "url": card_url
+                    }
+                },
+                "fields": "link"
+            }
+        })
+
+    return service.documents().batchUpdate(
+        documentId=document_id,
+        body={"requests": requests}
+    ).execute()
+
+
+def get_card_text_from_braces(braced_phrases = None, chapter = None, get_card = False):
+    """
+    Find all {card names} in a chapter and retrieve the corresponding
+    Scryfall card data.
+
+    Returns a list of Scryfall card dictionaries.
+    """
+    if chapter:
+        braced_phrases = find_braced_phrases(chapter)
+    else:
+        if type(braced_phrases) != list:
+            braced_phrases = [braced_phrases]
+
+    cards = []
+
+    for item in braced_phrases:
+        card_name = item["phrase"]
+        if get_card:
+            card = get_card(card_name)
+
+            if card is not None:
+                cards.append(card)
+        else:
+            cards.append(card_name)
+
+    return cards
+
+def get_card(card_name):
+    time.sleep(0.1)
+
+    url = "https://api.scryfall.com/cards/named"
+
+    headers = {
+        "User-Agent": "MagicDeckStatistics/1.0"
+    }
+
+    response = requests.get(
+        url,
+        params={"exact": card_name},
+        headers=headers
+    )
+
+    response.raise_for_status()
+
+    return response.json()
+
+def find_braced_phrases(chapter):
+    """
+    Find all phrases enclosed in { } in a chapter returned by
+    get_chapter_structured().
+
+    Returns a list of dictionaries containing:
+        - phrase: text inside the braces
+        - start: character position in the chapter
+        - end: character position after the closing brace
+    """
+
+    results = []
+    position = 0
+
+    for element in chapter["elements"]:
+
+        if element["type"] not in ["paragraph", "heading"]:
+            continue
+
+        for run in element.get("runs", []):
+            text = run.get("text", "")
+
+            i = 0
+
+            while i < len(text):
+                start = text.find("{", i)
+
+                if start == -1:
+                    break
+
+                end = text.find("}", start)
+
+                if end == -1:
+                    break
+
+                results.append({
+                    "phrase": text[start + 1:end],
+                    "start": position + start,
+                    "end": position + end + 1
+                })
+
+                i = end + 1
+
+            position += len(text)
+
+        # Paragraph separator
+        position += 1
+
+    return results
 
 
 def get_tabs_and_headings(document):

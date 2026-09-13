@@ -35,7 +35,6 @@ def main():
                 if Purpose not in All_path:
                     All_path[Purpose] = dict()
                 All_path[Purpose][Type] = Path
-    Document_IDs = sorted( list( All_path.keys() ) )
 
     #Load information about chapters
     chapter_positions = dict()
@@ -83,7 +82,6 @@ def main():
     Document_key_number = All_path["AP_Access"]["ID"]
     print( Document_key_number )
     print("Downloading Google Doc...")
-    #sys.exit()
     service = get_google_docs_service( doc_path = cred_path, token= token_path )
     Document = get_document(
         service,
@@ -122,13 +120,7 @@ def main():
         #sys.exit()
 
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
-        print("\n\n\n\n\n\n\n\n")
-        print(Chapter_text)
-        #sys.exit()
-        print("\n\n\n\n\n\n\n\n")
         Braced_card_positions = find_braced_phrases(chapter = Chapter_text)
-        print(Braced_card_positions)
-        sys.exit()
 
         for card_name_insert in Braced_card_positions:
             print(card_name_insert)
@@ -139,25 +131,6 @@ def main():
             print( card_url )
             (OldTABID, Chapter_start, Chapter_end) = chapter_positions[Orig_ID][Chapter]
 
-            #419#
-            if 0:
-
-                requests = []
-                requests.append({
-                    "deleteContentRange": {
-                        "range": {
-                            "startIndex": 224,
-                            "endIndex": 225,
-                            "tabId": "t.0"
-                        }
-                    }
-                })
-                service.documents().batchUpdate(
-                    documentId=Document_key_number,
-                    body={"requests": requests}
-                ).execute()
-
-            #sys.exit()
             insert_card_links(
                 service = service,
                 document_id = Document_key_number,
@@ -166,13 +139,6 @@ def main():
                 insert_index = Chapter_start,
                 tab_id = tab_id
             )
-        #Get all parts with {}
-        #Look inside if they already have a link
-        #Get the card
-        #Get scryfall picture link
-        #Open document for failed searches
-        #insert link
-        #Test card: {Stingcaster Mage}
 
 
 ########
@@ -278,51 +244,6 @@ def get_card(card_name):
     return response.json()
 
 def find_braced_phrases(chapter):
-
-    results = []
-
-    for element in chapter["elements"]:
-
-        if element["type"] not in ["paragraph", "heading"]:
-            continue
-
-        for run in element.get("runs", []):
-
-            text = run.get("text", "")
-
-            if not text:
-                continue
-
-            run_start = run["startIndex"]
-
-            i = 0
-
-            while i < len(text):
-
-                start = text.find("{", i)
-
-                if start == -1:
-                    break
-
-                end = text.find("}", start)
-
-                if end == -1:
-                    break
-
-                results.append({
-                    "phrase": text[start + 1:end],
-
-                    # ACTUAL Google Docs indices
-                    "start": run_start + start,
-                    "end": run_start + end + 1
-                })
-
-                i = end + 1
-
-    return results
-
-def find_braced_phrases(chapter):
-    #Second version
     results = []
 
     for element in chapter["elements"]:

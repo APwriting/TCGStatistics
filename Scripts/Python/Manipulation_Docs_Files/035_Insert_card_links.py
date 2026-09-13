@@ -184,10 +184,11 @@ def insert_card_links(
     tab_id
 ):
     requests = []
+
     if type(braced_phrases) != list:
         braced_phrases = [braced_phrases]
 
-    insert_index = int(insert_index)    #Making sure it is int
+    insert_index = int(insert_index)
 
     for item in sorted(
         braced_phrases,
@@ -195,39 +196,19 @@ def insert_card_links(
         reverse=True
     ):
 
-        print(type(insert_index), insert_index)
-        print(type(item["start"]), item["start"])
-
         start = insert_index + item["start"]
         end = insert_index + item["end"]
 
-        phrase = item["phrase"]
-
-        requests.append({
-            "deleteContentRange": {
-                "range": {
-                    "startIndex": start,
-                    "endIndex": end,
-                    "tabId": tab_id
-                }
-            }
-        })
-
-        requests.append({
-            "insertText": {
-                "location": {
-                    "index": start,
-                    "tabId": tab_id
-                },
-                "text": phrase
-            }
-        })
+        # Keep { and } unlinked
+        #link_start = start + 1
+        link_start = start 
+        link_end = end - 2
 
         requests.append({
             "updateTextStyle": {
                 "range": {
-                    "startIndex": start,
-                    "endIndex": start + len(phrase),
+                    "startIndex": link_start,
+                    "endIndex": link_end,
                     "tabId": tab_id
                 },
                 "textStyle": {
@@ -243,6 +224,8 @@ def insert_card_links(
         documentId=document_id,
         body={"requests": requests}
     ).execute()
+
+
 
 
 def get_card_text_from_braces(braced_phrases = None, chapter = None, get_card = False):

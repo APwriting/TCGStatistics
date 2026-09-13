@@ -122,10 +122,13 @@ def main():
         #sys.exit()
 
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
-        #print(Chapter_text)
+        print("\n\n\n\n\n\n\n\n")
+        print(Chapter_text)
+        #sys.exit()
+        print("\n\n\n\n\n\n\n\n")
         Braced_card_positions = find_braced_phrases(chapter = Chapter_text)
         print(Braced_card_positions)
-        
+        sys.exit()
 
         for card_name_insert in Braced_card_positions:
             print(card_name_insert)
@@ -315,6 +318,106 @@ def find_braced_phrases(chapter):
                 })
 
                 i = end + 1
+
+    return results
+
+def find_braced_phrases(chapter):
+    #Second version
+    results = []
+
+    for element in chapter["elements"]:
+
+        if element["type"] not in ["paragraph", "heading"]:
+            continue
+
+        runs = element.get("runs", [])
+
+        # Search through the complete paragraph
+        full_text = "".join(
+            run.get("text", "")
+            for run in runs
+        )
+
+        # Find every {...} in the paragraph
+        search_pos = 0
+
+        while True:
+
+            start = full_text.find("{", search_pos)
+
+            if start == -1:
+                break
+
+            end = full_text.find("}", start)
+
+            if end == -1:
+                break
+
+            phrase = full_text[start + 1:end]
+
+            # -------------------------------------------------
+            # Convert paragraph-relative positions to
+            # actual Google Docs indices
+            # -------------------------------------------------
+
+            def get_doc_index(position):
+
+                current = 0
+
+                for run in runs:
+
+                    run_text = run.get("text", "")
+                    run_start = run["startIndex"]
+
+                    run_end_position = current + len(run_text)
+
+                    if position < run_end_position:
+                        return run_start + (position - current)
+
+                    current = run_end_position
+
+                return None
+
+            doc_start = get_doc_index(start)
+            doc_end = get_doc_index(end + 1)
+
+            # -------------------------------------------------
+            # Check whether the phrase already has a link
+            # -------------------------------------------------
+
+            has_link = False
+
+            phrase_start = start + 1
+            phrase_end = end
+
+            current = 0
+
+            for run in runs:
+
+                run_text = run.get("text", "")
+
+                run_start_position = current
+                run_end_position = current + len(run_text)
+
+                # Does this run overlap the card name?
+                if (
+                    run_start_position < phrase_end
+                    and run_end_position > phrase_start
+                ):
+                    if "link" in run.get("textStyle", {}):
+                        has_link = True
+                        break
+
+                current = run_end_position
+
+            results.append({
+                "phrase": phrase,
+                "start": doc_start,
+                "end": doc_end,
+                "has_link": has_link
+            })
+
+            search_pos = end + 1
 
     return results
 

@@ -79,7 +79,8 @@ if result.returncode != 0:
 # Find YAML files relative to this Python script
 script_dir = Path(__file__).parent
 
-deployment = script_dir / "postgreSQL_deployment.yaml"
+#deployment = script_dir / "postgreSQL_deployment.yaml"
+deployment = script_dir / "postgreSQL_deployment__credentials.yaml"
 service = script_dir / "postgreSQL_service.yaml"
 
 

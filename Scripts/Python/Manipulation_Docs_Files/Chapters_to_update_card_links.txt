@@ -1,2 +1,3 @@
 Date	Access	Chapter_name	Redo
 12.09.2026	AP_Access	Commander Deck Building Bible	0
+14.09.2026	AP_Access	9. Templates in Commander Deckbuilding - Old and Forgotten, and New and Shiny	0

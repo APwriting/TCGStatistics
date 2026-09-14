@@ -61,6 +61,45 @@ def kubectl_apply(filename, cluster):
     print(result.stdout)
     return 1
 
+def start_port_forward(Port):
+    command = [
+        "kubectl",
+        "port-forward",
+        "service/postgres",
+        f"{Port}:{Port}"
+    ]
+
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    return process
+
+import yaml
+
+
+def get_postgres_port(service_yaml):
+    with open(service_yaml, "r", encoding="utf-8") as file:
+        service = yaml.safe_load(file)
+
+    ports = service.get("spec", {}).get("ports", [])
+
+    if not ports:
+        raise ValueError("No ports found in Service YAML.")
+
+    for port in ports:
+        if port.get("targetPort") == 5436 or port.get("port") == 5436:
+            return port.get("port")
+
+    # If there is only one port, use it
+    if len(ports) == 1:
+        return ports[0].get("port")
+
+    raise ValueError("Could not determine PostgreSQL port.")
+
 
 # Check that Kubernetes is available
 print("Checking Kubernetes...")
@@ -91,5 +130,8 @@ kubectl_apply(deployment, selected_cluster)
 # Create PostgreSQL service
 print("Creating PostgreSQL service...")
 kubectl_apply(service, selected_cluster)
+
+Port = get_postgres_port(service_yaml = service)
+start_port_forward(Port = Port)
 
 print("\nPostgreSQL deployment complete!")

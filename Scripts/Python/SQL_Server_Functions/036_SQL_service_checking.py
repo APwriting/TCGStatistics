@@ -12,7 +12,7 @@ DATABASE_NAME = "carddata"
 DB_PORT = 5436
 
 # PostgreSQL Kubernetes Service
-DB_SERVICE = "carddata-postgresql"
+DB_SERVICE = "postgres"
 
 # PostgreSQL credentials
 DB_USER = "postgres"

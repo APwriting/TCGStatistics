@@ -1,13 +1,15 @@
 import subprocess
 import sys
+import yaml
 
+from sqlalchemy import create_engine, text
 
 # ============================================================
 # Configuration
 # ============================================================
 
 KUBE_CONTEXT = "kind-carddata"
-DATABASE_NAME = "carddata"
+DATABASE_NAME = "MTGDATA"
 
 DB_PORT = 5436
 
@@ -18,6 +20,36 @@ DB_SERVICE = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "postgres"
 
+
+#Getting User data from deployment YAML:
+
+def get_sql_credentials(deployment_yaml):
+    """
+    Read PostgreSQL username and password from a Kubernetes
+    Deployment YAML file.
+
+    Returns:
+        tuple[str, str]: username, password
+    """
+
+    with open(deployment_yaml, "r", encoding="utf-8") as file:
+        deployment = yaml.safe_load(file)
+
+    containers = deployment["spec"]["template"]["spec"]["containers"]
+
+    for container in containers:
+        for env in container.get("env", []):
+
+            if env["name"] == "POSTGRES_USER":
+                username = env["value"]
+
+            elif env["name"] == "POSTGRES_PASSWORD":
+                password = env["value"]
+
+    return username, password
+
+deploy_yaml_path = "../Kubernetes_cluster_initiation_SQL_database/postgreSQL_deployment__credentials.yaml"
+DB_USER, DB_PASSWORD  = get_sql_credentials(deployment_yaml = deploy_yaml_path)
 
 # ============================================================
 # Status codes
@@ -81,6 +113,8 @@ def check_database_service():
 
     print(f"Database service '{DB_SERVICE}' found.")
     return True
+
+
 
 
 # ============================================================
@@ -162,6 +196,30 @@ def check_database_connection():
 
     return True
 
+def get_service_ip(service_name="postgres"):
+    result = subprocess.run(
+        [
+            "kubectl",
+            "get",
+            "service",
+            service_name,
+            "-o",
+            "jsonpath={.spec.clusterIP}"
+        ],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+
+    service_ip = result.stdout.strip()
+
+    if not service_ip:
+        raise RuntimeError(
+            f"Could not determine IP address of service '{service_name}'."
+        )
+
+    return service_ip
+
 
 # ============================================================
 # Main
@@ -174,6 +232,9 @@ def main():
     print(f"Service: {DB_SERVICE}")
     print(f"Port: {DB_PORT}")
     print()
+    #Updating User data from YAML if necessary
+
+
 
     # 1. Kubernetes cluster
     if not check_cluster():
@@ -190,6 +251,19 @@ def main():
     # 4. Actual database connection
     if not check_database_connection():
         return STATUS_DATABASE_CONNECTION_FAILED
+
+    Service_IP = get_service_ip(service_name=DB_SERVICE)
+
+    engine = create_engine(
+        f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{Service_IP}:{DB_PORT}/{DATABASE_NAME}",
+        connect_args={"connect_timeout": 5}
+    )
+
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT 1"))
+        print(result.scalar())
+
+
 
     return STATUS_OK
 

@@ -1,6 +1,7 @@
 import os
 import sys
 import yaml
+import json
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -61,7 +62,7 @@ def main():
                 Original_presence = chapter_positions[Original].get(Chapter_Header_name,0)
                 assert Original_presence
                 Copy_presence = chapter_positions[Copy].get(Chapter_name,0)
-                if not (Original_presence and Copy_presence ):
+                if not ( Original_presence and Copy_presence ): #Tests if a chapter is already present in sink
                     Chapters_to_transfer[Chapter_name] = (Original,Copy)
                     Docs_to_load.add(Original)
                     Docs_to_load.add(Copy)
@@ -77,6 +78,21 @@ def main():
         token_path = All_path[ID]["Token_write"]
         Document_key_number = All_path[ID]["ID"]
         print("Downloading Google Doc...")
+
+        with open(token_path, "r") as f:
+            token_data = json.load(f)
+
+        with open(cred_path, "r") as f:
+            credential_data = json.load(f)
+
+        print("Token client ID:")
+        print(token_data["client_id"])
+
+        print("\nCredentials client ID:")
+
+        # Desktop OAuth credentials are normally under "installed"
+        print(credential_data["installed"]["client_id"])
+
         service = get_google_docs_service( doc_path = cred_path, token= token_path )
         document = get_document(
             service,
@@ -97,7 +113,6 @@ def main():
         TABID_mapping = get_tab_id_mapping(source_document = Documents[Orig_ID], destination_document = Documents[Sink_ID])
 
         print(TABID_mapping)
-        #sys.exit()
 
         print( "Chapter_data:\t", chapter_positions[Orig_ID][ Chapter ] )
         tabs_and_headers_Sink = Tabs_and_header_infos[Sink_ID]

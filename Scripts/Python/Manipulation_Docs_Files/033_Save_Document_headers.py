@@ -80,7 +80,9 @@ def main():
             headings = get_headings(tab = tab["documentTab"])
             #print( headings )
             for header in headings:
-                value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"] ) ]
+                header_numbers = extract_header_number( header_name= str(header["text"]) )
+                print( header_numbers )
+                value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"]), str(header_numbers) ]
                 print( "\t".join(value_list), file = TABS )
 
 
@@ -111,8 +113,25 @@ def main():
     )
 
 
-
 #Functions
+
+def extract_header_number(header_name):
+    header_elements = header_name.split()   #Splits by all white signs
+    if len(header_elements)==0:
+        return("None")
+    first_ele = header_elements[0]
+    ele_list = first_ele.split(".")
+
+
+    try:
+        int(ele_list[0])
+        Numbers = True
+    except:
+        Numbers = False
+    if not Numbers:
+        return( "None" )
+    else:
+        return(first_ele)
 
 
 def get_headings(tab):
@@ -152,40 +171,64 @@ def get_headings(tab):
 
     return headings
 
-
-
-def get_google_docs_service( doc_path, token ):
+def get_google_docs_service(doc_path, token):
     """Authenticate with Google and return the Docs API service."""
-
     creds = None
+    # ---------------------------------------------------------
+    # Load existing token
 
     if os.path.exists(token):
+
         creds = Credentials.from_authorized_user_file(
             token,
             SCOPES
         )
-        print("Got Token from path...")
+        print("Got token from path:", token)
+
+    # Check / refresh / obtain credentials
+    if creds:
+
+        print("Credentials valid:", creds.valid)
+        print("Credentials expired:", creds.expired)
+        print(
+            "Has refresh token:",
+            creds.refresh_token is not None
+        )
+        print("Scopes:", creds.scopes)
 
     if not creds or not creds.valid:
 
-        print(f"Cred validity: {creds.valid}")
-
         if creds and creds.expired and creds.refresh_token:
+            print("Refreshing credentials...")
             creds.refresh(Request())
-
+            print(
+                "Credentials valid after refresh:",
+                creds.valid
+            )
         else:
+            print("Starting new OAuth authentication...")
             flow = InstalledAppFlow.from_client_secrets_file(
                 doc_path,
                 SCOPES
             )
+            creds = flow.run_local_server(
+                port=0
+            )
+        # Save the credentials to the requested token path
+        with open(token, "w") as token_file:
 
-            creds = flow.run_local_server(port=0)
+            token_file.write(
+                creds.to_json()
+            )
 
-            with open("token.json", "w") as token:
-                token.write(creds.to_json())
-
-    return build("docs", "v1", credentials=creds)
-
+        print("Saved token to:", token)
+    # ---------------------------------------------------------
+    # Return Google Docs service
+    return build(
+        "docs",
+        "v1",
+        credentials=creds
+    )
 
 def get_document(service, document_id):
 

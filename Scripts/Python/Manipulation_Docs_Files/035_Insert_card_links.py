@@ -61,9 +61,10 @@ def main():
                 Docs_to_load.add(Access)
             else:
                 print( chapter_positions[Access] )
-                print( Chapter_Header_name)
+                print( Chapter_name )
                 print( "\n\n")
                 Original_presence = chapter_positions[Access].get(Chapter_name,0)
+                print(Original_presence)
                 assert Original_presence
                 Chapters_to_transfer[Chapter_name] = Access
                 Docs_to_load.add(Access)

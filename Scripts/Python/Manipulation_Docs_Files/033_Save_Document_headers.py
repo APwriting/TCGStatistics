@@ -39,7 +39,7 @@ def main():
     cred_paths = All_path["AP_Access"]
 
     TABS = open( "Exisitng_tabs_for_each_document.txt", "w")
-    print( "Doc_name\ttabID\tTab_title\tTav_Index\tHeader_level\tHeader_title\tStart\tEnd", file=TABS)
+    print( "Doc_name\ttabID\tTab_title\tTav_Index\tHeader_level\tHeader_title\tStart\tEnd\theader_number\tHeader_block_number", file=TABS)
     for DOCS_ID in Documents:
         print( f"Looking at {DOCS_ID} now")
         cred_paths = All_path[DOCS_ID]
@@ -82,7 +82,7 @@ def main():
             for header in headings:
                 header_numbers = extract_header_number( header_name= str(header["text"]) )
                 print( header_numbers )
-                value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"]), str(header_numbers) ]
+                value_list = [ Doc_name, tab_prop["tabId"],  tab_prop["title"],  str(tab_prop["index"]), str(header["level"]), str(header["text"]), str(header["startIndex"]),str(header["endIndex"]), str(header_numbers), str(header["Heading_count"]) ]
                 print( "\t".join(value_list), file = TABS )
 
 
@@ -138,6 +138,8 @@ def get_headings(tab):
 
     headings = []
 
+    heading_count = 1
+
     for element in tab["body"]["content"]:
 
         if "paragraph" not in element:
@@ -166,8 +168,10 @@ def get_headings(tab):
                 "level": int(style.split("_")[1]),
                 "text": text.strip(),
                 "startIndex": element["startIndex"],
-                "endIndex": element["endIndex"]
+                "endIndex": element["endIndex"],
+                "Heading_count": heading_count
             })
+            heading_count +=1
 
     return headings
 

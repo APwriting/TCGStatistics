@@ -34,6 +34,7 @@ def main():
 
     #Load information about chapters
     chapter_positions = dict()
+    Chapter_rel_numbering = dict() #Gives chaptes relative to each chapter in each tab
     with open( "Exisitng_tabs_for_each_document.txt","r") as IN:
         header = IN.readline()
         for line in IN:
@@ -43,9 +44,17 @@ def main():
             Chapter_Header_name = elements[5]
             Chapter_start = elements[6]
             Chapter_end = elements[7]
+            Chapter_Numbering = elements[8]
+            Chapter_tab_rel_pos = elements[9]
             if Doc_ID not in chapter_positions:
                 chapter_positions[Doc_ID] = dict()
             chapter_positions[Doc_ID][Chapter_Header_name] = [ TabID, Chapter_start, Chapter_end ]
+            if Doc_ID not in Chapter_rel_numbering:
+                Chapter_rel_numbering[Doc_ID] = dict()
+            if TabID not in Chapter_rel_numbering[Doc_ID]:
+                Chapter_rel_numbering[Doc_ID][TabID] = dict()
+            Chapter_rel_numbering[Doc_ID][TabID][ Chapter_tab_rel_pos ] = (Chapter_Numbering, Chapter_Header_name)
+            Chapter_rel_numbering[Doc_ID][TabID][ Chapter_Header_name ] =  Chapter_tab_rel_pos
 
     #Read which chapters to transfer.
     Chapters_to_transfer = dict()
@@ -66,6 +75,9 @@ def main():
                     Chapters_to_transfer[Chapter_name] = (Original,Copy)
                     Docs_to_load.add(Original)
                     Docs_to_load.add(Copy)
+                elif ( Original_presence and Copy_presence ):
+                    Mind_last_chapter_position = True
+                
     print(Chapters_to_transfer)
     Chapters_listed = sorted( Chapters_to_transfer.keys() )
 
@@ -107,8 +119,10 @@ def main():
         Tabs_and_header_infos[ID] = get_tabs_and_headings(document = Documents[ID])
 
 
-
+    #Start going through all chapters
     for Chapter in Chapters_listed:
+        print(f"Working on chapter '{Chapter}' now..")
+        
         Orig_ID = Chapters_to_transfer[ Chapter ][0]
         Sink_ID = Chapters_to_transfer[ Chapter ][1]
 
@@ -116,7 +130,7 @@ def main():
 
         print(TABID_mapping)
 
-        print( "Chapter_data:\t", chapter_positions[Orig_ID][ Chapter ] )
+        print( "Chapter Tab:\t", chapter_positions[Orig_ID][ Chapter ] )
         tabs_and_headers_Sink = Tabs_and_header_infos[Sink_ID]
         tabs_and_headers_Orig = Tabs_and_header_infos[Orig_ID]
         tabs_orig = get_tabs_for_chapter(tabs_dict = tabs_and_headers_Orig, Chapter = Chapter)
@@ -125,7 +139,7 @@ def main():
             sys.exit(f"Something went wrong when sorting tabs for new chapters.{Chapter}")
         tabs_orig = tabs_orig[0]
         tabs_sink = get_tabs_for_chapter(tabs_dict = tabs_and_headers_Sink, Chapter = Chapter)
-        print(tabs_sink)
+        print("tabs_sink:",tabs_sink)
         if not tabs_sink:
             Chapter_not_present = True
             tab_to_create = tabs_orig[0]
@@ -133,18 +147,18 @@ def main():
         else:
             Chapter_not_present = False
         #Get the chapter text
+        #Chapter_rel_numbering
         #print( list(Documents[Orig_ID].keys()) )
         Tab = get_tab_by_name(document = Documents[Orig_ID], tab_name = tabs_orig)
         Chapter_text = get_chapter_structured(tab = Tab, chapter_name = Chapter, chapter_level=1)
-        #print("Before")
-        #print(Chapter_text)
+        print("Before")
+        print(Chapter_text)
         Chapter_text = clean_text_style(text_style = Chapter_text, tab_id_mapping = TABID_mapping)
         Chapter_text["elements"] = clean_internal_links(
             elements=Chapter_text["elements"]
         )
-        #print("After")
-        #print(Chapter_text)
-        #sys.exit()
+        print("After")
+        print(Chapter_text)
         #TABID_mapping
 
         print(Chapter_text)
@@ -158,11 +172,16 @@ def main():
             #sys.exit()
             #tabID = properties.get("tabId")
             Chapter_insert = chapter_positions[Orig_ID][ Chapter ][1]
+            Chapter_end = get_chapter_end_index(Chapter_rel_numbering, Orig_ID, tabID, Chapter )
+            Chapter_end = int(chapter_positions[Orig_ID][ Chapter ][2])
+            if Mind_last_chapter_position:
+                print("Should mind the last Chapter position here.")
             insert_chapter_into_document( service = service,
                 document_id = All_path[Sink_ID]["ID"],
                 tab_id = tabID,
                 chapter = Chapter_text,
-                insert_index = int(Chapter_insert)
+                insert_index = int(Chapter_insert),
+                chapter_end_index = Chapter_end
             )
 
 
@@ -179,6 +198,20 @@ def main():
 
 ########
 #Functions
+
+def get_chapter_end_index(Chapter_rel_numbering, Orig_ID, tabID, Chapter, chapter_positions ):
+    """
+    Uses previously saved informationn about different chapters in a tab in order to get the end of a chapter.
+    """
+    Chapter_tab_Index = Chapter_rel_numbering[Orig_ID][tabID][Chapter]
+
+    Next_chapter_Index = str(int(Chapter_tab_Index)+1)
+    Next_chapter_info = Chapter_rel_numbering[Orig_ID][tabID].get(Next_chapter_Index, None)
+    if not Next_chapter_info:
+        return 1000000000
+    Next_Chapter_Numbering, Next_Chapter_Header_name = Next_chapter_info
+    Chapter_end = int(chapter_positions[Orig_ID][ Next_Chapter_Header_name ][2])-1
+    return( Chapter_end)
 
 def clean_internal_links(elements):
     """
@@ -329,7 +362,8 @@ def insert_chapter_into_document(
     document_id,
     tab_id,
     chapter,
-    insert_index
+    insert_index,
+    chapter_end_index
 ):
     """
     Insert a structured chapter into a Google Docs tab while
@@ -430,12 +464,11 @@ def insert_chapter_into_document(
             })
 
             current_index += 1
-
             paragraph_end = current_index
-
+            if current_index>chapter_end_index:
+                break
             # -------------------------------------------------
             # Apply paragraph formatting
-            # -------------------------------------------------
 
             paragraph_style = element.get(
                 "paragraphStyle",
@@ -485,7 +518,6 @@ def insert_chapter_into_document(
 
         # =====================================================
         # Table
-        # =====================================================
 
         elif element["type"] == "table":
 
@@ -529,14 +561,24 @@ def insert_chapter_into_document(
                 "Table insertion currently requires a separate "
                 "second pass after the table has been created."
             )
+    requests.append({
+        
+            "insertPageBreak": {
+            "location": {
+                "index": current_index,
+                "tabId": tab_id
+            },
+            }
+        
+    })
 
     # ---------------------------------------------------------
     # Execute requests
     # ---------------------------------------------------------
     print("TAB ID:", tab_id)
     print("NUMBER OF REQUESTS:", len(requests))
-    print("REQUEST 35:")
-    print(requests[35])
+    #print("REQUEST 35:")
+    #print(requests[35])
     return service.documents().batchUpdate(
         documentId=document_id,
         body={
@@ -557,6 +599,10 @@ def get_tab_by_name(document, tab_name):
             return tab.get("documentTab")
 
     return None
+
+
+
+
 def get_chapter_structured(tab, chapter_name, chapter_level=1):
 
     content = tab["body"]["content"]
@@ -1011,6 +1057,11 @@ def get_google_docs_service(doc_path, token):
         print("Saved token to:", token)
     # ---------------------------------------------------------
     # Return Google Docs service
+
+    print(creds.scopes)
+    print(creds.valid)
+    print(creds.expired)
+    
     return build(
         "docs",
         "v1",

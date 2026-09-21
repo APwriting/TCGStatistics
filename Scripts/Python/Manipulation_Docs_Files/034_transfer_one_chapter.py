@@ -78,15 +78,17 @@ def main():
         token_path = All_path[ID]["Token_write"]
         Document_key_number = All_path[ID]["ID"]
         print("Downloading Google Doc...")
-
-        with open(token_path, "r") as f:
-            token_data = json.load(f)
-
+        try:
+            with open(token_path, "r") as f:
+                token_data = json.load(f)
+            print("Token client ID:")
+            print(token_data["client_id"])
+        except:
+            print("NO TOKEN PRESENT.")
         with open(cred_path, "r") as f:
             credential_data = json.load(f)
 
-        print("Token client ID:")
-        print(token_data["client_id"])
+
 
         print("\nCredentials client ID:")
 
@@ -958,12 +960,9 @@ def get_tabs_and_headings(document):
 
 def get_google_docs_service(doc_path, token):
     """Authenticate with Google and return the Docs API service."""
-
     creds = None
-
     # ---------------------------------------------------------
     # Load existing token
-    # ---------------------------------------------------------
 
     if os.path.exists(token):
 
@@ -971,13 +970,9 @@ def get_google_docs_service(doc_path, token):
             token,
             SCOPES
         )
-
         print("Got token from path:", token)
 
-    # ---------------------------------------------------------
     # Check / refresh / obtain credentials
-    # ---------------------------------------------------------
-
     if creds:
 
         print("Credentials valid:", creds.valid)
@@ -991,33 +986,22 @@ def get_google_docs_service(doc_path, token):
     if not creds or not creds.valid:
 
         if creds and creds.expired and creds.refresh_token:
-
             print("Refreshing credentials...")
-
             creds.refresh(Request())
-
             print(
                 "Credentials valid after refresh:",
                 creds.valid
             )
-
         else:
-
             print("Starting new OAuth authentication...")
-
             flow = InstalledAppFlow.from_client_secrets_file(
                 doc_path,
                 SCOPES
             )
-
             creds = flow.run_local_server(
                 port=0
             )
-
-        # -----------------------------------------------------
         # Save the credentials to the requested token path
-        # -----------------------------------------------------
-
         with open(token, "w") as token_file:
 
             token_file.write(
@@ -1025,11 +1009,8 @@ def get_google_docs_service(doc_path, token):
             )
 
         print("Saved token to:", token)
-
     # ---------------------------------------------------------
     # Return Google Docs service
-    # ---------------------------------------------------------
-
     return build(
         "docs",
         "v1",

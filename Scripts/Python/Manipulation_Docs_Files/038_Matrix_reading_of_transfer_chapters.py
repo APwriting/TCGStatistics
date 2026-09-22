@@ -8,7 +8,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-import 039_Docbooks_class as Docbook
+from Docbooks import Docbook
 
 #This script does a different approach to 034
 #The goal is 
@@ -22,6 +22,7 @@ SCOPES = [
 def main():
 
     #Load here the path to the credentials
+    print("Reading credential paths")
     cred_path = ""
     All_path = dict()
     with open( "path_to_token.txt","r") as IN:
@@ -34,36 +35,130 @@ def main():
                     All_path[Purpose] = dict()
                 All_path[Purpose][Type] = Path
     Documents_IDs = sorted( list( All_path.keys() ) )
+    if 0:
+        #Load information about chapters
+        chapter_positions = dict()
+        Chapter_rel_numbering = dict() #Gives chaptes relative to each chapter in each tab
+        with open( "Exisitng_tabs_for_each_document.txt","r") as IN:
+            header = IN.readline()
+            for line in IN:
+                elements = line.rstrip().split("\t")
+                Doc_ID = elements[0]
+                TabID = elements[2]
+                Chapter_Header_name = elements[5]
+                Chapter_start = elements[6]
+                Chapter_end = elements[7]
+                Chapter_Numbering = elements[8]
+                Chapter_tab_rel_pos = elements[9]
+                if Doc_ID not in chapter_positions:
+                    chapter_positions[Doc_ID] = dict()
+                chapter_positions[Doc_ID][Chapter_Header_name] = [ TabID, Chapter_start, Chapter_end ]
+                if Doc_ID not in Chapter_rel_numbering:
+                    Chapter_rel_numbering[Doc_ID] = dict()
+                if TabID not in Chapter_rel_numbering[Doc_ID]:
+                    Chapter_rel_numbering[Doc_ID][TabID] = dict()
+                Chapter_rel_numbering[Doc_ID][TabID][ Chapter_tab_rel_pos ] = (Chapter_Numbering, Chapter_Header_name)
+                Chapter_rel_numbering[Doc_ID][TabID][ Chapter_Header_name ] =  Chapter_tab_rel_pos
 
-    #Load information about chapters
-    chapter_positions = dict()
-    Chapter_rel_numbering = dict() #Gives chaptes relative to each chapter in each tab
-    with open( "Exisitng_tabs_for_each_document.txt","r") as IN:
+    #LOAD THE DOCBOOK
+    print("Making the docbook..")
+    docbook = Docbook("Exisitng_tabs_for_each_document.txt")
+
+    #Load the documents
+    print( "Starting to load documents..")
+    Documents = dict()
+    for ID in Documents_IDs:
+        print(f"Loading Google Doc {ID}")
+        print(list( All_path[ID].keys()))
+        cred_path = All_path[ID]["Credentials"]
+        token_path = All_path[ID]["Token_write"]
+        Document_key_number = All_path[ID]["ID"]
+        print("Downloading Google Doc...")
+        try:
+            with open(token_path, "r") as f:
+                token_data = json.load(f)
+            print("Token client ID:")
+            print(token_data["client_id"])
+        except:
+            print("NO TOKEN PRESENT.")
+        with open(cred_path, "r") as f:
+            credential_data = json.load(f)
+
+
+
+        print("\nCredentials client ID:")
+
+        # Desktop OAuth credentials are normally under "installed"
+        print(credential_data["installed"]["client_id"])
+
+        service = get_google_docs_service( doc_path = cred_path, token= token_path )
+        document = get_document(
+            service,
+            Document_key_number
+        )
+        Documents[ID] = docbook.copy()
+        Documents[ID].add_document(
+                            ID,
+                            document
+                        )
+        Documents[ID].digest_chapters(doc_id = ID)
+
+
+
+    #Read which chapters to transfer.
+    print("Reading Chaper structure to transfer..")
+
+    Chapters_to_transfer = dict()
+    Docs_to_load = set()
+    with open("Chapters_to_transfer_over.txt", "r") as IN:
         header = IN.readline()
         for line in IN:
-            elements = line.rstrip().split("\t")
-            Doc_ID = elements[0]
-            TabID = elements[2]
-            Chapter_Header_name = elements[5]
-            Chapter_start = elements[6]
-            Chapter_end = elements[7]
-            Chapter_Numbering = elements[8]
-            Chapter_tab_rel_pos = elements[9]
-            if Doc_ID not in chapter_positions:
-                chapter_positions[Doc_ID] = dict()
-            chapter_positions[Doc_ID][Chapter_Header_name] = [ TabID, Chapter_start, Chapter_end ]
-            if Doc_ID not in Chapter_rel_numbering:
-                Chapter_rel_numbering[Doc_ID] = dict()
-            if TabID not in Chapter_rel_numbering[Doc_ID]:
-                Chapter_rel_numbering[Doc_ID][TabID] = dict()
-            Chapter_rel_numbering[Doc_ID][TabID][ Chapter_tab_rel_pos ] = (Chapter_Numbering, Chapter_Header_name)
-            Chapter_rel_numbering[Doc_ID][TabID][ Chapter_Header_name ] =  Chapter_tab_rel_pos
+            Date,Original,Copy,Chapter_name,Redo = line.rstrip().split("\t")
+            if int(Redo):
+                Chapters_to_transfer[Chapter_name] = (Original,Copy)
+                Docs_to_load.add(Original)
+                Docs_to_load.add(Copy)
+            else:
+                #print(Original)
+                Original_presence = Documents[Original].get_chapter(
+                                        doc_id = Original,
+                                        chapter_name = Chapter_name,tab=None
+                                    )            #chapter_positions[Original].get(Chapter_Header_name,0)
+                #print(Original_presence)
+                sys.exit()
+                assert Original_presence
+                Copy_presence = Documents[Copy].get_chapter(
+                                        doc_id = Copy,
+                                        chapter_name = Chapter_name,tab=None
+                                    )
+                sys.exit()
+                if not ( Original_presence and Copy_presence ): #Tests if a chapter is already present in sink
+                    Chapters_to_transfer[Chapter_name] = (Original,Copy)
+                    Docs_to_load.add(Original)
+                    Docs_to_load.add(Copy)
+                elif ( Original_presence and Copy_presence ):
+                    Mind_last_chapter_position = True
+                
+    print("Chapters_to_transfer")
+    sys.exit("!!!!!!!!!!!!!")
+    Chapters_listed = sorted( Chapters_to_transfer.keys() )
 
 
 
-docbook = Docbook("Exisitng_tabs_for_each_document.txt")
+
+    results = docbook.find_chapters(chapter_names = Chapters_listed)
+    print(results)
 
 
+
+#Get the chapters, and their tabs. Sort those by tabs.
+#Check if tabs exist in the sink document.
+
+#Get all the chapters already present. 
+#Get the chapters to transfer over.
+#Check which of these should be transfered again.
+#Get the ones not in the transfer list.
+#Sort them by name, both.
 
 
 
@@ -101,6 +196,82 @@ docbook = Docbook("Exisitng_tabs_for_each_document.txt")
 
 
 
+
+
+
+def get_google_docs_service(doc_path, token):
+    """Authenticate with Google and return the Docs API service."""
+    creds = None
+    # ---------------------------------------------------------
+    # Load existing token
+
+    if os.path.exists(token):
+
+        creds = Credentials.from_authorized_user_file(
+            token,
+            SCOPES
+        )
+        print("Got token from path:", token)
+
+    # Check / refresh / obtain credentials
+    if creds:
+
+        print("Credentials valid:", creds.valid)
+        print("Credentials expired:", creds.expired)
+        print(
+            "Has refresh token:",
+            creds.refresh_token is not None
+        )
+        print("Scopes:", creds.scopes)
+
+    if not creds or not creds.valid:
+
+        if creds and creds.expired and creds.refresh_token:
+            print("Refreshing credentials...")
+            creds.refresh(Request())
+            print(
+                "Credentials valid after refresh:",
+                creds.valid
+            )
+        else:
+            print("Starting new OAuth authentication...")
+            flow = InstalledAppFlow.from_client_secrets_file(
+                doc_path,
+                SCOPES
+            )
+            creds = flow.run_local_server(
+                port=0
+            )
+        # Save the credentials to the requested token path
+        with open(token, "w") as token_file:
+
+            token_file.write(
+                creds.to_json()
+            )
+
+        print("Saved token to:", token)
+    # ---------------------------------------------------------
+    # Return Google Docs service
+
+    print(creds.scopes)
+    print(creds.valid)
+    print(creds.expired)
+    
+    return build(
+        "docs",
+        "v1",
+        credentials=creds
+    )
+
+
+def get_document(service, document_id):
+
+    document = service.documents().get(
+        documentId=document_id,
+        includeTabsContent=True
+    ).execute()
+
+    return document
 
 
 
@@ -337,5 +508,10 @@ def get_chapter_structured(tab, chapter_name, chapter_level=1):
         "elements": elements
     }
 
+
+
+#Main call
+if __name__ == "__main__":
+    main()
 
 

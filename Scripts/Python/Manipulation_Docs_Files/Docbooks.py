@@ -2,6 +2,8 @@ import os
 import sys
 import yaml
 import json
+import copy
+
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -105,6 +107,10 @@ class Docbook:
         )
 
         return self
+
+    def copy(self):
+        return copy.deepcopy(self)
+
 
     def add_document(self, doc_id, document):
         """
@@ -298,17 +304,34 @@ class Docbook:
         )
 
     # =========================================================
-    # Chapters from metadata
+    # Chapters from digest
     # =========================================================
 
-    def get_chapters(self, doc_id, tab):
+    def get_chapters(self, doc_id, tab = None):
         """
-        Return all chapter metadata belonging to a tab.
+        Return all digested chapters belonging to a tab.
 
-        The returned object is a DataFrame.
+        Parameters
+        ----------
+        doc_id : str
+            Google Docs document ID.
+        tab : str or int
+            Tab title, tab ID, or tab index.
+
+        Returns
+        -------
+        dict
+            Dictionary with chapter names as keys and structured
+            chapter data as values.
         """
 
-        # Resolve the tab using the actual document
+
+        if doc_id not in self.chapters:
+            raise KeyError(
+                f"Document '{doc_id}' has not been digested yet. Use function 'digest_chapters'. "
+            )
+
+        # Resolve the actual tab
         current_tab = self.get_tab(
             doc_id,
             tab
@@ -319,16 +342,68 @@ class Docbook:
             {}
         )
 
-        tab_id = tab_properties.get("tabId")
+        tab_title = tab_properties.get("title")
 
-        # Filter metadata
-        chapters = self.data[
-            (self.data["Doc_ID"] == doc_id)
-            &
-            (self.data["tabID"] == tab_id)
-        ].copy()
+        if tab_title not in self.chapters[doc_id]:
+            raise KeyError(
+                f"Tab '{tab_title}' has not been digested."
+            )
 
-        return chapters
+        return self.chapters[doc_id][tab_title]
+
+
+    # =========================================================
+    # Tabs from Chapter name
+    # =========================================================
+
+    def get_tabs_of_chapter(self, chapter_name):
+        """
+        Return all documents and tabs containing a chapter.
+
+        Parameters
+        ----------
+        chapter_name : str
+            Name of the chapter to search for.
+
+        Returns
+        -------
+        list or False
+            List of dictionaries containing Doc_ID and tab information,
+            or False if the chapter does not exist.
+        """
+
+        results = dict()
+
+        for doc_id, tabs in self.chapters.items():
+
+            for tab_title, chapters in tabs.items():
+
+                if chapter_name in chapters:
+
+                    # Get the actual tab to obtain its tabID
+                    current_tab = self.get_tab(
+                        doc_id,
+                        tab_title
+                    )
+
+                    tab_properties = current_tab.get(
+                        "tabProperties",
+                        {}
+                    )
+
+                    results[doc_id] = {
+                        "Doc_ID": doc_id,
+                        "tabID": tab_properties.get("tabId"),
+                        "tab_title": tab_title,
+                        "tab":current_tab
+                        }
+                    
+
+        if not results:
+            return False
+
+        return results
+
 
     # =========================================================
     # Single chapter
@@ -337,24 +412,53 @@ class Docbook:
     def get_chapter(
         self,
         doc_id,
-        tab,
-        chapter_name,
-        chapter_level=1
+        chapter_name,tab=None
     ):
         """
-        Return a structured chapter from a Google Docs tab.
+        Return a single digested chapter from a Google Docs tab.
+
+        Parameters
+        ----------
+        doc_id : str
+            Google Docs document ID.
+        tab : str or int
+            Tab title, tab ID, or tab index.
+        chapter_name : str
+            Name of the chapter.
+
+        Returns
+        -------
+        dict
+            Structured chapter data.
         """
 
-        current_tab = self.get_tab(
+        #TODO Can stream line this funciton depending on state of the function and object
+
+        if not tab:
+            tab = self.get_tabs_of_chapter(chapter_name)
+            #print(tab)
+            #sys.exit("!!!!!!!!!!!!!!!")
+            if not tab:
+                try:
+                    raise KeyError(
+                        f"Document '{doc_id}' has the searched chapter not present. "
+                    )
+                except:
+                    return None
+            else:
+                tab = tab.get(doc_id)["tab"]
+
+        chapters = self.get_chapters(
             doc_id,
             tab
         )
 
-        return get_chapter_structured(
-            current_tab,
-            chapter_name,
-            chapter_level
-        )
+        if chapter_name not in chapters:
+            raise KeyError(
+                f"Chapter '{chapter_name}' not found in tab."
+            )
+
+        return chapters[chapter_name]
 
 
 
@@ -630,15 +734,142 @@ def get_chapter_structured(
 
 
 
+class Chapter()
+
+
+    def __init__(self, file_path=None):
+        """
+        Create a Docbook.
+
+        Parameters
+        ----------
+        file_path : str or Path, optional
+            Path to the tab-separated metadata file.
+        """
+
+        self.data = pd.DataFrame(columns=self.COLUMNS)
+
+        # Actual Google Docs data
+        self.documents = {}
 
 
 
 
 
+def get_raw_chapters_from_tab(self, doc_id, tab):
+    """
+    Extract the raw Google Docs API content belonging to each chapter
+    in a tab.
 
+    Parameters
+    ----------
+    doc_id : str
+        Google Docs document ID.
+    tab : str or int
+        Tab title, tab ID, or tab index.
 
+    Returns
+    -------
+    dict
+        Dictionary with chapter names as keys and their raw Google
+        Docs API content as values.
+    """
 
+    current_tab = self.get_tab(
+        doc_id,
+        tab
+    )
 
+    content = current_tab["documentTab"]["body"]["content"]
+
+    chapters = {}
+
+    # Get chapter metadata for this tab
+    chapter_metadata = self.get_chapters(
+        doc_id,
+        tab
+    )
+
+    for chapter_name, chapter_data in chapter_metadata.items():
+
+        # Find the start and end indices from the digested chapter
+        start_index = None
+        end_index = None
+
+        for element in content:
+
+            if (
+                "paragraph" in element
+                and element["paragraph"]
+                .get("paragraphStyle", {})
+                .get("namedStyleType", "")
+                .startswith("HEADING_")
+            ):
+
+                text = ""
+
+                for run in element["paragraph"].get("elements", []):
+                    if "textRun" in run:
+                        text += run["textRun"].get("content", "")
+
+                if text.rstrip("\n") == chapter_name:
+                    start_index = element["startIndex"]
+                    break
+
+        if start_index is None:
+            continue
+
+        # Find the next heading of the same or higher level
+        chapter_level = chapter_data.get(
+            "chapter_level",
+            1
+        )
+
+        for element in content:
+
+            if element["startIndex"] <= start_index:
+                continue
+
+            if "paragraph" not in element:
+                continue
+
+            style = element["paragraph"].get(
+                "paragraphStyle",
+                {}
+            ).get(
+                "namedStyleType",
+                ""
+            )
+
+            if not style.startswith("HEADING_"):
+                continue
+
+            level = int(style.split("_")[1])
+
+            if level <= chapter_level:
+                end_index = element["startIndex"]
+                break
+
+        if end_index is None:
+            end_index = content[-1]["endIndex"]
+
+        # Extract the actual API elements
+        chapter_elements = [
+            element
+            for element in content
+            if (
+                element["startIndex"] >= start_index
+                and element["endIndex"] <= end_index
+            )
+        ]
+
+        chapters[chapter_name] = {
+            "startIndex": start_index,
+            "endIndex": end_index,
+            "elements": chapter_elements
+        }
+
+    return chapters
 
 
 

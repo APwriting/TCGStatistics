@@ -3,3 +3,5 @@ Date	Original	Copy	Chapter_name	Redo
 20.09.2026	MAIN_Access	AP_Access	1. General Stuff	0
 20.09.2026	MAIN_Access	AP_Access	1.1. How to use this guide	0
 21.09.2026	MAIN_Access	AP_Access	1.2 Chapter and tab Index as table of contents	0
+22.09.2026	MAIN_Access	AP_Access	2. The Basics of Commander Deckbuilding - Or What is a Commander Deck?	0
+22.09.2026	MAIN_Access	AP_Access	2.1.Color Identity - The Great Divide of different Commander Decks	0

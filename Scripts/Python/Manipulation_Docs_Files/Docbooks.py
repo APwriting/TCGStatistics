@@ -25,6 +25,197 @@ SCOPES = [
     "https://www.googleapis.com/auth/documents"
 ]
 
+######################
+########################################################################################
+#
+#Define Script Block as meta class. Enforces rules
+#
+########################################################################################
+
+def main():
+    Example_text = Text.from_google_docs(example_text_data)
+    print(Example_text.name)
+    print(Example_text)
+    Example_text.info()
+    #Example_text.print_structure()
+
+
+
+class ScriptBlock(type):
+
+    registry = {}
+
+    def __new__(mcls, name, bases, namespace):
+
+        # Base class itself is exempt
+        if name != "DocumentBlock":
+
+            if "block_type" not in namespace:
+                raise TypeError(
+                    f"{name} must define 'block_type'."
+                )
+
+            if "allowed_children" not in namespace:
+                raise TypeError(
+                    f"{name} must define 'allowed_children'."
+                )
+
+        cls = super().__new__(
+            mcls,
+            name,
+            bases,
+            namespace
+        )
+
+        # Register the block
+        block_type = namespace.get("block_type")
+
+        if block_type is not None:
+            mcls.registry[block_type] = cls
+
+        return cls
+
+
+
+
+
+
+class DocumentBlock(metaclass=ScriptBlock):
+
+    def __init__(
+        self,
+        name=None,
+        start=None,
+        end=None,
+        value=None
+    ):
+        self.name = name
+        self.start = start
+        self.end = end
+        self.value = value
+
+        self.chain = [self.name]
+        self.pos = 0
+
+        self.next = None
+        self.previous = None
+        self.upper = None
+        self.lower = self.chain[ self.pos ]
+
+
+    def current(self):
+        return self.chain[self.chain_position]
+
+    def print_structure(self):
+        print(f"Type: {self.block_type}")
+        print(f"Name: {self.name}")
+        print(f"Position: {self.start} - {self.end}")
+        print(f"Value: {self.value}")
+        print(f"Upper: {self.upper}")
+        print(f"Lower: {self.lower}")
+        print(f"Previous: {self.previous}")
+        print(f"Next: {self.next}")
+
+
+    def info(self):
+        print(f"Type: {self.block_type}")
+        print(f"Name: {self.name}")
+        print(f"Position: {self.start} - {self.end}")
+        print(f"Value: {self.value}")
+
+    def _get_content(self, level=0):
+
+        # If this block has children, recursively get their content
+        if self.chain:
+
+            output = []
+
+            for element in self.chain[1:]:
+                output.append(
+                    element._get_content(level + 1)
+                )
+
+            return "\n".join(output)
+
+        # If this is a leaf element, return its value
+        return str(self.value)
+
+    def __str__(self):
+        return self._get_content()
+    
+    def add(self, element):
+        #TODO NEEDS TO BE REWORKED
+
+        if element.block_type not in self.allowed_children:
+            raise TypeError(
+                f"{self.block_type} cannot contain "
+                f"{element.block_type}."
+            )
+
+        self.chain.append(element)
+
+        return 1
+
+
+
+
+class Paragraph(DocumentBlock):
+
+    block_type = "paragraph"
+
+    allowed_children = {
+        "text"
+    }
+    def __init__(self, text_style=None):
+        super().__init__()
+    @classmethod
+    def from_google_docs(cls, data, paragraph_name="Paragraph"):
+
+        paragraph_data = data["paragraph"]
+
+        paragraph = cls(
+            name=paragraph_name,
+            start=data["startIndex"],
+            end=data["endIndex"]
+        )
+
+        for element in paragraph_data.get("elements", []):
+
+            if "textRun" not in element:
+                continue
+
+            text = Text.from_google_docs(element)
+
+            paragraph.add(text)
+
+        return paragraph
+
+
+class Text(DocumentBlock):
+
+    block_type = "text"
+    allowed_children = set()
+
+    def __init__(self, text_style=None, **kwargs):
+        super().__init__(**kwargs)
+        self.text_style = text_style or {}
+    
+    @classmethod
+    def from_google_docs(cls, data, text_name = "Text"):
+
+
+        text_run = data["textRun"]
+
+        return cls(
+            name=text_name,
+            start=data["startIndex"],
+            end=data["endIndex"],
+            value=text_run["content"],
+            text_style=text_run.get("textStyle", {})
+        )
+
+    def _get_content(self):
+        return(self.value)
 
 
 
@@ -734,7 +925,7 @@ def get_chapter_structured(
 
 
 
-class Chapter()
+class Chapter():
 
 
     def __init__(self, file_path=None):
@@ -870,6 +1061,157 @@ def get_raw_chapters_from_tab(self, doc_id, tab):
         }
 
     return chapters
+
+
+
+
+google_paragraph = {
+    "startIndex": 10,
+    "endIndex": 42,
+    "paragraph": {
+        "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT"
+        },
+        "elements": [
+            {
+                "startIndex": 10,
+                "endIndex": 25,
+                "textRun": {
+                    "content": "This is some text",
+                    "textStyle": {}
+                }
+            },
+            {
+                "startIndex": 25,
+                "endIndex": 42,
+                "textRun": {
+                    "content": " in Google Docs.\n",
+                    "textStyle": {}
+                }
+            }
+        ]
+    }
+}
+
+example_text_data = {
+    "startIndex": 10,
+    "endIndex": 95,
+    "textRun": {
+        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n",
+        "textStyle": {
+            "bold": True,
+            "italic": False,
+            "underline": False,
+            "fontSize": {
+                "magnitude": 12,
+                "unit": "PT"
+            },
+            "foregroundColor": {
+                "color": {
+                    "rgbColor": {
+                        "red": 0.2,
+                        "green": 0.3,
+                        "blue": 0.8
+                    }
+                }
+            }
+        }
+    }
+}
+
+example_paragraph = {
+    "startIndex": 10,
+    "endIndex": 115,
+    "paragraph": {
+        "paragraphStyle": {
+            "namedStyleType": "NORMAL_TEXT"
+        },
+        "elements": [
+            {
+                "startIndex": 10,
+                "endIndex": 23,
+                "textRun": {
+                    "content": "Lorem ipsum ",
+                    "textStyle": {
+                        "bold": True
+                    }
+                }
+            },
+            {
+                "startIndex": 23,
+                "endIndex": 42,
+                "textRun": {
+                    "content": "dolor sit amet, ",
+                    "textStyle": {
+                        "italic": True
+                    }
+                }
+            },
+            {
+                "startIndex": 42,
+                "endIndex": 76,
+                "textRun": {
+                    "content": "consectetur adipiscing elit. ",
+                    "textStyle": {
+                        "underline": True
+                    }
+                }
+            },
+            {
+                "startIndex": 76,
+                "endIndex": 115,
+                "textRun": {
+                    "content": "Sed do eiusmod tempor incididunt.\n",
+                    "textStyle": {}
+                }
+            }
+        ]
+    }
+}
+
+
+
+#Main call
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

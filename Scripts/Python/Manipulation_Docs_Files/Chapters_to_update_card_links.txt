@@ -1,3 +1,4 @@
 Date	Access	Chapter_name	Redo
 12.09.2026	AP_Access	Commander Deck Building Bible	0
+21.09.2026	AP_Access	2. The Basics of Commander Deckbuilding - Or What is a Commander Deck?	0
 14.09.2026	AP_Access	9. Templates in Commander Deckbuilding - Old and Forgotten, and New and Shiny	0

@@ -48,8 +48,9 @@ def main():
     print( Example_para.forward, Example_para.pos)
     print( Example_para.backward, Example_para.pos)
     print( Example_para.goto_end, Example_para.pos )
+    print( Example_para.paragraphstyle )
     print("\n\n\nTesting Chapter now \n\n\n")
-    Example_chapter = Chapter.from_google_docs(example_chapter_data)
+    Example_chapter = Chapter.from_google_docs_sorted(example_chapter_data)
     print(Example_chapter)
     print("Print Test succesfull.")
     print( Example_chapter.goto_start, Example_chapter.pos )
@@ -64,6 +65,21 @@ def main():
 
     Back_to_chapter = Paragrapg_lower_test.upper
     print( Back_to_chapter, type(Back_to_chapter) )
+    print("\n\n\nTesting Chapter on Google DOC like data now \n\n\n")
+    Example_chapter = Chapter.from_google_docs(second_example_chapter_data)
+    print(Example_chapter)
+    print("Print Test succesfull.")
+    print( Example_chapter.goto_start, Example_chapter.pos )
+    print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.backward, Example_chapter.pos)
+    print( Example_chapter.goto_end, Example_chapter.pos, "Should be END" )
+    print( Example_chapter.backward, Example_chapter.pos)
+
+    Paragrapg_lower_test = Example_chapter.lower
+    print( Paragrapg_lower_test, type(Paragrapg_lower_test) )
+
+    Back_to_chapter = Paragrapg_lower_test.upper
 
 class ScriptBlock(type):
 
@@ -154,7 +170,7 @@ class DocumentBlock(metaclass=ScriptBlock):
 
     def get_next(self):
         if self.pos <  len(self.chain)-1:
-            return( self.chain[self.pos-1] )
+            return( self.chain[self.pos+1] )
     @property
     def goto_start(self):
         self.pos = 0
@@ -224,6 +240,72 @@ class DocumentBlock(metaclass=ScriptBlock):
         return 1
 
 
+
+class Tab(DocumentBlock):
+    block_type = "tab"
+
+    allowed_children = {
+        "paragraph","chapter"
+    }
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.index = None
+        self.tabId = "t.0"
+    @classmethod
+    def from_google_docs(cls, data):
+        #Creates chapters from the content list google gives.
+        #{'tabProperties': {'tabId': 't.0', 'title': '1. Intro Parts', 'index': 0}
+        tabproperties = data["tabProperties"]
+        tab = cls(
+            name=tabproperties["title"],
+            start=None,
+            end=None,
+            index = tabproperties["index"],
+            tabId = tabproperties["tabId"]
+        )
+        Elements = data["documentTab"]["body"]["content"]
+        #    "documentTab": {
+        #"body": {
+        #    "content": [
+
+        Elements = data
+        Total_Element_number = len(Elements)
+        saving_header = False
+        part_elements = list()
+        for i in range( Total_Element_number  ):
+            print("TEST", i)
+            element = Elements[i]
+            if "paragraph" not in element:  #Exclude paragraphs for now
+                continue
+            if 0:
+                paragraph = Paragraph.from_google_docs(element)
+                if Header_not_saved and "HEADING" in paragraph.paragraphstyle and Ongoing_Saving_Header:
+                    Heading_paragraphs.append( paragraph._get_content() )
+                else:
+                    Header = "".join(Heading_paragraphs)
+                    Header_not_saved = False
+                    Ongoing_Saving_Header = False
+                paragraph.upper = chapter   #Defines the upper element.
+
+                chapter.add(paragraph)
+                chapter.forward   #Goes to the next element in the chain, which is the last added
+                if chapter.pos == 1:
+                    chapter.current.previous_element = "Start"
+                elif chapter.pos == Total_Element_number-1:
+                    chapter.current.next_element = "End"
+                else:
+                    previous = chapter.get_last()
+                    previous.next = chapter.current
+                    chapter.current.previous_element = previous
+                chapter.name = Header   #Saving the Header from before
+                chapter.goto_start
+                chapter.start = chapter.get_next().start
+                #chapter.goto_start.get_next.start
+                chapter.end = chapter.goto_end.end
+        return tab
+
+
+
 class Chapter(DocumentBlock):
 
     block_type = "chapter"
@@ -234,7 +316,7 @@ class Chapter(DocumentBlock):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
     @classmethod
-    def from_google_docs(cls, data):
+    def from_google_docs_sorted(cls, data):
 
         chapter = cls(
             name=data["name"],
@@ -269,6 +351,55 @@ class Chapter(DocumentBlock):
 
         return chapter
 
+    @classmethod
+    def from_google_docs(cls, data):
+        #Creates chapters from the content list google gives.
+        assert type(data) == list
+        chapter = cls(
+            name=None,
+            start=None,
+            end=None
+        )
+        Heading_paragraphs = list()
+        Header = None
+        Header_not_saved = True
+        Ongoing_Saving_Header = True
+        #Adjusting code to be like other instances.
+        Elements = data
+        Total_Element_number = len(Elements)
+        for i in range( Total_Element_number  ):
+            print("TEST", i)
+            element = Elements[i]
+            if "paragraph" not in element:  #Exclude paragraphs for now
+                continue
+            paragraph = Paragraph.from_google_docs(element)
+            if Header_not_saved and "HEADING" in paragraph.paragraphstyle and Ongoing_Saving_Header:
+                Heading_paragraphs.append( paragraph._get_content() )
+            else:
+                Header = "".join(Heading_paragraphs)
+                Header_not_saved = False
+                Ongoing_Saving_Header = False
+            paragraph.upper = chapter   #Defines the upper element.
+
+            chapter.add(paragraph)
+            chapter.forward   #Goes to the next element in the chain, which is the last added
+            if chapter.pos == 1:
+                chapter.current.previous_element = "Start"
+            elif chapter.pos == Total_Element_number-1:
+                chapter.current.next_element = "End"
+            else:
+                previous = chapter.get_last()
+                previous.next = chapter.current
+                chapter.current.previous_element = previous
+        chapter.name = Header   #Saving the Header from before
+        chapter.goto_start
+        chapter.start = chapter.get_next().start
+        #chapter.goto_start.get_next.start
+        chapter.end = chapter.goto_end.end
+        return chapter
+
+        
+
 class Paragraph(DocumentBlock):
 
     block_type = "paragraph"
@@ -278,6 +409,9 @@ class Paragraph(DocumentBlock):
     }
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.paragraphstyle = None
+
+
     @classmethod
     def from_google_docs(cls, data, paragraph_name="Paragraph"):
 
@@ -289,6 +423,8 @@ class Paragraph(DocumentBlock):
             end=data["endIndex"]
         )
 
+        paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
+        paragraph.paragraphstyle = paragraphstyle
         Elements = paragraph_data.get("elements", [])
         Total_Element_number = len(Elements)
         #for element in paragraph_data.get("elements", []):
@@ -1345,6 +1481,306 @@ example_chapter_data = {
             }
         }
     ]
+}
+
+tab_data = {
+    "tabProperties": {
+        "tabId": "t.0",
+        "title": "1. Intro Parts",
+        "index": 0,
+        "nestingLevel": 0,
+        "isLocked": False
+    },
+
+    "documentTab": {
+        "body": {
+            "content": [
+                {
+                    "startIndex": 0,
+                    "endIndex": 31,
+                    "sectionBreak": {
+                        "sectionStyle": {}
+                    }
+                },
+                {
+                    "startIndex": 31,
+                    "endIndex": 60,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 31,
+                                "endIndex": 45,
+                                "textRun": {
+                                    "content": "My first paragraph.\n",
+                                    "textStyle": {}
+                                }
+                            },
+                            {
+                                "startIndex": 45,
+                                "endIndex": 60,
+                                "textRun": {
+                                    "content": "More text here.\n",
+                                    "textStyle": {
+                                        "bold": True
+                                    }
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+                {
+                    "startIndex": 60,
+                    "endIndex": 100,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 60,
+                                "endIndex": 100,
+                                "textRun": {
+                                    "content": "1. General Stuff\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_1"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+
+second_example_chapter_data = [
+
+                # Chapter 1
+                {
+                    "startIndex": 1,
+                    "endIndex": 31,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 1,
+                                "endIndex": 31,
+                                "textRun": {
+                                    "content": "Commander Deck Building Bible\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_1"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 31,
+                    "endIndex": 150,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 31,
+                                "endIndex": 150,
+                                "textRun": {
+                                    "content": "This section explains the general principles of Commander deck building.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 150,
+                    "endIndex": 280,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 150,
+                                "endIndex": 280,
+                                "textRun": {
+                                    "content": "There are several important concepts to understand before building a deck.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                }
+]
+
+example_tab_data = {
+    "tabProperties": {
+        "tabId": "t.0",
+        "title": "1. Intro Parts",
+        "index": 0
+    },
+
+    "documentTab": {
+        "body": {
+            "content": [
+
+                # Chapter 1
+                {
+                    "startIndex": 1,
+                    "endIndex": 31,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 1,
+                                "endIndex": 31,
+                                "textRun": {
+                                    "content": "Commander Deck Building Bible\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_1"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 31,
+                    "endIndex": 150,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 31,
+                                "endIndex": 150,
+                                "textRun": {
+                                    "content": "This section explains the general principles of Commander deck building.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 150,
+                    "endIndex": 280,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 150,
+                                "endIndex": 280,
+                                "textRun": {
+                                    "content": "There are several important concepts to understand before building a deck.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+
+                # Chapter 2
+                {
+                    "startIndex": 280,
+                    "endIndex": 330,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 280,
+                                "endIndex": 330,
+                                "textRun": {
+                                    "content": "1. General Stuff\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_1"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 2
+                {
+                    "startIndex": 330,
+                    "endIndex": 450,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 330,
+                                "endIndex": 450,
+                                "textRun": {
+                                    "content": "General information about the construction of a Commander deck.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+
+                # Chapter 3
+                {
+                    "startIndex": 450,
+                    "endIndex": 510,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 450,
+                                "endIndex": 510,
+                                "textRun": {
+                                    "content": "1.1. How to use this guide\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_2"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 3
+                {
+                    "startIndex": 510,
+                    "endIndex": 650,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 510,
+                                "endIndex": 650,
+                                "textRun": {
+                                    "content": "This guide can be used as a reference when constructing or analysing a deck.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }
 
 

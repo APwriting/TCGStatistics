@@ -71,7 +71,9 @@ def main():
     print("Print Test succesfull.")
     print( Example_chapter.goto_start, Example_chapter.pos )
     print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.lower.start, Example_chapter.lower.end, "Test the positions")
     print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.lower.start, Example_chapter.lower.end, "Test the positions")
     print( Example_chapter.backward, Example_chapter.pos)
     print( Example_chapter.goto_end, Example_chapter.pos, "Should be END" )
     print( Example_chapter.backward, Example_chapter.pos)
@@ -86,7 +88,9 @@ def main():
     print("Print Test succesfull.")
     print( Example_Tab.goto_start, Example_Tab.pos )
     print( Example_Tab.forward, Example_Tab.pos)
+    print( Example_Tab.lower.start, Example_Tab.lower.end, "Test the positions")
     print( Example_Tab.forward, Example_Tab.pos)
+    print( Example_Tab.lower.start, Example_Tab.lower.end, "Test the positions")
     print( Example_Tab.backward, Example_Tab.pos)
     print( Example_Tab.goto_end, Example_Tab.pos, "Should be END" )
     print( Example_Tab.backward, Example_Tab.pos)
@@ -332,6 +336,7 @@ class Tab(DocumentBlock):
         saving_header = False
         New_chapter_ready = False
         part_elements = list()
+        chapter = Chapter()
         for i in range( Total_Element_number  ):
             #print("TEST", i)
             element = Elements[i]
@@ -341,10 +346,12 @@ class Tab(DocumentBlock):
             if "HEADING" in paragraphstyle:
                 if saving_header or i == Total_Element_number-1 or (not saving_header and part_elements):
                     New_chapter_ready = True
+                    Chapter_elements = part_elements[::]
+                    part_elements = list()
 
                 saving_header = True
-                if not part_elements:
-                    part_elements.append(element)
+                
+                part_elements.append(element)
             elif saving_header:     #Redundancy needed for the future
                 part_elements.append(element)
             else:
@@ -352,8 +359,9 @@ class Tab(DocumentBlock):
 
 
             if New_chapter_ready:
-                chapter = Chapter.from_google_docs(part_elements)
-                part_elements = list()
+                chapter = Chapter.from_google_docs(Chapter_elements)
+                #part_elements = list()
+                
                 chapter.upper = tab
                 tab.add(chapter)
                 tab.forward   #Goes to the next element in the chain, which is the last added

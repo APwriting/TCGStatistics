@@ -182,19 +182,25 @@ class DocumentBlock(metaclass=ScriptBlock):
         if self.pos < len(self.chain)-1:
             self.pos+=1
             return( self.current )
+        else:
+            return(self.current)
     @property
     def backward(self):
         if self.pos > 0 :
             self.pos-=1
             return( self.current )
-
+        else:
+            return(self.current)
     def get_last(self):
         if self.pos > 0 :
             return( self.chain[self.pos-1] )
-
+        else:
+            return( self.current )
     def get_next(self):
         if self.pos <  len(self.chain)-1:
             return( self.chain[self.pos+1] )
+        else:
+            return( self.current )
     @property
     def goto_start(self):
         self.pos = 0
@@ -210,6 +216,52 @@ class DocumentBlock(metaclass=ScriptBlock):
     @property
     def tail(self):
         return self.chain[len(self.chain)-1]
+    #Definitions for checking start and end
+    def check_start_and_end_aligned(self):
+        #Checks if chain is aligned by start and end. Summary
+        Position_asignment_summary = self.get_start_and_end_aligned_positions()
+        return sum( Position_asignment_summary ) == len( Position_asignment_summary )
+
+    def get_start_and_end_aligned_positions(self):
+        #Checks if chain is aligned by start and end
+        self.goto_start()
+        self.forward()
+        Elements_positions_fitting = list()
+        while( self.pos < len(self.chain)):
+            Next_element = self.get_next()
+            Elements_positions_fitting.append( self.end == Next_element.start )
+            self.forward
+        return Elements_positions_fitting
+
+    def length(self):
+        #Returns the length of the element based on google docs coordintaed
+        return( self.end - self.start )
+
+    def chain_length(self):
+        #Gives back chain length
+        if len(self.chain)>0:
+            return sum( [ element.chain_length() for element in self.chain[1:] ] )
+        else:
+            return len(self.value)
+
+    def check_chain_aligned(self):
+        return self.length() == self.chain_length
+        
+
+    def align_chain(self):
+        if self.check_chain_aligned:
+            return 1
+        self.goto_start
+        self.forward
+        chain_start = self.current.start
+        current_length = chain_start
+        for element in self.chain:
+            element_length = element.chain_length()
+            self.end = self.start + element_length
+            current_length = self.end
+            self.forward
+            self.start = current_length
+
 
     #Printing definitions
     def print_structure(self):
@@ -470,9 +522,9 @@ class Chapter(DocumentBlock):
                 chapter.current.previous_element = previous
         chapter.name = Header   #Saving the Header from before
         chapter.goto_start
-        chapter.start = chapter.get_next().start
+        chapter.start = chapter.get_next().start    #start of first elements, that is not the header
         #chapter.goto_start.get_next.start
-        chapter.end = chapter.goto_end.end
+        chapter.end = chapter.goto_end.end  #end of last element
         return chapter
 
         

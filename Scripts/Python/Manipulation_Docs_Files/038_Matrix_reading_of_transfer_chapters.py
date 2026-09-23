@@ -96,6 +96,11 @@ def main():
             service,
             Document_key_number
         )
+        if ID == "AP_Access":
+            with open("example_document.txt","w", encoding="utf-8") as OUT:
+                print(document, file=OUT)
+            sys.exit("Stopping until further notice.")
+
         Documents[ID] = docbook.copy()
         Documents[ID].add_document(
                             ID,

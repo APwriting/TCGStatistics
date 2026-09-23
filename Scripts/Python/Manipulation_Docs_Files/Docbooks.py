@@ -80,6 +80,17 @@ def main():
     print( Paragrapg_lower_test, type(Paragrapg_lower_test) )
 
     Back_to_chapter = Paragrapg_lower_test.upper
+    print("\n\n\nTesting TAB on Google DOC like data now \n\n\n")
+    Example_Tab = Tab.from_google_docs(example_tab_data)
+    print(Example_Tab)
+    print("Print Test succesfull.")
+    print( Example_Tab.goto_start, Example_Tab.pos )
+    print( Example_Tab.forward, Example_Tab.pos)
+    print( Example_Tab.forward, Example_Tab.pos)
+    print( Example_Tab.backward, Example_Tab.pos)
+    print( Example_Tab.goto_end, Example_Tab.pos, "Should be END" )
+    print( Example_Tab.backward, Example_Tab.pos)
+
 
 class ScriptBlock(type):
 
@@ -247,10 +258,10 @@ class Tab(DocumentBlock):
     allowed_children = {
         "paragraph","chapter"
     }
-    def __init__(self, **kwargs):
+    def __init__(self, index=None,tabId = "t.0",  **kwargs):
         super().__init__(**kwargs)
-        self.index = None
-        self.tabId = "t.0"
+        self.index = index
+        self.tabId = tabId
     @classmethod
     def from_google_docs(cls, data):
         #Creates chapters from the content list google gives.
@@ -264,19 +275,49 @@ class Tab(DocumentBlock):
             tabId = tabproperties["tabId"]
         )
         Elements = data["documentTab"]["body"]["content"]
-        #    "documentTab": {
+        #    "documentTab": {   #Example of tab structure for elements.
         #"body": {
         #    "content": [
 
-        Elements = data
         Total_Element_number = len(Elements)
         saving_header = False
+        New_chapter_ready = False
         part_elements = list()
         for i in range( Total_Element_number  ):
-            print("TEST", i)
+            #print("TEST", i)
             element = Elements[i]
             if "paragraph" not in element:  #Exclude paragraphs for now
                 continue
+            paragraphstyle =  element["paragraph"].get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
+            if "HEADING" in paragraphstyle:
+                if saving_header or i == Total_Element_number-1 or (not saving_header and part_elements):
+                    New_chapter_ready = True
+
+                saving_header = True
+                if not part_elements:
+                    part_elements.append(element)
+            elif saving_header:     #Redundancy needed for the future
+                part_elements.append(element)
+            else:
+                part_elements.append(element)
+
+
+            if New_chapter_ready:
+                chapter = Chapter.from_google_docs(part_elements)
+                part_elements = list()
+                chapter.upper = tab
+                tab.add(chapter)
+                tab.forward   #Goes to the next element in the chain, which is the last added
+                if tab.pos == 1:
+                    tab.current.previous_element = "Start"
+                elif tab.pos == Total_Element_number-1:
+                    tab.current.next_element = "End"
+                else:
+                    previous = tab.get_last()
+                    previous.next = tab.current
+                    tab.current.previous_element = previous
+                New_chapter_ready = False
+
             if 0:
                 paragraph = Paragraph.from_google_docs(element)
                 if Header_not_saved and "HEADING" in paragraph.paragraphstyle and Ongoing_Saving_Header:
@@ -368,7 +409,7 @@ class Chapter(DocumentBlock):
         Elements = data
         Total_Element_number = len(Elements)
         for i in range( Total_Element_number  ):
-            print("TEST", i)
+            #print("TEST", i)
             element = Elements[i]
             if "paragraph" not in element:  #Exclude paragraphs for now
                 continue

@@ -91,6 +91,18 @@ def main():
     print( Example_Tab.goto_end, Example_Tab.pos, "Should be END" )
     print( Example_Tab.backward, Example_Tab.pos)
 
+    print("-------------------------------------------------------------")
+    print("\n\n\nTesting DOCUMENT Class on Google DOC like data now \n\n\n")
+    Example_Doc = Document.from_google_docs(Example_document_pull)
+    print(Example_Doc)
+    print("Print Test succesfull.")
+    print( Example_Doc.goto_start, Example_Doc.pos )
+    print( Example_Doc.forward, Example_Doc.pos)
+    print( Example_Doc.forward, Example_Doc.pos)
+    print( Example_Doc.backward, Example_Doc.pos)
+    print( Example_Doc.goto_end, Example_Doc.pos, "Should be END" )
+    print( Example_Doc.backward, Example_Doc.pos)
+
 
 class ScriptBlock(type):
 
@@ -125,9 +137,6 @@ class ScriptBlock(type):
             mcls.registry[block_type] = cls
 
         return cls
-
-
-
 
 
 
@@ -251,6 +260,46 @@ class DocumentBlock(metaclass=ScriptBlock):
         return 1
 
 
+class Document(DocumentBlock):
+    block_type = "document"
+
+    allowed_children = {
+        "tab"
+    }
+    def __init__(self, documentId = None,  **kwargs):
+        super().__init__(**kwargs)
+        self.documentId = documentId
+    @classmethod
+    def from_google_docs(cls, data):
+        tabs = data["tabs"]
+        document = cls(
+            name=data["title"],
+            start=None,
+            end=None
+        )
+        Total_Element_number = len(tabs)
+
+        for i in range( Total_Element_number  ):
+            element = tabs[i]
+            tab = Tab.from_google_docs(element)
+
+
+            document.add(tab)
+            document.forward   #Goes to the next element in the chain, which is the last added
+            if document.pos == 1:
+                document.current.previous_element = "Start"
+            elif document.pos == Total_Element_number-1:
+                document.current.next_element = "End"
+            else:
+                previous = document.get_last()
+                previous.next = document.current
+                document.current.previous_element = previous
+
+        document.goto_start
+        document.start = document.get_next().start
+        document.end = document.goto_end.end
+        return(document)
+
 
 class Tab(DocumentBlock):
     block_type = "tab"
@@ -318,31 +367,10 @@ class Tab(DocumentBlock):
                     tab.current.previous_element = previous
                 New_chapter_ready = False
 
-            if 0:
-                paragraph = Paragraph.from_google_docs(element)
-                if Header_not_saved and "HEADING" in paragraph.paragraphstyle and Ongoing_Saving_Header:
-                    Heading_paragraphs.append( paragraph._get_content() )
-                else:
-                    Header = "".join(Heading_paragraphs)
-                    Header_not_saved = False
-                    Ongoing_Saving_Header = False
-                paragraph.upper = chapter   #Defines the upper element.
+        tab.goto_start
+        tab.start = tab.get_next().start
+        tab.end = tab.goto_end.end
 
-                chapter.add(paragraph)
-                chapter.forward   #Goes to the next element in the chain, which is the last added
-                if chapter.pos == 1:
-                    chapter.current.previous_element = "Start"
-                elif chapter.pos == Total_Element_number-1:
-                    chapter.current.next_element = "End"
-                else:
-                    previous = chapter.get_last()
-                    previous.next = chapter.current
-                    chapter.current.previous_element = previous
-                chapter.name = Header   #Saving the Header from before
-                chapter.goto_start
-                chapter.start = chapter.get_next().start
-                #chapter.goto_start.get_next.start
-                chapter.end = chapter.goto_end.end
         return tab
 
 
@@ -1822,6 +1850,328 @@ example_tab_data = {
             ]
         }
     }
+}
+
+Example_document_pull = {'title': 'Commander deck building guide', 
+                         'revisionId': 'ANLCKQnHDtX9M27O2VjbkZHtR3aNf2P5B_fcer1jI_rkBwKYE6bFHEtWpZMKixh7X_wYG07GCiXH4UjiIE-ySDpCqJ', 
+                         'suggestionsViewMode': 'SUGGESTIONS_INLINE', 
+                         'documentId': '1NqFswFlo4GzQWm7jQnHdfdE5XQMJhsadftsgUEKbMUiM07w', 
+                         'tabs': [
+        # ============================================================
+        # TAB 1
+        # ============================================================
+        {
+            "tabProperties": {
+                "tabId": "t.0",
+                "title": "1. Intro Parts",
+                "index": 0
+            },
+            "documentTab": {
+                "body": {
+                    "content": [
+
+                        # Chapter / Heading
+                        {
+                            "startIndex": 1,
+                            "endIndex": 35,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 1,
+                                        "endIndex": 35,
+                                        "textRun": {
+                                            "content": "Commander Deck Building Bible\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_1"
+                                }
+                            }
+                        },
+
+                        # Paragraph
+                        {
+                            "startIndex": 35,
+                            "endIndex": 120,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 35,
+                                        "endIndex": 120,
+                                        "textRun": {
+                                            "content": "This guide explains the basic principles of Commander deck building.\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        },
+
+                        # Chapter / Heading
+                        {
+                            "startIndex": 120,
+                            "endIndex": 150,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 120,
+                                        "endIndex": 150,
+                                        "textRun": {
+                                            "content": "1. General Stuff\n",
+                                            "textStyle": {
+                                                "bold": True
+                                            }
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_1"
+                                }
+                            }
+                        },
+
+                        # Paragraph
+                        {
+                            "startIndex": 150,
+                            "endIndex": 240,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 150,
+                                        "endIndex": 240,
+                                        "textRun": {
+                                            "content": "There are several important concepts to understand before building a deck.\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+
+        # ============================================================
+        # TAB 2
+        # ============================================================
+        {
+            "tabProperties": {
+                "tabId": "t.esursc3mx121",
+                "title": "2-3. The Basics and History",
+                "index": 1
+            },
+            "documentTab": {
+                "body": {
+                    "content": [
+
+                        # Chapter
+                        {
+                            "startIndex": 1,
+                            "endIndex": 70,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 1,
+                                        "endIndex": 70,
+                                        "textRun": {
+                                            "content": "2. The Basics of Commander Deckbuilding\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_1"
+                                }
+                            }
+                        },
+
+                        # Paragraph
+                        {
+                            "startIndex": 70,
+                            "endIndex": 180,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 70,
+                                        "endIndex": 180,
+                                        "textRun": {
+                                            "content": "Commander is a multiplayer format with a unique deck construction system.\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        },
+
+                        # Subchapter
+                        {
+                            "startIndex": 180,
+                            "endIndex": 230,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 180,
+                                        "endIndex": 230,
+                                        "textRun": {
+                                            "content": "2.1. What is a Commander?\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_2"
+                                }
+                            }
+                        },
+
+                        # Paragraph
+                        {
+                            "startIndex": 230,
+                            "endIndex": 340,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 230,
+                                        "endIndex": 340,
+                                        "textRun": {
+                                            "content": "The commander determines the colour identity and often the strategy of the deck.\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+
+        # ============================================================
+        # TAB 3
+        # ============================================================
+        {
+            "tabProperties": {
+                "tabId": "t.xyz789",
+                "title": "4. Mana",
+                "index": 2
+            },
+            "documentTab": {
+                "body": {
+                    "content": [
+
+                        # Chapter
+                        {
+                            "startIndex": 1,
+                            "endIndex": 25,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 1,
+                                        "endIndex": 25,
+                                        "textRun": {
+                                            "content": "4. Mana\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_1"
+                                }
+                            }
+                        },
+
+                        # Paragraph
+                        {
+                            "startIndex": 25,
+                            "endIndex": 100,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 25,
+                                        "endIndex": 100,
+                                        "textRun": {
+                                            "content": "Mana is one of the most important resources when constructing a deck.\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        },
+
+                        # Subchapter
+                        {
+                            "startIndex": 100,
+                            "endIndex": 140,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 100,
+                                        "endIndex": 140,
+                                        "textRun": {
+                                            "content": "4.1. Lands\n",
+                                            "textStyle": {}
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "HEADING_2"
+                                }
+                            }
+                        },
+
+                        # Paragraph with two text runs
+                        {
+                            "startIndex": 140,
+                            "endIndex": 260,
+                            "paragraph": {
+                                "elements": [
+                                    {
+                                        "startIndex": 140,
+                                        "endIndex": 200,
+                                        "textRun": {
+                                            "content": "A typical deck contains ",
+                                            "textStyle": {}
+                                        }
+                                    },
+                                    {
+                                        "startIndex": 200,
+                                        "endIndex": 260,
+                                        "textRun": {
+                                            "content": "around 35–40 lands.\n",
+                                            "textStyle": {
+                                                "bold": True
+                                            }
+                                        }
+                                    }
+                                ],
+                                "paragraphStyle": {
+                                    "namedStyleType": "NORMAL_TEXT"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
 }
 
 

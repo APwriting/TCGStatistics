@@ -81,6 +81,26 @@ def main():
     Paragrapg_lower_test = Example_chapter.lower
     print( Paragrapg_lower_test, type(Paragrapg_lower_test) )
 
+    print("\n\n\nTesting alignment function on chapter like data now \n\n\n")
+    print(Example_chapter)
+    print("Print Test succesfull.")
+    print( "Example_chapter.check_start_and_end_aligned() ",Example_chapter.check_start_and_end_aligned() )
+    
+    print( "Example_chapter.get_start_and_end_aligned_positions()",Example_chapter.get_start_and_end_aligned_positions() )
+    #sys.exit()
+    print( "Example_chapter.length()", Example_chapter.length())
+    print( "Example_chapter.chain_length()",Example_chapter.chain_length())
+    print( "Example_chapter.check_chain_aligned()", Example_chapter.check_chain_aligned())
+    print( "Example_chapter.align_chain()", Example_chapter.align_chain() )
+    Example_chapter = Chapter.from_google_docs(missaligned_example_chapter_data)
+    print(Example_chapter)
+    print( "Example_chapter.check_start_and_end_aligned() ",Example_chapter.check_start_and_end_aligned() )
+    print( "Example_chapter.get_start_and_end_aligned_positions()",Example_chapter.get_start_and_end_aligned_positions() )
+    print( "Example_chapter.length()", Example_chapter.length())
+    print( "Example_chapter.chain_length()",Example_chapter.chain_length())
+    print( "Example_chapter.check_chain_aligned()", Example_chapter.check_chain_aligned())
+    print( "Example_chapter.align_chain()", Example_chapter.align_chain() )
+    sys.exit()
     Back_to_chapter = Paragrapg_lower_test.upper
     print("\n\n\nTesting TAB on Google DOC like data now \n\n\n")
     Example_Tab = Tab.from_google_docs(example_tab_data)
@@ -216,52 +236,78 @@ class DocumentBlock(metaclass=ScriptBlock):
     @property
     def tail(self):
         return self.chain[len(self.chain)-1]
+    
     #Definitions for checking start and end
+    def get_start_and_end_aligned_positions(self):
+        #Checks if chain is aligned by start and end
+        self.goto_start
+        Elements_positions_fitting = list()
+        if len(self.chain)>1:
+        
+            #while( self.pos < len(self.chain)-1):
+            for i in range( len(self.chain)-2 ):
+                current_element = self.forward
+                Next_element = self.get_next()
+                print(current_element.start, current_element.end)
+                print(current_element.lower)
+                print(Next_element.start, Next_element.end)
+                print(Next_element.lower)
+                print( "testtest\n\n")
+                Elements_positions_fitting.append( current_element.end == Next_element.start )
+                #self.forward
+        return Elements_positions_fitting
+    
     def check_start_and_end_aligned(self):
         #Checks if chain is aligned by start and end. Summary
         Position_asignment_summary = self.get_start_and_end_aligned_positions()
         return sum( Position_asignment_summary ) == len( Position_asignment_summary )
 
-    def get_start_and_end_aligned_positions(self):
-        #Checks if chain is aligned by start and end
-        self.goto_start()
-        self.forward()
-        Elements_positions_fitting = list()
-        while( self.pos < len(self.chain)):
-            Next_element = self.get_next()
-            Elements_positions_fitting.append( self.end == Next_element.start )
-            self.forward
-        return Elements_positions_fitting
-
     def length(self):
         #Returns the length of the element based on google docs coordintaed
-        return( self.end - self.start )
+        return( self.end - self.start+1 )
 
     def chain_length(self):
         #Gives back chain length
-        if len(self.chain)>0:
+        if len(self.chain)>1:
             return sum( [ element.chain_length() for element in self.chain[1:] ] )
         else:
             return len(self.value)
 
     def check_chain_aligned(self):
-        return self.length() == self.chain_length
+        return self.length() == self.chain_length()
         
 
-    def align_chain(self):
-        if self.check_chain_aligned:
-            return 1
+    def align_chain(self, force = False, chain_start = None):
+        #Option force is important in order to be sure that all lower levels are aligned, too.
+        #For example, force can make sure in a Tab that the Paragrapsh and Text levels are also aligned.
+        if not force and self.check_chain_aligned() :
+            return "Chain alignment already ok."
+        if len(self.chain)==1:
+            if chain_start:
+                self.start = chain_start
+            self.end =  self.start+self.chain_length()
+            return "Chain too small to align. Adjusted positions instead by size starting positon and size of value"
         self.goto_start
         self.forward
-        chain_start = self.current.start
+        if not chain_start:
+            chain_start = self.current.start
+        self.start = chain_start
         current_length = chain_start
-        for element in self.chain:
+        for element in self.chain[1:]:
+            if element.start != current_length:
+                element.start = current_length
+            element.align_chain(force = True, chain_start = current_length)
             element_length = element.chain_length()
-            self.end = self.start + element_length
-            current_length = self.end
-            self.forward
-            self.start = current_length
+            element.end = element.start + element_length
+            current_length = element.end
+            if self.pos < len(self.chain):
+                self.forward
 
+        #TOMORROW TODO
+        print("TESTHER", self.get_last())
+        print( self )
+        self.end = self.get_last().end
+        return "Chain alignment done"
 
     #Printing definitions
     def print_structure(self):
@@ -1612,6 +1658,74 @@ example_chapter_data = {
     ]
 }
 
+
+missaligned_example_chapter_data = [
+
+                # Chapter 1
+                {
+                    "startIndex": 1,
+                    "endIndex": 345,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 1,
+                                "endIndex": 31,
+                                "textRun": {
+                                    "content": "Commander Deck Building BibleHHHFHHFHFdfdd\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "HEADING_1"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 31,
+                    "endIndex": 155,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 31,
+                                "endIndex": 150,
+                                "textRun": {
+                                    "content": "This section TADA explains the general principles of Commander deck building.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                },
+
+                # Paragraph inside Chapter 1
+                {
+                    "startIndex": 200,
+                    "endIndex": 270,
+                    "paragraph": {
+                        "elements": [
+                            {
+                                "startIndex": 150,
+                                "endIndex": 270,
+                                "textRun": {
+                                    "content": "There are several important concepts to understand before building a deck.\n",
+                                    "textStyle": {}
+                                }
+                            }
+                        ],
+                        "paragraphStyle": {
+                            "namedStyleType": "NORMAL_TEXT"
+                        }
+                    }
+                }
+]
+
+
 tab_data = {
     "tabProperties": {
         "tabId": "t.0",
@@ -1710,12 +1824,12 @@ second_example_chapter_data = [
                 # Paragraph inside Chapter 1
                 {
                     "startIndex": 31,
-                    "endIndex": 150,
+                    "endIndex": 104,
                     "paragraph": {
                         "elements": [
                             {
                                 "startIndex": 31,
-                                "endIndex": 150,
+                                "endIndex": 104,
                                 "textRun": {
                                     "content": "This section explains the general principles of Commander deck building.\n",
                                     "textStyle": {}
@@ -1730,13 +1844,13 @@ second_example_chapter_data = [
 
                 # Paragraph inside Chapter 1
                 {
-                    "startIndex": 150,
-                    "endIndex": 280,
+                    "startIndex": 104,
+                    "endIndex": 178,
                     "paragraph": {
                         "elements": [
                             {
-                                "startIndex": 150,
-                                "endIndex": 280,
+                                "startIndex": 104,
+                                "endIndex": 178,
                                 "textRun": {
                                     "content": "There are several important concepts to understand before building a deck.\n",
                                     "textStyle": {}

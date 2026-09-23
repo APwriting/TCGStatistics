@@ -38,8 +38,10 @@ def main():
     print(Example_text)
     Example_text.info()
     #Example_text.print_structure()
-
-
+    print("Testing paragraph now \n\n\n")
+    #print(example_paragraph["paragraph"])
+    Example_para = Paragraph.from_google_docs(example_paragraph)
+    print(Example_para)
 
 class ScriptBlock(type):
 
@@ -97,15 +99,36 @@ class DocumentBlock(metaclass=ScriptBlock):
         self.chain = [self.name]
         self.pos = 0
 
-        self.next = None
-        self.previous = None
+        self.next_element = None
+        self.previous_element = None
         self.upper = None
         self.lower = self.chain[ self.pos ]
 
+    ###Navigating the Chain
 
+    @property
     def current(self):
-        return self.chain[self.chain_position]
+        return self.chain[self.pos]
+    @property
+    def forward(self):
+        if self.pos < len(self.chain)-1:
+            self.pos+=1
+            return( self.current )
+    @property
+    def backward(self):
+        if self.pos > 0 :
+            self.pos-=1
+            return( self.current )
 
+    def get_last(self):
+        if self.pos > 0 :
+            return( self.chain[self.pos-1] )
+
+    def get_next(self):
+        if self.pos <  len(self.chain)-1:
+            return( self.chain[self.pos-1] )
+
+    #Printing definitions
     def print_structure(self):
         print(f"Type: {self.block_type}")
         print(f"Name: {self.name}")
@@ -142,7 +165,8 @@ class DocumentBlock(metaclass=ScriptBlock):
 
     def __str__(self):
         return self._get_content()
-    
+
+    #Adding to the structure
     def add(self, element):
         #TODO NEEDS TO BE REWORKED
 
@@ -166,27 +190,43 @@ class Paragraph(DocumentBlock):
     allowed_children = {
         "text"
     }
-    def __init__(self, text_style=None):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     @classmethod
     def from_google_docs(cls, data, paragraph_name="Paragraph"):
 
         paragraph_data = data["paragraph"]
-
+        #print("To be sure",paragraph_data)
         paragraph = cls(
             name=paragraph_name,
             start=data["startIndex"],
             end=data["endIndex"]
         )
 
-        for element in paragraph_data.get("elements", []):
+        Elements = paragraph_data.get("elements", [])
+        Total_Element_number = len(Elements)
+        #for element in paragraph_data.get("elements", []):
+        for i in range( Total_Element_number  ):
+            element = Elements[i]
 
             if "textRun" not in element:
                 continue
-
+            #print(element)
             text = Text.from_google_docs(element)
 
-            paragraph.add(text)
+            text.upper = paragraph
+
+            paragraph.add(text) #Add text to the chain
+            paragraph.forward   #Goes to the next element in the chain, which is the last added
+            if paragraph.pos == 1:
+                paragraph.current.previous_element = "Start"
+            elif paragraph.pos == Total_Element_number-1:
+                paragraph.current.next_element = "End"
+            else:
+                previous = paragraph.get_last()
+                previous.next = paragraph.current
+                paragraph.current.previous_element = previous
+
 
         return paragraph
 
@@ -214,7 +254,7 @@ class Text(DocumentBlock):
             text_style=text_run.get("textStyle", {})
         )
 
-    def _get_content(self):
+    def _get_content(self, level=0):
         return(self.value)
 
 

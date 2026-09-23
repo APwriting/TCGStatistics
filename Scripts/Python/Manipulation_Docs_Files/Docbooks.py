@@ -42,6 +42,28 @@ def main():
     #print(example_paragraph["paragraph"])
     Example_para = Paragraph.from_google_docs(example_paragraph)
     print(Example_para)
+    print("Furhter tests\n\n\n")
+    print( Example_para.goto_start, Example_para.pos )
+    print( Example_para.forward, Example_para.pos)
+    print( Example_para.forward, Example_para.pos)
+    print( Example_para.backward, Example_para.pos)
+    print( Example_para.goto_end, Example_para.pos )
+    print("\n\n\nTesting Chapter now \n\n\n")
+    Example_chapter = Chapter.from_google_docs(example_chapter_data)
+    print(Example_chapter)
+    print("Print Test succesfull.")
+    print( Example_chapter.goto_start, Example_chapter.pos )
+    print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.forward, Example_chapter.pos)
+    print( Example_chapter.backward, Example_chapter.pos)
+    print( Example_chapter.goto_end, Example_chapter.pos, "Should be END" )
+    print( Example_chapter.backward, Example_chapter.pos)
+
+    Paragrapg_lower_test = Example_chapter.lower
+    print( Paragrapg_lower_test, type(Paragrapg_lower_test) )
+
+    Back_to_chapter = Paragrapg_lower_test.upper
+    print( Back_to_chapter, type(Back_to_chapter) )
 
 class ScriptBlock(type):
 
@@ -102,9 +124,15 @@ class DocumentBlock(metaclass=ScriptBlock):
         self.next_element = None
         self.previous_element = None
         self.upper = None
-        self.lower = self.chain[ self.pos ]
+        #self.lower = None
 
     ###Navigating the Chain
+
+    #Necessary to define here to give the behavious I want.
+    #Upper is still statically defined. 
+    @property
+    def lower(self):
+        return self.chain[self.pos]
 
     @property
     def current(self):
@@ -127,6 +155,21 @@ class DocumentBlock(metaclass=ScriptBlock):
     def get_next(self):
         if self.pos <  len(self.chain)-1:
             return( self.chain[self.pos-1] )
+    @property
+    def goto_start(self):
+        self.pos = 0
+        return self.current
+    @property
+    def head(self):
+        return self.chain[0]
+
+    @property
+    def goto_end(self):
+        self.pos = len(self.chain)-1
+        return self.current
+    @property
+    def tail(self):
+        return self.chain[len(self.chain)-1]
 
     #Printing definitions
     def print_structure(self):
@@ -181,7 +224,50 @@ class DocumentBlock(metaclass=ScriptBlock):
         return 1
 
 
+class Chapter(DocumentBlock):
 
+    block_type = "chapter"
+
+    allowed_children = {
+        "paragraph"
+    }
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    @classmethod
+    def from_google_docs(cls, data):
+
+        chapter = cls(
+            name=data["name"],
+            start=data["startIndex"],
+            end=data["endIndex"]
+        )
+        Elements = data.get("elements", [])
+        #print(Elements)
+        Total_Element_number = len(Elements)
+        #for element in data.get("elements", []):
+        for i in range( Total_Element_number  ):
+            element = Elements[i]
+
+            if "paragraph" not in element:  #Exclude paragraphs for now
+                continue
+
+            paragraph = Paragraph.from_google_docs(element)
+            paragraph.upper = chapter   #Defines the upper element.
+
+            chapter.add(paragraph)
+            chapter.forward   #Goes to the next element in the chain, which is the last added
+            if chapter.pos == 1:
+                chapter.current.previous_element = "Start"
+            elif chapter.pos == Total_Element_number-1:
+                chapter.current.next_element = "End"
+            else:
+                #print( "Test",paragraph )
+                previous = chapter.get_last()
+                #print( "Test", previous )
+                previous.next = chapter.current
+                chapter.current.previous_element = previous
+
+        return chapter
 
 class Paragraph(DocumentBlock):
 
@@ -964,24 +1050,24 @@ def get_chapter_structured(
 
 
 
+if 0:
+    class Chapter():
 
-class Chapter():
 
+        def __init__(self, file_path=None):
+            """
+            Create a Docbook.
 
-    def __init__(self, file_path=None):
-        """
-        Create a Docbook.
+            Parameters
+            ----------
+            file_path : str or Path, optional
+                Path to the tab-separated metadata file.
+            """
 
-        Parameters
-        ----------
-        file_path : str or Path, optional
-            Path to the tab-separated metadata file.
-        """
+            self.data = pd.DataFrame(columns=self.COLUMNS)
 
-        self.data = pd.DataFrame(columns=self.COLUMNS)
-
-        # Actual Google Docs data
-        self.documents = {}
+            # Actual Google Docs data
+            self.documents = {}
 
 
 
@@ -1209,6 +1295,57 @@ example_paragraph = {
     }
 }
 
+example_chapter_data = {
+    "name": "Example Chapter",
+    "startIndex": 1,
+    "endIndex": 250,
+    "elements": [
+        {
+            "startIndex": 1,
+            "endIndex": 70,
+            "paragraph": {
+                "elements": [
+                    {
+                        "startIndex": 1,
+                        "endIndex": 35,
+                        "textRun": {
+                            "content": "Lorem ipsum dolor sit amet, ",
+                            "textStyle": {
+                                "bold": True
+                            }
+                        }
+                    },
+                    {
+                        "startIndex": 35,
+                        "endIndex": 70,
+                        "textRun": {
+                            "content": "consectetur adipiscing elit.\n",
+                            "textStyle": {}
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "startIndex": 70,
+            "endIndex": 140,
+            "paragraph": {
+                "elements": [
+                    {
+                        "startIndex": 70,
+                        "endIndex": 140,
+                        "textRun": {
+                            "content": "Sed do eiusmod tempor incididunt ut labore.\n",
+                            "textStyle": {
+                                "italic": True
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
 
 
 #Main call

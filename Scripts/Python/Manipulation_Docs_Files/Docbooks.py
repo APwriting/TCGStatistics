@@ -100,7 +100,12 @@ def main():
     print( "Example_chapter.chain_length()",Example_chapter.chain_length())
     print( "Example_chapter.check_chain_aligned()", Example_chapter.check_chain_aligned())
     print( "Example_chapter.align_chain()", Example_chapter.align_chain() )
-    sys.exit()
+    print( "Example_chapter.check_start_and_end_aligned() ",Example_chapter.check_start_and_end_aligned() )
+    print( "Example_chapter.get_start_and_end_aligned_positions()",Example_chapter.get_start_and_end_aligned_positions() )
+    print( "Example_chapter.length()", Example_chapter.length())
+    print( "Example_chapter.chain_length()",Example_chapter.chain_length())
+    print( "Example_chapter.check_chain_aligned()", Example_chapter.check_chain_aligned())
+    #sys.exit()
     Back_to_chapter = Paragrapg_lower_test.upper
     print("\n\n\nTesting TAB on Google DOC like data now \n\n\n")
     Example_Tab = Tab.from_google_docs(example_tab_data)
@@ -213,7 +218,7 @@ class DocumentBlock(metaclass=ScriptBlock):
             return(self.current)
     def get_last(self):
         if self.pos > 0 :
-            return( self.chain[self.pos-1] )
+            return( self.chain[ self.pos-1] )
         else:
             return( self.current )
     def get_next(self):
@@ -248,11 +253,6 @@ class DocumentBlock(metaclass=ScriptBlock):
             for i in range( len(self.chain)-2 ):
                 current_element = self.forward
                 Next_element = self.get_next()
-                print(current_element.start, current_element.end)
-                print(current_element.lower)
-                print(Next_element.start, Next_element.end)
-                print(Next_element.lower)
-                print( "testtest\n\n")
                 Elements_positions_fitting.append( current_element.end == Next_element.start )
                 #self.forward
         return Elements_positions_fitting
@@ -260,11 +260,11 @@ class DocumentBlock(metaclass=ScriptBlock):
     def check_start_and_end_aligned(self):
         #Checks if chain is aligned by start and end. Summary
         Position_asignment_summary = self.get_start_and_end_aligned_positions()
-        return sum( Position_asignment_summary ) == len( Position_asignment_summary )
+        return all( Position_asignment_summary )
 
     def length(self):
         #Returns the length of the element based on google docs coordintaed
-        return( self.end - self.start+1 )
+        return( self.end - self.start )
 
     def chain_length(self):
         #Gives back chain length
@@ -274,6 +274,7 @@ class DocumentBlock(metaclass=ScriptBlock):
             return len(self.value)
 
     def check_chain_aligned(self):
+        #TODO Stil a bug existant, that alignment is one short. 
         return self.length() == self.chain_length()
         
 
@@ -303,10 +304,8 @@ class DocumentBlock(metaclass=ScriptBlock):
             if self.pos < len(self.chain):
                 self.forward
 
-        #TOMORROW TODO
-        print("TESTHER", self.get_last())
-        print( self )
-        self.end = self.get_last().end
+        last_element_right = self.goto_end
+        self.end = last_element_right.end
         return "Chain alignment done"
 
     #Printing definitions
@@ -1845,12 +1844,12 @@ second_example_chapter_data = [
                 # Paragraph inside Chapter 1
                 {
                     "startIndex": 104,
-                    "endIndex": 178,
+                    "endIndex": 179,
                     "paragraph": {
                         "elements": [
                             {
                                 "startIndex": 104,
-                                "endIndex": 178,
+                                "endIndex": 179,
                                 "textRun": {
                                     "content": "There are several important concepts to understand before building a deck.\n",
                                     "textStyle": {}

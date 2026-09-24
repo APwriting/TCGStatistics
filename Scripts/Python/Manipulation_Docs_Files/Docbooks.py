@@ -473,8 +473,13 @@ class Tab(DocumentBlock):
                 New_chapter_ready = False
 
         tab.goto_start
-        tab.start = tab.get_next().start
-        tab.end = tab.goto_end.end
+        print(tab.chain)
+        if len(tab.chain) >1:
+            tab.start = tab.get_next().start
+            tab.end = tab.goto_end.end
+        else:
+            tab.start = 0
+            tab.end = 0
 
         return tab
 
@@ -489,6 +494,7 @@ class Chapter(DocumentBlock):
     }
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.level = None
     @classmethod
     def from_google_docs_sorted(cls, data):
 
@@ -566,9 +572,10 @@ class Chapter(DocumentBlock):
                 previous.next = chapter.current
                 chapter.current.previous_element = previous
         chapter.name = Header   #Saving the Header from before
+        chapter.level = Header.split("_")[-1]    #Header have structure of HEADER_1
         chapter.goto_start
         chapter.start = chapter.get_next().start    #start of first elements, that is not the header
-        #chapter.goto_start.get_next.start
+
         chapter.end = chapter.goto_end.end  #end of last element
         return chapter
 
@@ -2346,6 +2353,10 @@ Example_document_pull = {'title': 'Commander deck building guide',
         }
     ]
 }
+
+
+
+
 
 
 #Main call

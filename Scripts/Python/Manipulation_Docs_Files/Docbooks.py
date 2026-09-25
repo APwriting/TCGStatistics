@@ -283,7 +283,6 @@ class DocumentBlock(metaclass=ScriptBlock):
             return len(self.value)
 
     def check_chain_aligned(self):
-        #TODO Stil a bug existant, that alignment is one short. 
         return self.length() == self.chain_length()
         
 
@@ -322,8 +321,15 @@ class DocumentBlock(metaclass=ScriptBlock):
         #Find an objects in the chain.
         for i in range( 1, len(self.chain)):
             element = self.chain[i]
-            if element.name == seached_name:
+            if element.name == searched_name:
                 return(element)
+
+    def find_element_chainID(self, searched_name):
+        #Find an objects in the chain.
+        for i in range( 1, len(self.chain)):
+            element = self.chain[i]
+            if element.name == searched_name:
+                return(i)
 
     def deep_find_element(self, searched_name):
         #Find an objects in the chain by also looking through the objects in the lower chain.
@@ -337,29 +343,112 @@ class DocumentBlock(metaclass=ScriptBlock):
             if Found:
                 return Found
 
+    #Add to chain and share it.
+    #pos will switch over to inserted element
+    def append(self, element):
+        if element.block_type not in self.allowed_children:
+            raise TypeError(
+                f"{self.block_type} cannot contain "
+                f"{element.block_type}."
+            )
+        self.chain.append( element )
+        self.pos = len(self.chain)-1
+        return 1
 
+    def extend(self, element_list):
+        #Like the namesake function.
+        assert type(element_list) == list
+        for element in element_list:
+            if element.block_type not in self.allowed_children:
+                raise TypeError(
+                    f"{self.block_type} cannot contain "
+                    f"{element.block_type}."
+                )
+        self.chain.extend( element_list )
+        self.pos = len(self.chain)-1
+        return 1
             
+    def insert(self, i, element):
 
+        if element.block_type not in self.allowed_children:
+            raise TypeError(
+                f"{self.block_type} cannot contain "
+                f"{element.block_type}."
+            )
+        if i >= len(self.chain):
+            self.append(element)
+            return 1
+        self.chain.insert(i,element)
+        self.pos = i
+        return 1
 
+    def delete_index(self, i):
+        if len(self.chain) <= i :
+            raise IndexError(
+                f"Index {i}: Out of range of chain. Chain Length: {len(self.chain)}"
+            )
+        element = self.chain[i]
+        del self.chain[i]
+        return( element )
+
+    def delete(self, element_name):
+        #Deletion based on element name.
+        i = self.find_element_chainID(searched_name= element_name)
+        if i:
+            element = self.chain[i]
+            self.delete_index(i=i)
+            return element
+        return None
+
+    def delete_element(self, element):
+        #deletes specific elements
+        for i in range( len(self.chain)):
+            chain_element = self.chain[i]
+            if element == chain_element:
+                self.delete_index(i=i)
+                return 1
+        return None
+
+    def pop(self):
+        #Like the namesake function
+        if len(self.chain) == 1:
+            raise IndexError(
+                f"{self.name}: cannot pop empty chain. Chain Head: {self.chain[0]}"
+            ) 
+        return self.chain.pop
 
 
     #Printing definitions
-    def print_structure(self):
-        print(f"Type: {self.block_type}")
-        print(f"Name: {self.name}")
-        print(f"Position: {self.start} - {self.end}")
-        print(f"Value: {self.value}")
-        print(f"Upper: {self.upper}")
-        print(f"Lower: {self.lower}")
-        print(f"Previous: {self.previous}")
-        print(f"Next: {self.next}")
+    def print_structure(self, Tab = ""):
+       #Prints complete structure recursively. 
+        print(f"{Tab}Type: {self.block_type}")
+        print(f"{Tab}Name: {self.name}")
+        print(f"{Tab}Position: {self.start} - {self.end}")
+        print(f"{Tab}Value: {self.value}")
+        if self.upper:
+            print(f"{Tab}Upper: {self.upper.name}")
+        if self.lower:
+            print(f"{Tab}Lower (Current position: {self.pos}): {self.lower.name}")
+        if self.previous:
+            print(f"{Tab}Previous: {self.previous.name}")
+        if self.next:
+            print(f"{Tab}Next: {self.next.name}")
+        print(f"{Tab}Chain head:{self.chain[0]}")
+        print(f"{Tab}Substructure:\n")
+        Tab += "\t"
+        for i in range( 1,len(self.chain)):
+            element = self.chain[i]
+            element.print_structure( Tab = Tab)
+
 
 
     def info(self):
+        #Smaller version of print structure
         print(f"Type: {self.block_type}")
         print(f"Name: {self.name}")
         print(f"Position: {self.start} - {self.end}")
         print(f"Value: {self.value}")
+        print(f"Chain position: {self.pos}")
 
     def _get_content(self, level=0):
 
@@ -382,7 +471,7 @@ class DocumentBlock(metaclass=ScriptBlock):
         return self._get_content()
 
     #Adding to the structure
-    def add(self, element):
+    def insert(self, element, i):
         #TODO NEEDS TO BE REWORKED
 
         if element.block_type not in self.allowed_children:

@@ -8,7 +8,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-from Docbooks import Docbook
+#from Docbooks import Docbook
+import Docbooks
 
 #This script does a different approach to 034
 #The goal is 
@@ -62,7 +63,7 @@ def main():
 
     #LOAD THE DOCBOOK
     print("Making the docbook..")
-    docbook = Docbook("Exisitng_tabs_for_each_document.txt")
+    #docbook = Docbook("Exisitng_tabs_for_each_document.txt")
 
     #Load the documents
     print( "Starting to load documents..")
@@ -99,14 +100,14 @@ def main():
         if ID == "AP_Access":
             with open("example_document.txt","w", encoding="utf-8") as OUT:
                 print(document, file=OUT)
-            sys.exit("Stopping until further notice.")
+            #sys.exit("Stopping until further notice.")
 
-        Documents[ID] = docbook.copy()
-        Documents[ID].add_document(
-                            ID,
-                            document
-                        )
-        Documents[ID].digest_chapters(doc_id = ID)
+        Documents[ID] =  document       #  docbook.copy()
+       # Documents[ID].add_document(
+        #                    ID,
+        #                    document
+        #                )
+        #Documents[ID].digest_chapters(doc_id = ID)
 
 
 
@@ -125,26 +126,38 @@ def main():
                 Docs_to_load.add(Copy)
             else:
                 #print(Original)
-                Original_presence = Documents[Original].get_chapter(
-                                        doc_id = Original,
-                                        chapter_name = Chapter_name,tab=None
-                                    )            #chapter_positions[Original].get(Chapter_Header_name,0)
-                #print(Original_presence)
-                sys.exit()
-                assert Original_presence
-                Copy_presence = Documents[Copy].get_chapter(
-                                        doc_id = Copy,
-                                        chapter_name = Chapter_name,tab=None
-                                    )
-                sys.exit()
-                if not ( Original_presence and Copy_presence ): #Tests if a chapter is already present in sink
-                    Chapters_to_transfer[Chapter_name] = (Original,Copy)
-                    Docs_to_load.add(Original)
-                    Docs_to_load.add(Copy)
-                elif ( Original_presence and Copy_presence ):
-                    Mind_last_chapter_position = True
+                if 0:
+                    Original_presence = Documents[Original].get_chapter(
+                                            doc_id = Original,
+                                            chapter_name = Chapter_name,tab=None
+                                        )            #chapter_positions[Original].get(Chapter_Header_name,0)
+                    #print(Original_presence)
+                    #sys.exit()
+                    assert Original_presence
+                    Copy_presence = Documents[Copy].get_chapter(
+                                            doc_id = Copy,
+                                            chapter_name = Chapter_name,tab=None
+                                        )
+                    #sys.exit()
+                    if not ( Original_presence and Copy_presence ): #Tests if a chapter is already present in sink
+                        Chapters_to_transfer[Chapter_name] = (Original,Copy)
+                        Docs_to_load.add(Original)
+                        Docs_to_load.add(Copy)
+                    elif ( Original_presence and Copy_presence ):
+                        Mind_last_chapter_position = True
                 
     print("Chapters_to_transfer")
+    ID = "AP_Access"
+    Tabs = Documents[ID]["tabs"][1]
+    #print( Tabs )
+    #AP_try = Docbooks.Tab.from_google_docs(Tabs )
+
+    AP_try = Docbooks.Document.from_google_docs( Documents[ID] )
+    #print(AP_try)
+    #Second_TAB = AP_try.deep_find_element(searched_name = "2-3. The Basics and History" )#"t.esursc3mx121")
+    #print(Second_TAB)
+    Second_TAB = AP_try.deep_find_element(searched_name = "1. Intro Parts" )#"t.esursc3mx121")
+    print(Second_TAB)
     sys.exit("!!!!!!!!!!!!!")
     Chapters_listed = sorted( Chapters_to_transfer.keys() )
 

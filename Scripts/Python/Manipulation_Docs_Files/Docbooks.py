@@ -32,6 +32,15 @@ SCOPES = [
 #
 ########################################################################################
 
+
+#TODO   implement Index for objects
+#TODO   chapter is not read out for all. So it reads
+
+
+
+
+
+
 def main():
     Example_text = Text.from_google_docs(example_text_data)
     print(Example_text.name)
@@ -308,6 +317,32 @@ class DocumentBlock(metaclass=ScriptBlock):
         self.end = last_element_right.end
         return "Chain alignment done"
 
+    #Navigate
+    def find_element(self, searched_name):
+        #Find an objects in the chain.
+        for i in range( 1, len(self.chain)):
+            element = self.chain[i]
+            if element.name == seached_name:
+                return(element)
+
+    def deep_find_element(self, searched_name):
+        #Find an objects in the chain by also looking through the objects in the lower chain.
+
+        Found = None
+        for i in range( 1, len(self.chain)):
+            element = self.chain[i]
+            if element.name == searched_name:
+                return element
+            Found = element.deep_find_element(searched_name)
+            if Found:
+                return Found
+
+
+            
+
+
+
+
     #Printing definitions
     def print_structure(self):
         print(f"Type: {self.block_type}")
@@ -432,26 +467,32 @@ class Tab(DocumentBlock):
         Total_Element_number = len(Elements)
         saving_header = False
         New_chapter_ready = False
+        First_run_finished = False
         part_elements = list()
         chapter = Chapter()
         for i in range( Total_Element_number  ):
             #print("TEST", i)
             element = Elements[i]
-            if "paragraph" not in element:  #Exclude paragraphs for now
+            if "paragraph" not in element:  #Exclude non paragraphs for now
                 continue
             paragraphstyle =  element["paragraph"].get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
-            if "HEADING" in paragraphstyle:
-                if saving_header or i == Total_Element_number-1 or (not saving_header and part_elements):
+            if "HEADING" in paragraphstyle or i == Total_Element_number-1 :
+                if saving_header or (First_run_finished and  i == Total_Element_number-1) or (not saving_header and part_elements):
                     New_chapter_ready = True
+                    print("Tab size", len(tab.chain))
+                    print( "Chapter saved", part_elements )
                     Chapter_elements = part_elements[::]
                     part_elements = list()
 
                 saving_header = True
-                
                 part_elements.append(element)
+
             elif saving_header:     #Redundancy needed for the future
                 part_elements.append(element)
-            else:
+            elif i == Total_Element_number-1 and i == 0:   #Catch empty tabs with only "\n" due to Docs structure
+                part_elements.append(element)
+                New_chapter_ready = True    #Since there 
+            else:   #Default adding the elements.
                 part_elements.append(element)
 
 
@@ -471,6 +512,7 @@ class Tab(DocumentBlock):
                     previous.next = tab.current
                     tab.current.previous_element = previous
                 New_chapter_ready = False
+            First_run_finished = True
 
         tab.goto_start
         print(tab.chain)
@@ -571,9 +613,14 @@ class Chapter(DocumentBlock):
                 previous = chapter.get_last()
                 previous.next = chapter.current
                 chapter.current.previous_element = previous
-        chapter.name = Header   #Saving the Header from before
-        chapter.level = Header.split("_")[-1]    #Header have structure of HEADER_1
+        chapter.name = Header   #Saving the Header from beforea
+        print( f"Saving Chapter with name HEADER: {Header}")
+        if Header: #if no header this gives None
+            chapter.level = Header.split("_")[-1]    #Header have structure of HEADER_1
+        else:
+            chapter.level = None
         chapter.goto_start
+        print( chapter.chain )
         chapter.start = chapter.get_next().start    #start of first elements, that is not the header
 
         chapter.end = chapter.goto_end.end  #end of last element

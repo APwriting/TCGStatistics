@@ -17,7 +17,7 @@ import pandas as pd
 
 
 
-SCOPES = [
+SCOPES_READONLY = [
     "https://www.googleapis.com/auth/documents.readonly"
 ]
 
@@ -355,6 +355,10 @@ class DocumentBlock(metaclass=ScriptBlock):
         self.pos = len(self.chain)-1
         return 1
 
+    def add(self, element):
+        self.append(element)
+        return 1
+
     def extend(self, element_list):
         #Like the namesake function.
         assert type(element_list) == list
@@ -487,13 +491,13 @@ class DocumentBlock(metaclass=ScriptBlock):
                 previous.next_element = element
             element.upper = self
         return 1
-    
+    @classmethod
     def from_sub_element_list(cls, elements = [], name=""):
         #Takes a list of elements and fused them together into
         for element in elements:    #Checking if all pass the vibe check
-            if element.block_type not in self.allowed_children:
+            if element.block_type not in cls.allowed_children:
                 raise TypeError(
-                    f"{self.block_type} cannot contain "
+                    f"{cls.block_type} cannot contain "
                     f"{element.block_type}."
                 )
         instance = cls(
@@ -507,13 +511,13 @@ class DocumentBlock(metaclass=ScriptBlock):
         instance.internal_links()
         return instance
 
-
-    def from_single_element(cls, element):
+    @classmethod
+    def from_single_element(cls, element, name=""):
         #Takes a list of elements and fused them together into
         #Checking if element passes the vibe check
-        if element.block_type not in self.allowed_children:
+        if element.block_type not in cls.allowed_children:
             raise TypeError(
-                f"{self.block_type} cannot contain "
+                f"{cls.block_type} cannot contain "
                 f"{element.block_type}."
             )
         instance = cls(
@@ -527,6 +531,22 @@ class DocumentBlock(metaclass=ScriptBlock):
         instance.internal_links()
         return instance
 
+    #Function to work with DOCS API
+    def Create_insertion_call(self):
+        Call_collection = []
+        
+        if len(self.chain)>1:
+            for i in range(1,len(self.chain)):
+                element = self.chain[i]
+                requests = element.Create_insertion_call()
+                if requests:
+                    Call_collection.extend(requests)
+        elif self.block_type == "text":
+            if self.start and self.end and self.value:
+                requests = insert_text(start = self.start, end = self.end, value = self.value, vector=self.text_style)
+                print(requests)
+                return requests
+        return Call_collection
 
 class Document(DocumentBlock):
     block_type = "document"
@@ -656,7 +676,6 @@ class Tab(DocumentBlock):
             tab.end = 0
 
         return tab
-
 
 
 class Chapter(DocumentBlock):
@@ -839,6 +858,73 @@ class Text(DocumentBlock):
     def _get_content(self, level=0):
         return(self.value)
 
+
+
+####
+#Function for working with Google Docs API
+def call_API_command(service, document_id, requests):
+    """
+    Parameters
+    ----------
+    service
+        Authenticated Google Docs API service.
+    document_id : str
+        Google Docs document ID.
+    requests: 
+        lists of calls to insert, created by other functions like inser_text()
+    """
+    return service.documents().batchUpdate(
+        documentId=document_id,
+        body={"requests": requests}
+    ).execute()
+
+def insert_text(start, end, value, vector=None):
+    """
+    Creates Call for Insert Text
+
+    Parameters
+    ----------
+    start : int
+        Google Docs index at which to insert the text.
+    end : int
+        Expected end index after insertion.
+    value : str
+        Text to insert.
+    vector : dict, optional
+        Google Docs textStyle dictionary.
+
+    Returns
+    -------
+    dict
+        Response from documents.batchUpdate().
+    """
+
+    requests = [
+        {
+            "insertText": {
+                "location": {
+                    "index": start
+                },
+                "text": value
+            }
+        }
+    ]
+
+    # Apply text formatting if supplied
+    if vector:
+        requests.append(
+            {
+                "updateTextStyle": {
+                    "range": {
+                        "startIndex": start,
+                        "endIndex": end
+                    },
+                    "textStyle": vector,
+                    "fields": ",".join(vector.keys())
+                }
+            }
+        )
+    return requests
 
 
 

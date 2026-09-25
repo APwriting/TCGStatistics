@@ -157,7 +157,18 @@ def main():
     #Second_TAB = AP_try.deep_find_element(searched_name = "2-3. The Basics and History" )#"t.esursc3mx121")
     #print(Second_TAB)
     Second_TAB = AP_try.deep_find_element(searched_name = "1. Intro Parts" )#"t.esursc3mx121")
-    print(Second_TAB)
+    #print(Second_TAB)
+    chapters = Second_TAB.chain[1::]
+    print(len(chapters))
+    TAB_reconstructed = Docbooks.Tab.from_sub_element_list(elements = chapters, name="1. Intro Parts")
+    print("TESTING FUNCTION FOR CREATING CLASS FROM LIST OF ELEMENTS\n\n")
+    print(TAB_reconstructed)
+    print("TESTING COMPLETED")
+    requests = TAB_reconstructed.Create_insertion_call()
+    with open("temp", "w") as IN:
+        for request in requests:
+            print(request, file=IN)
+
     sys.exit("!!!!!!!!!!!!!")
     Chapters_listed = sorted( Chapters_to_transfer.keys() )
 

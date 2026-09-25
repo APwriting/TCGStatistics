@@ -1,0 +1,70 @@
+{'insertText': {'location': {'index': 1}, 'text': 'Commander Deck Building Bible\n'}}
+{'insertText': {'location': {'index': 31}, 'text': '\n'}}
+{'insertText': {'location': {'index': 32}, 'text': 'I am more than anything else surprised that nobody ever created something like this. But after trying to write everything together, I realized how big the scope of this project really is.\n'}}
+{'insertText': {'location': {'index': 220}, 'text': '\n'}}
+{'insertText': {'location': {'index': 221}, 'text': 'This book or guide has the purpose of being my own encyclopedia of Commander deckbuilding and technique. Writing this down became a passion project of mine and I want to start sharing it. I will try to write this in a way that is understandable for everybody, but most of this is based on my own notes and experiences. The text will undergo several versions, as I will try to update and edit every part in the future. The Game changes. I will cover different topics and go through references from different people and articles. Most of these references will be from YouTube videos or Reddit posts; some will point back to really old articles.\n'}}
+{'insertText': {'location': {'index': 864}, 'text': "If you're reading right now, you are getting a version that is probably still rather rough. As I said, I will edit in the future. But right now my focus is on getting and gathering the material. I also try to avoid AI when writing my text, so just because of that, parts can seem rough. But that also gets me to this:\n"}}
+{'insertText': {'location': {'index': 1182}, 'text': 'If you are '}}
+{'insertText': {'location': {'index': 1193}, 'text': 'new here and/or new to Commander deck-building'}}
+{'updateTextStyle': {'range': {'startIndex': 1193, 'endIndex': 1239}, 'textStyle': {'bold': True}, 'fields': 'bold'}}
+{'insertText': {'location': {'index': 1239}, 'text': ' in general, I recommend starting with the Template Chapter. You can find it '}}
+{'insertText': {'location': {'index': 1316}, 'text': 'here'}}
+{'updateTextStyle': {'range': {'startIndex': 1316, 'endIndex': 1320}, 'textStyle': {'underline': True, 'foregroundColor': {'color': {'rgbColor': {'red': 0.06666667, 'green': 0.33333334, 'blue': 0.8}}}, 'link': {'tabId': 't.srhdha2b25ao'}}, 'fields': 'underline,foregroundColor,link'}}
+{'insertText': {'location': {'index': 1320}, 'text': '. '}}
+{'updateTextStyle': {'range': {'startIndex': 1320, 'endIndex': 1322}, 'textStyle': {'bold': True}, 'fields': 'bold'}}
+{'insertText': {'location': {'index': 1322}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1323}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1324}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1325}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1326}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1327}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1328}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1329}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1330}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1331}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1332}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1333}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1334}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1335}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1336}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1337}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1338}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1339}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1340}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1341}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1342}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1343}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1344}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1345}, 'text': '1. General Stuff \n'}}
+{'insertText': {'location': {'index': 1363}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1364}, 'text': 'If you are new here and/or new to Commander deck-building in general, I recommend starting with the Template Chapter. You can find it '}}
+{'insertText': {'location': {'index': 1498}, 'text': 'here'}}
+{'updateTextStyle': {'range': {'startIndex': 1498, 'endIndex': 1502}, 'textStyle': {'underline': True, 'foregroundColor': {'color': {'rgbColor': {'red': 0.06666667, 'green': 0.33333334, 'blue': 0.8}}}, 'link': {'tabId': 't.srhdha2b25ao'}}, 'fields': 'underline,foregroundColor,link'}}
+{'insertText': {'location': {'index': 1502}, 'text': '. '}}
+{'updateTextStyle': {'range': {'startIndex': 1502, 'endIndex': 1504}, 'textStyle': {'bold': True}, 'fields': 'bold'}}
+{'insertText': {'location': {'index': 1504}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1505}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1506}, 'text': '1.1. How to use this guide\n'}}
+{'insertText': {'location': {'index': 1533}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1534}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1535}, 'text': 'This document is meant to be '}}
+{'insertText': {'location': {'index': 1564}, 'text': 'used by all types and levels of players'}}
+{'updateTextStyle': {'range': {'startIndex': 1564, 'endIndex': 1603}, 'textStyle': {'bold': True}, 'fields': 'bold'}}
+{'insertText': {'location': {'index': 1603}, 'text': '. I try to gather data, ideas, and guides for deck-building with a focus on Commander. I try to give the different topics a logical order that can work if somebody wants to read everything from beginning to end. But like many guidebooks, it is best to look at the different chapters that are relevant for you right now. \n'}}
+{'insertText': {'location': {'index': 1924}, 'text': '\n'}}
+{'insertText': {'location': {'index': 1925}, 'text': 'This book is also a collection of notes I made over the years. That means things are skewed strongly towards what I experience. If you disagree or have different opinions, that is fine. I would love to hear your thoughts because that also allows me to reflect. And if you do, it would be to offer constructive criticism. Since I gather a lot of different works and viewpoints and then add my own thoughts on top, I need to have a good reference point.\n'}}
+{'insertText': {'location': {'index': 2377}, 'text': '\n'}}
+{'insertText': {'location': {'index': 2378}, 'text': 'In that regard, this book will also work as '}}
+{'insertText': {'location': {'index': 2422}, 'text': 'a reference book for different topics while commander deck-building'}}
+{'updateTextStyle': {'range': {'startIndex': 2422, 'endIndex': 2489}, 'textStyle': {'italic': True}, 'fields': 'italic'}}
+{'insertText': {'location': {'index': 2489}, 'text': '. You want to refine your mana base? There will be chapters for that. You want to see why certain amounts of cards for a specific effect are optimal? There will be chapters for this. You want to see if buying a precon makes sense? There will also be a chapter for this. And so on and so on. The idea is to truly build on the diverse knowledge that is hidden in the internet and among the various articles, videos, and podcasts already produced.\n'}}
+{'insertText': {'location': {'index': 2934}, 'text': '\n'}}
+{'insertText': {'location': {'index': 2935}, 'text': 'At some point I will go more into different formats. I am actually already doing that in certain chapters as a comparison and because a lot of things have been developed with a focus on 1vs1. \n'}}
+{'insertText': {'location': {'index': 3128}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3129}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3130}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3131}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3132}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3133}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3134}, 'text': '\n'}}
+{'insertText': {'location': {'index': 3135}, 'text': '\n'}}

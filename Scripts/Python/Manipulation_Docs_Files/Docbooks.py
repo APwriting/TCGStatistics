@@ -471,18 +471,61 @@ class DocumentBlock(metaclass=ScriptBlock):
         return self._get_content()
 
     #Adding to the structure
-    def insert(self, element, i):
-        #TODO NEEDS TO BE REWORKED
+    #Creation functions
+    def from_google_docs(cls, data):
+        #For priming, will be defined in each class separately.
+        pass
 
+    def internal_links(self):
+        previous = None
+        for i in range( 1, len(self.chain)):
+            element = self.chain[i]
+            if not previous:
+                previous = element
+            else:
+                element.previous_element = previous
+                previous.next_element = element
+            element.upper = self
+        return 1
+    
+    def from_sub_element_list(cls, elements = [], name=""):
+        #Takes a list of elements and fused them together into
+        for element in elements:    #Checking if all pass the vibe check
+            if element.block_type not in self.allowed_children:
+                raise TypeError(
+                    f"{self.block_type} cannot contain "
+                    f"{element.block_type}."
+                )
+        instance = cls(
+            name = name,
+            start = None,
+            end = None
+        )
+        instance.extend( elements ) #Adds the list of elements
+        instance.align_chain(force = True, chain_start = None)
+        #Creating element links
+        instance.internal_links()
+        return instance
+
+
+    def from_single_element(cls, element):
+        #Takes a list of elements and fused them together into
+        #Checking if element passes the vibe check
         if element.block_type not in self.allowed_children:
             raise TypeError(
                 f"{self.block_type} cannot contain "
                 f"{element.block_type}."
             )
-
-        self.chain.append(element)
-
-        return 1
+        instance = cls(
+            name = name,
+            start = None,
+            end = None
+        )
+        instance.extend( elements ) #Adds the list of elements
+        instance.align_chain(force = True, chain_start = None)
+        #Creating element links
+        instance.internal_links()
+        return instance
 
 
 class Document(DocumentBlock):

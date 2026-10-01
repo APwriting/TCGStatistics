@@ -337,6 +337,9 @@ class DocumentBlock(metaclass=ScriptBlock):
         Found = None
         for i in range( 1, len(self.chain)):
             element = self.chain[i]
+            #print("Test", element.name+"MEHR TEST WEGEN NEW LINE")    #Debug printing
+
+            #print( searched_name )
             if element.name == searched_name:
                 return element
             Found = element.deep_find_element(searched_name)
@@ -509,6 +512,7 @@ class DocumentBlock(metaclass=ScriptBlock):
         instance.align_chain(force = True, chain_start = None)
         #Creating element links
         instance.internal_links()
+        instance.name.replace('\n', '')
         return instance
 
     @classmethod
@@ -529,21 +533,23 @@ class DocumentBlock(metaclass=ScriptBlock):
         instance.align_chain(force = True, chain_start = None)
         #Creating element links
         instance.internal_links()
+        instance.name.replace('\n', '')
         return instance
 
     #Function to work with DOCS API
-    def Create_insertion_call(self):
+    def Create_insertion_call(self, tabID = "t.0"):
         Call_collection = []
         
         if len(self.chain)>1:
             for i in range(1,len(self.chain)):
                 element = self.chain[i]
-                requests = element.Create_insertion_call()
+                requests = element.Create_insertion_call(tabID = tabID)
                 if requests:
                     Call_collection.extend(requests)
         elif self.block_type == "text":
             if self.start and self.end and self.value:
-                requests = insert_text(start = self.start, end = self.end, value = self.value, vector=self.text_style)
+                requests = insert_text(start = self.start, end = self.end, value = self.value, 
+                vector=self.text_style, tabID = tabID )
                 print(requests)
                 return requests
         return Call_collection
@@ -674,7 +680,7 @@ class Tab(DocumentBlock):
         else:
             tab.start = 0
             tab.end = 0
-
+        tab.name = tab.name.replace('\n', '')
         return tab
 
 
@@ -775,6 +781,8 @@ class Chapter(DocumentBlock):
         chapter.start = chapter.get_next().start    #start of first elements, that is not the header
 
         chapter.end = chapter.goto_end.end  #end of last element
+        if chapter.name:
+            chapter.name = chapter.name.replace('\n', '')
         return chapter
 
         
@@ -827,8 +835,8 @@ class Paragraph(DocumentBlock):
                 previous = paragraph.get_last()
                 previous.next = paragraph.current
                 paragraph.current.previous_element = previous
-
-
+        if paragraph.name:
+            paragraph.name = paragraph.name.replace('\n', '')
         return paragraph
 
 
@@ -846,7 +854,8 @@ class Text(DocumentBlock):
 
 
         text_run = data["textRun"]
-
+        if text_name:
+            text_name = text_name.replace('\n', '')
         return cls(
             name=text_name,
             start=data["startIndex"],
@@ -878,7 +887,7 @@ def call_API_command(service, document_id, requests):
         body={"requests": requests}
     ).execute()
 
-def insert_text(start, end, value, vector=None):
+def insert_text(start, end, value, vector=None, tabID = "t.0"):
     """
     Creates Call for Insert Text
 
@@ -909,6 +918,9 @@ def insert_text(start, end, value, vector=None):
             }
         }
     ]
+    if tabID:#Adds the tabID if existent.
+        requests[0]["insertText" ]["location"]["tabId"] = tabID
+
 
     # Apply text formatting if supplied
     if vector:
@@ -2620,8 +2632,13 @@ Example_document_pull = {'title': 'Commander deck building guide',
 }
 
 
-
-
+def Update(service, document_id, requests: list):
+    return service.documents().batchUpdate(
+        documentId=document_id,
+        body={
+            "requests": requests
+        }
+    ).execute()
 
 
 #Main call

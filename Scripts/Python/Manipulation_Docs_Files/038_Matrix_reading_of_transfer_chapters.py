@@ -121,30 +121,31 @@ def main():
         for line in IN:
             Date,Original,Copy,Chapter_name,Redo = line.rstrip().split("\t")
             if int(Redo):
-                Chapters_to_transfer[Chapter_name] = (Original,Copy)
+                Chapters_to_transfer[Chapter_name] = (Original,Copy,Redo)
                 Docs_to_load.add(Original)
                 Docs_to_load.add(Copy)
             else:
                 #print(Original)
-                if 0:
-                    Original_presence = Documents[Original].get_chapter(
-                                            doc_id = Original,
-                                            chapter_name = Chapter_name,tab=None
-                                        )            #chapter_positions[Original].get(Chapter_Header_name,0)
+                if 1:
+                    Original_presence = True#Documents[Original].get_chapter(
+                                         #   doc_id = Original,
+                                         #   chapter_name = Chapter_name,tab=None
+                                        #)            #chapter_positions[Original].get(Chapter_Header_name,0)
                     #print(Original_presence)
                     #sys.exit()
                     assert Original_presence
-                    Copy_presence = Documents[Copy].get_chapter(
-                                            doc_id = Copy,
-                                            chapter_name = Chapter_name,tab=None
-                                        )
+                    Copy_presence = True#Documents[Copy].get_chapter(
+                                        #    doc_id = Copy,
+                                        #    chapter_name = Chapter_name,tab=None
+                                        #)
                     #sys.exit()
                     if not ( Original_presence and Copy_presence ): #Tests if a chapter is already present in sink
-                        Chapters_to_transfer[Chapter_name] = (Original,Copy)
+                        Chapters_to_transfer[Chapter_name] = (Original,Copy,Redo)
                         Docs_to_load.add(Original)
                         Docs_to_load.add(Copy)
                     elif ( Original_presence and Copy_presence ):
                         Mind_last_chapter_position = True
+                        Chapters_to_transfer[Chapter_name] = (Original,Copy,Redo)
                 
     print("Chapters_to_transfer")
     ID = "AP_Access"
@@ -153,6 +154,8 @@ def main():
     #AP_try = Docbooks.Tab.from_google_docs(Tabs )
 
     AP_try = Docbooks.Document.from_google_docs( Documents[ID] )
+    ID = "MAIN_Access"
+    Main_ACC = Docbooks.Document.from_google_docs( Documents[ID] )
     #print(AP_try)
     #Second_TAB = AP_try.deep_find_element(searched_name = "2-3. The Basics and History" )#"t.esursc3mx121")
     #print(Second_TAB)
@@ -165,10 +168,38 @@ def main():
     print(TAB_reconstructed)
     print("TESTING COMPLETED")
     requests = TAB_reconstructed.Create_insertion_call()
-    with open("temp", "w") as IN:
-        for request in requests:
-            print(request, file=IN)
+    #with open("temp", "w") as IN:
+    #    for request in requests:
+    #        print(request, file=IN)
+    print(Chapters_to_transfer.keys())
+    #New_document = Docbooks.Document()
+    Chapter_list = list()
+    for Chapter in sorted( Chapters_to_transfer.keys() ):
+        print(Chapter)
+        Original,Copy,Redo = Chapters_to_transfer[Chapter]
+        if Redo== "1":
+            pass
+            Chapter_found = Main_ACC.deep_find_element(searched_name = Chapter)
+        else:
+            Chapter_found = AP_try.deep_find_element(searched_name = Chapter)
+            #print(Chapter_found)
+            #print(Chapter_found)
+            
 
+        try:
+            #print( Chapter, "Tab:", Chapter_found.upper.name )
+            found_chapter_tab = Chapter_found.upper.name
+        except:
+            #print( Chapter, "No Tab found")
+            found_chapter_tab = None
+            Chapter_found = Main_ACC.deep_find_element(searched_name = Chapter)
+        if found_chapter_tab == "2-3. The Basics and History":
+            Chapter_list.append( Chapter_found )
+    New_tab = Docbooks.Tab.from_sub_element_list(elements = Chapter_list, name="2-3. The Basics and History")
+    OUT = open("temp.txt","w")
+    print(New_tab.Create_insertion_call(tabID = "t.esursc3mx121" ), file = OUT)
+    OUT.close()
+    return None
     sys.exit("!!!!!!!!!!!!!")
     Chapters_listed = sorted( Chapters_to_transfer.keys() )
 

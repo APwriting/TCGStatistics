@@ -68,6 +68,7 @@ def main():
     #Load the documents
     print( "Starting to load documents..")
     Documents = dict()
+    CredAService = dict()
     for ID in Documents_IDs:
         print(f"Loading Google Doc {ID}")
         print(list( All_path[ID].keys()))
@@ -93,6 +94,7 @@ def main():
         print(credential_data["installed"]["client_id"])
 
         service = get_google_docs_service( doc_path = cred_path, token= token_path )
+        CredAService[ID] = (service, Document_key_number)
         document = get_document(
             service,
             Document_key_number
@@ -195,10 +197,15 @@ def main():
             Chapter_found = Main_ACC.deep_find_element(searched_name = Chapter)
         if found_chapter_tab == "2-3. The Basics and History":
             Chapter_list.append( Chapter_found )
-    New_tab = Docbooks.Tab.from_sub_element_list(elements = Chapter_list, name="2-3. The Basics and History")
+    New_tab = Docbooks.Tab.from_sub_element_list(elements = Chapter_list[:1], name="2-3. The Basics and History")
     OUT = open("temp.txt","w")
-    print(New_tab.Create_insertion_call(tabID = "t.esursc3mx121" ), file = OUT)
+    #Insert_call_list = New_tab.Create_insertion_call(tabID = "t.esursc3mx121" )#t.ldluxei3ktc0
+    Insert_call_list = New_tab.Create_insertion_call(tabID = "t.ldluxei3ktc0" )
+    for ele in Insert_call_list:
+        print(ele, file = OUT)
     OUT.close()
+    service, document_id = CredAService["AP_Access"]
+    Docbooks.Update(service = service, document_id = document_id, requests = Insert_call_list)
     return None
     sys.exit("!!!!!!!!!!!!!")
     Chapters_listed = sorted( Chapters_to_transfer.keys() )

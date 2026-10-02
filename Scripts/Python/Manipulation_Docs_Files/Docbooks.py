@@ -474,6 +474,29 @@ class DocumentBlock(metaclass=ScriptBlock):
         # If this is a leaf element, return its value
         return str(self.value)
 
+    def print_textstyle(self, level=0):
+        #prints the text and text style
+        if self.chain:
+
+            output = []
+
+            for element in self.chain[1:]:#
+                #if element.block_type == "text":
+
+                output.append(
+                    element._get_content(level + 1)
+                )
+            
+            return "\n".join(output)
+        elif element.block_type == "text":
+            return [ str(self.value), str(self.text_style), "\n"]
+        else:
+            return str(self.value)
+        print(output)
+        #text =     def __str__(self):
+    
+
+
     def __str__(self):
         return self._get_content()
 
@@ -535,6 +558,18 @@ class DocumentBlock(metaclass=ScriptBlock):
         instance.internal_links()
         instance.name.replace('\n', '')
         return instance
+    #Functions to check data integrity
+
+    def check_elements_saved(self, elements_saved=[], raw_data = {}, level = 1):
+        #function takes on a list of elements checked during object creation and saves any 
+        #in the log from the raw data that were not used by the class
+        LOG = open(f"Docbooks.log","a")
+        for element in list(raw_data.keys()):
+            if element not in elements_saved:
+                print(f"Missing element '{element}' in {self.block_type} declaration. At level {level}.", file = LOG)
+                print(raw_data[element], file = LOG)
+        LOG.close()
+        return None
 
     #Function to work with DOCS API
     def Create_insertion_call(self, tabID = "t.0"):
@@ -544,6 +579,13 @@ class DocumentBlock(metaclass=ScriptBlock):
             for i in range(1,len(self.chain)):
                 element = self.chain[i]
                 requests = element.Create_insertion_call(tabID = tabID)
+
+                if self.block_type == "paragraph":
+                    paragraph_addjustment = insert_text(start = self.start, end = self.end, 
+                    value = None, 
+                    vector=None, paraStyle = self.paragraphstyle_raw, tabID = tabID )
+                    if paragraph_addjustment:
+                        requests.append( paragraph_addjustment )
                 if requests:
                     Call_collection.extend(requests)
         elif self.block_type == "text":
@@ -803,16 +845,26 @@ class Paragraph(DocumentBlock):
     def from_google_docs(cls, data, paragraph_name="Paragraph"):
 
         paragraph_data = data["paragraph"]
+
         #print("To be sure",paragraph_data)
         paragraph = cls(
             name=paragraph_name,
             start=data["startIndex"],
             end=data["endIndex"]
         )
+        #checking for unforseen elements at "paragraph" level
+        elements_saved = ["paragraph","startIndex","endIndex"]
+        paragraph.check_elements_saved(elements_saved=elements_saved, raw_data = data, level = 1 )
 
-        paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
+        #Save paragraph_style
+        paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")   #For easy access whether something is header or not
+        paragraph.paragraphstyle_raw = paragraph_data.get("paragraphStyle",{})
         paragraph.paragraphstyle = paragraphstyle
         Elements = paragraph_data.get("elements", [])
+
+        elements_saved = ["paragraph", "paragraphStyle", "elements"]
+        paragraph.check_elements_saved(elements_saved=elements_saved, raw_data = paragraph_data, level = 2)
+
         Total_Element_number = len(Elements)
         #for element in paragraph_data.get("elements", []):
         for i in range( Total_Element_number  ):
@@ -887,7 +939,7 @@ def call_API_command(service, document_id, requests):
         body={"requests": requests}
     ).execute()
 
-def insert_text(start, end, value, vector=None, tabID = "t.0"):
+def insert_text(start, end, value, vector=None,paraStyle = None, tabID = "t.0"):
     """
     Creates Call for Insert Text
 
@@ -907,25 +959,25 @@ def insert_text(start, end, value, vector=None, tabID = "t.0"):
     dict
         Response from documents.batchUpdate().
     """
-
-    requests = [
-        {
-            "insertText": {
-                "location": {
-                    "index": start
-                },
-                "text": value
+    requests = []
+    if value:
+        requests = [
+            {
+                "insertText": {
+                    "location": {
+                        "index": start
+                    },
+                    "text": value
+                }
             }
-        }
-    ]
-    if tabID:#Adds the tabID if existent.
+        ]
+    if tabID and requests:#Adds the tabID if existent.
         requests[0]["insertText" ]["location"]["tabId"] = tabID
 
 
     # Apply text formatting if supplied
     if vector:
-        requests.append(
-            {
+        text_style_update =             {
                 "updateTextStyle": {
                     "range": {
                         "startIndex": start,
@@ -935,8 +987,57 @@ def insert_text(start, end, value, vector=None, tabID = "t.0"):
                     "fields": ",".join(vector.keys())
                 }
             }
+        if tabID:
+            text_style_update["updateTextStyle"]["range"][ "tabId"] =  tabID
+
+        requests.append(
+            text_style_update
         )
+    if paraStyle:
+        style_to_update = {}
+        paragraph_style_options = [
+            "namedStyleType",
+            "alignment",
+            "lineSpacing",
+            "direction",
+            "spaceAbove",
+            "spaceBelow",
+            "indentFirstLine",
+            "indentStart",
+            "indentEnd",
+            "keepLinesTogether",
+            "keepWithNext",
+            "pageBreakBefore",
+            "avoidWidowAndOrphan"
+        ]
+        for field in paragraph_style_options:
+            if field in paraStyle:
+                style_to_update[field] = paraStyle[field]
+
+        paragraph_update = {
+            "updateParagraphStyle": {
+                "range": {
+                    "startIndex": start,
+                    "endIndex": end
+                },
+                "paragraphStyle": style_to_update,
+                "fields": ",".join(style_to_update.keys())
+            }
+        }
+        if tabID:
+            paragraph_update["updateParagraphStyle"]["range"][ "tabId"] =  tabID
+        requests.append( paragraph_update )
+
     return requests
+
+
+def Update(service, document_id, requests: list):
+    return service.documents().batchUpdate(
+        documentId=document_id,
+        body={
+            "requests": requests
+        }
+    ).execute()
 
 
 
@@ -2630,15 +2731,6 @@ Example_document_pull = {'title': 'Commander deck building guide',
         }
     ]
 }
-
-
-def Update(service, document_id, requests: list):
-    return service.documents().batchUpdate(
-        documentId=document_id,
-        body={
-            "requests": requests
-        }
-    ).execute()
 
 
 #Main call

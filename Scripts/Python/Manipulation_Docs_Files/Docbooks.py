@@ -861,7 +861,6 @@ class Paragraph(DocumentBlock):
         paragraph.paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
         
         
-
         paragraph.bullet = paragraph_data.get("bullet",{})#Saves information whether something is a bullet-point
 
         elements_saved = ["paragraph", "paragraphStyle", "elements"]
@@ -943,7 +942,7 @@ def call_API_command(service, document_id, requests):
         body={"requests": requests}
     ).execute()
 
-def insert_text(start, end, value, vector=None,paraStyle = None, tabID = "t.0"):
+def insert_text(start, end, value, vector = None, paraStyle = None, bullet = None, tabID = "t.0"):
     """
     Creates Call for Insert Text
 
@@ -1031,6 +1030,22 @@ def insert_text(start, end, value, vector=None,paraStyle = None, tabID = "t.0"):
         if tabID:
             paragraph_update["updateParagraphStyle"]["range"][ "tabId"] =  tabID
         requests.append( paragraph_update )
+
+    if bullet:
+        #paragraph.bullet
+        # Example value of bullet, not necessary for now: {'listId': 'kix.nymnh86q9zxf', 'textStyle': {'underline': False}}"bulletPreset": "BULLET_DISC_CIRCLE_SQUARE"
+        bullet_update = {
+            "createParagraphBullets": {
+                "range": {
+                    "startIndex": start,
+                    "endIndex": end
+                },
+                "bulletPreset": "BULLET_DISC_CIRCLE_SQUARE"
+            }
+        }
+        if tabID:
+            bullet_update["updateParagraphStyle"]["range"][ "tabId"] =  tabID
+        requests.append( bullet_update )
 
     return requests
 

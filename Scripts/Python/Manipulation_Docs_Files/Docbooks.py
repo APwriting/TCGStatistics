@@ -583,11 +583,16 @@ class DocumentBlock(metaclass=ScriptBlock):
                 if self.block_type == "paragraph":
                     paragraph_addjustment = insert_text(start = self.start, end = self.end, 
                     value = None, 
-                    vector=None, paraStyle = self.paragraphstyle_raw, tabID = tabID )
+                    vector=None, paraStyle = self.paragraphstyle_raw, bullet = self.bullet, tabID = tabID )
                     if paragraph_addjustment:
                         requests.append( paragraph_addjustment )
+                else:
+                    paragraph_addjustment = None
                 if requests:
                     Call_collection.extend(requests)
+                if paragraph_addjustment:
+                    print( paragraph_addjustment )
+                    requests.append( paragraph_addjustment )
         elif self.block_type == "text":
             if self.start and self.end and self.value:
                 requests = insert_text(start = self.start, end = self.end, value = self.value, 
@@ -1044,7 +1049,7 @@ def insert_text(start, end, value, vector = None, paraStyle = None, bullet = Non
             }
         }
         if tabID:
-            bullet_update["updateParagraphStyle"]["range"][ "tabId"] =  tabID
+            bullet_update["createParagraphBullets"]["range"][ "tabId"] =  tabID
         requests.append( bullet_update )
 
     return requests

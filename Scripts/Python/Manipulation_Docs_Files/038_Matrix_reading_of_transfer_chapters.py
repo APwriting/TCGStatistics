@@ -206,6 +206,26 @@ def main():
     OUT.close()
     service, document_id = CredAService["AP_Access"]
     Docbooks.Update(service = service, document_id = document_id, requests = Insert_call_list)
+    #Test bold
+    request = {
+        "updateTextStyle": {
+            "range": {
+                "startIndex": 244,
+                "endIndex": 255,
+                "tabId": "t.ldluxei3ktc0"
+            },
+            "textStyle": {
+                "bold": True
+            },
+            "fields": "bold"
+        }
+    }
+
+    service.documents().batchUpdate(
+        documentId=document_id,
+        body={"requests": [request]}
+    ).execute()
+
     return None
     sys.exit("!!!!!!!!!!!!!")
     Chapters_listed = sorted( Chapters_to_transfer.keys() )

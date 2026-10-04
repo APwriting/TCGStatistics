@@ -35,7 +35,9 @@ SCOPES = [
 
 #TODO   implement Index for objects
 #TODO   chapter is not read out for all. So it reads
-
+# TODO Consider pageBreak objects given back
+#           Create PageBreak Functionality as own object
+#
 
 
 
@@ -572,9 +574,9 @@ class DocumentBlock(metaclass=ScriptBlock):
         return None
 
     #Function to work with DOCS API
-    def Create_insertion_call(self, tabID = "t.0"):
+    def Create_insertion_call(self, tabID = "t.0") -> list :
         Call_collection = []
-        
+
         if len(self.chain)>1:
             for i in range(1,len(self.chain)):
                 element = self.chain[i]
@@ -584,21 +586,30 @@ class DocumentBlock(metaclass=ScriptBlock):
                     paragraph_addjustment = insert_text(start = self.start, end = self.end, 
                     value = None, 
                     vector=None, paraStyle = self.paragraphstyle_raw, bullet = self.bullet, tabID = tabID )
-                    if paragraph_addjustment:
-                        requests.append( paragraph_addjustment )
+                    #if paragraph_addjustment:
+                    #    requests.extend( paragraph_addjustment )
                 else:
                     paragraph_addjustment = None
-                if requests:
-                    Call_collection.extend(requests)
+                #handle results
                 if paragraph_addjustment:
                     print( paragraph_addjustment )
-                    requests.append( paragraph_addjustment )
+                    requests.extend( paragraph_addjustment )
+                if requests:
+                    Call_collection.extend(requests)
+
         elif self.block_type == "text":
             if self.start and self.end and self.value:
                 requests = insert_text(start = self.start, end = self.end, value = self.value, 
                 vector=self.text_style, tabID = tabID )
                 print(requests)
                 return requests
+        
+       
+        #if self.block_type == "chapter":
+        #    Call_collection.extend( create_page_break_request(start_index = None, end_index = self.end, tabID = tabID) )
+
+        Call_collection = sorted( Call_collection, key = Sorting_value_API_calls )
+        
         return Call_collection
 
 class Document(DocumentBlock):
@@ -947,6 +958,7 @@ def call_API_command(service, document_id, requests):
         body={"requests": requests}
     ).execute()
 
+
 def insert_text(start, end, value, vector = None, paraStyle = None, bullet = None, tabID = "t.0"):
     """
     Creates Call for Insert Text
@@ -1055,13 +1067,88 @@ def insert_text(start, end, value, vector = None, paraStyle = None, bullet = Non
     return requests
 
 
-def Update(service, document_id, requests: list):
-    return service.documents().batchUpdate(
-        documentId=document_id,
-        body={
-            "requests": requests
+def Sorting_value_API_calls( API_calls: dict = []):
+    #Functions used as key for sorting list of API calls.
+    if "insertText" in API_calls:
+        return 1
+    elif "updateTextStyle" in API_calls:
+        return 2
+    elif "updateParagraphStyle" in API_calls:
+        return 3
+    elif "createParagraphBullets" in API_calls:
+        return 4
+    elif "insertPageBreak" in API_calls:
+        return 5
+    else:
+        print( API_calls, "ERRORORORORORO" )
+        return 10
+
+def create_page_break_request(start_index = 1, end_index = 1, tabID = None, ensure_white = False):
+    #For adding page break requests
+    if ensure_white:
+        requests = [
+            {
+                "insertText": {
+                    "location": {
+                        "index": end_index
+                    },
+                    "text": " "
+                }
+            }
+        ]
+        if tabID and requests:#Adds the tabID if existent.
+            requests[0]["insertText" ]["location"]["tabId"] = tabID
+    else:
+        requests = list()
+    break_request =  {
+        "insertPageBreak": {
+            "location": {
+                "index": end_index
+            }
         }
-    ).execute()
+    } 
+    if tabID:#Adds the tabID if existent.
+        break_request["insertPageBreak" ]["location"]["tabId"] = tabID
+
+    requests.append( break_request )
+
+    return requests
+
+def Update(service, document_id, requests: list):
+    """
+    Parameters
+    ----------
+    service
+        Authenticated Google Docs API service.
+    document_id : str
+        Google Docs document ID.
+    requests: 
+        lists of calls to insert, created by other functions like inser_text()
+    """
+    
+    #Shift text-style updates separately
+    text_style_updates = list()
+    Main_updates = list()
+    for request in requests:
+        if request.get("updateTextStyle",{}):
+            text_style_updates.append( request )
+        else:
+            Main_updates.append( request )
+    print( service.documents().batchUpdate(
+        documentId=document_id,
+        body={"requests": Main_updates}
+    ).execute() )
+
+    print( service.documents().batchUpdate(
+        documentId=document_id,
+        body={"requests": text_style_updates}
+    ).execute() )
+
+    return 1
+#    return service.documents().batchUpdate(
+ #       documentId=document_id,
+  #      body={"requests": requests}
+   # ).execute()
 
 
 

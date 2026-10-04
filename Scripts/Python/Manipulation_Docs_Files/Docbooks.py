@@ -37,7 +37,7 @@ SCOPES = [
 #TODO   chapter is not read out for all. So it reads
 # TODO Consider pageBreak objects given back
 #           Create PageBreak Functionality as own object
-#
+#TODO Find work around for Tabs creation and missing list/bullet information when getting data.
 
 
 

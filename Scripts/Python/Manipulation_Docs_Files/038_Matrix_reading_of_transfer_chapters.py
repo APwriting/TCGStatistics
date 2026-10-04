@@ -206,25 +206,34 @@ def main():
     OUT.close()
     service, document_id = CredAService["AP_Access"]
     Docbooks.Update(service = service, document_id = document_id, requests = Insert_call_list)
-    #Test bold
-    request = {
-        "updateTextStyle": {
-            "range": {
-                "startIndex": 244,
-                "endIndex": 255,
-                "tabId": "t.ldluxei3ktc0"
-            },
-            "textStyle": {
-                "bold": True
-            },
-            "fields": "bold"
-        }
-    }
 
-    service.documents().batchUpdate(
-        documentId=document_id,
-        body={"requests": [request]}
-    ).execute()
+
+    #This part of the project will be abandoned for now. 
+    #There are some things about the Docs API that do not allow easy transfer between documents.
+    #For example, tab creation and getting more information about the bullet points when getting data right now. 
+    #Fixing or working around these right now is not worth it at the current stage of the project. 
+    #The DocBooks could be used later on to automatically update parts of the data.
+
+    #Test bold
+    if 0:
+        request = {
+            "updateTextStyle": {
+                "range": {
+                    "startIndex": 244,
+                    "endIndex": 255,
+                    "tabId": "t.ldluxei3ktc0"
+                },
+                "textStyle": {
+                    "bold": True
+                },
+                "fields": "bold"
+            }
+        }
+
+        service.documents().batchUpdate(
+            documentId=document_id,
+            body={"requests": [request]}
+        ).execute()
 
     return None
     sys.exit("!!!!!!!!!!!!!")

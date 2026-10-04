@@ -857,14 +857,18 @@ class Paragraph(DocumentBlock):
         paragraph.check_elements_saved(elements_saved=elements_saved, raw_data = data, level = 1 )
 
         #Save paragraph_style
-        paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")   #For easy access whether something is header or not
         paragraph.paragraphstyle_raw = paragraph_data.get("paragraphStyle",{})
-        paragraph.paragraphstyle = paragraphstyle
-        Elements = paragraph_data.get("elements", [])
+        paragraph.paragraphstyle = paragraph_data.get("paragraphStyle",{}).get("namedStyleType", "NORMAL_TEXT")
+        
+        
+
+        paragraph.bullet = paragraph_data.get("bullet",{})#Saves information whether something is a bullet-point
 
         elements_saved = ["paragraph", "paragraphStyle", "elements"]
         paragraph.check_elements_saved(elements_saved=elements_saved, raw_data = paragraph_data, level = 2)
 
+        #Text and other elements of the paragraph
+        Elements = paragraph_data.get("elements", [])
         Total_Element_number = len(Elements)
         #for element in paragraph_data.get("elements", []):
         for i in range( Total_Element_number  ):

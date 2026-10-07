@@ -44,6 +44,7 @@ SCOPES = [
 
 
 def main():
+    #Collection of testing prints when running the package
     Example_text = Text.from_google_docs(example_text_data)
     print(Example_text.name)
     print(Example_text)
@@ -145,7 +146,7 @@ def main():
 
 
 class ScriptBlock(type):
-
+    #Base meta class for overall definition of behaviour of all lower level classes.
     registry = {}
 
     def __new__(mcls, name, bases, namespace):
@@ -181,7 +182,8 @@ class ScriptBlock(type):
 
 
 class DocumentBlock(metaclass=ScriptBlock):
-
+    #Base class definition for all building blocks. 
+    #Inclues most of the logical functions for use in all blocks. 
     def __init__(
         self,
         name=None,
@@ -254,7 +256,7 @@ class DocumentBlock(metaclass=ScriptBlock):
         return self.chain[len(self.chain)-1]
     
     #Definitions for checking start and end
-    def get_start_and_end_aligned_positions(self):
+    def get_start_and_end_aligned_positions(self) -> list :
         #Checks if chain is aligned by start and end
         self.goto_start
         Elements_positions_fitting = list()
@@ -268,23 +270,23 @@ class DocumentBlock(metaclass=ScriptBlock):
                 #self.forward
         return Elements_positions_fitting
     
-    def check_start_and_end_aligned(self):
+    def check_start_and_end_aligned(self) -> bool :
         #Checks if chain is aligned by start and end. Summary
         Position_asignment_summary = self.get_start_and_end_aligned_positions()
         return all( Position_asignment_summary )
 
-    def length(self):
+    def length(self) -> int :
         #Returns the length of the element based on google docs coordintaed
         return( self.end - self.start )
 
-    def chain_length(self):
+    def chain_length(self) -> int :
         #Gives back chain length
         if len(self.chain)>1:
             return sum( [ element.chain_length() for element in self.chain[1:] ] )
         else:
             return len(self.value)
 
-    def check_chain_aligned(self):
+    def check_chain_aligned(self) -> bool :
         return self.length() == self.chain_length()
         
 
@@ -326,7 +328,7 @@ class DocumentBlock(metaclass=ScriptBlock):
             if element.name == searched_name:
                 return(element)
 
-    def find_element_chainID(self, searched_name):
+    def find_element_chainID(self, searched_name) -> int:
         #Find an objects in the chain.
         for i in range( 1, len(self.chain)):
             element = self.chain[i]
@@ -448,7 +450,7 @@ class DocumentBlock(metaclass=ScriptBlock):
         for i in range( 1,len(self.chain)):
             element = self.chain[i]
             element.print_structure( Tab = Tab)
-
+        return 1 
 
 
     def info(self):
@@ -458,6 +460,7 @@ class DocumentBlock(metaclass=ScriptBlock):
         print(f"Position: {self.start} - {self.end}")
         print(f"Value: {self.value}")
         print(f"Chain position: {self.pos}")
+        return 1
 
     def _get_content(self, level=0):
 
@@ -496,9 +499,10 @@ class DocumentBlock(metaclass=ScriptBlock):
             return str(self.value)
         print(output)
         #text =     def __str__(self):
+        return 1
     
 
-
+    #Print()
     def __str__(self):
         return self._get_content()
 

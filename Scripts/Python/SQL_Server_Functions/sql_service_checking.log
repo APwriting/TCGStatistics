@@ -1,2 +1,13 @@
+Checking database 'MTGDATA'
+Cluster context: kind-carddata
+Service: postgres
+Port: 5436
 
-C:\Users\falkn\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe: can't open file 'C:\\Users\\falkn\\Documents\\Projects\\Magic_Deck_building_Statistics\\Scripts\\Python\\SQL_Server_Functions\\SQL_service_checking.py': [Errno 2] No such file or directory
+Kubernetes cluster is not reachable.
+E0916 20:43:00.944440    3672 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:65300/api?timeout=32s\": dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it."
+E0916 20:43:00.946096    3672 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:65300/api?timeout=32s\": dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it."
+E0916 20:43:00.947305    3672 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:65300/api?timeout=32s\": dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it."
+E0916 20:43:00.948919    3672 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:65300/api?timeout=32s\": dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it."
+E0916 20:43:00.949987    3672 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:65300/api?timeout=32s\": dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it."
+Unable to connect to the server: dial tcp 127.0.0.1:65300: connectex: No connection could be made because the target machine actively refused it.
+

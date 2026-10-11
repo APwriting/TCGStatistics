@@ -212,13 +212,75 @@ def get_service_ip(service_name="postgres"):
     )
 
     service_ip = result.stdout.strip()
-
+    #print(service_ip)
     if not service_ip:
         raise RuntimeError(
             f"Could not determine IP address of service '{service_name}'."
         )
 
     return service_ip
+
+#########
+# ============================================================
+# Port forwarding
+# ============================================================
+
+def start_port_forward():
+    """Start kubectl port-forward in the background."""
+
+    command = [
+        "kubectl",
+        "--context", KUBE_CONTEXT,
+        "port-forward",
+        f"service/{DB_SERVICE}",
+        f"{DB_PORT}:{DB_PORT}",
+    ]
+
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    # Wait until the local port becomes available.
+    import socket
+
+    for _ in range(50):
+        if process.poll() is not None:
+            error = process.stderr.read()
+            raise RuntimeError(
+                f"Port forwarding failed:\n{error}"
+            )
+
+        try:
+            with socket.create_connection(
+                ("127.0.0.1", DB_PORT), timeout=0.2
+            ):
+                print(
+                    f"Port forwarding active on "
+                    f"localhost:{DB_PORT}"
+                )
+                return process
+        except OSError:
+            time.sleep(0.2)
+
+    process.terminate()
+    process.wait(timeout=5)
+    raise RuntimeError("Timed out waiting for port forwarding.")
+
+
+def stop_port_forward(process):
+    """Stop the kubectl port-forward subprocess."""
+
+    if process is not None and process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+
 
 
 # ============================================================
@@ -253,16 +315,35 @@ def main():
         return STATUS_DATABASE_CONNECTION_FAILED
 
     Service_IP = get_service_ip(service_name=DB_SERVICE)
+    print(Service_IP)
+    if 0:
+        engine = create_engine(
+            f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{Service_IP}:{DB_PORT}/{DATABASE_NAME}",
+            connect_args={"connect_timeout": 5}
+        )
 
-    engine = create_engine(
-        f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{Service_IP}:{DB_PORT}/{DATABASE_NAME}",
-        connect_args={"connect_timeout": 5}
-    )
+    port_forward_process = None
+    engine = None
 
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT 1"))
-        print(result.scalar())
+    try:
+        port_forward_process = start_port_forward()
 
+        engine = create_engine(
+            f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}"
+            f"@127.0.0.1:{DB_PORT}/{DATABASE_NAME}",
+            connect_args={"connect_timeout": 5}
+        )
+
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            print(f"SQLAlchemy connection successful: {result.scalar()}")
+
+    finally:
+        if engine is not None:
+            engine.dispose()
+
+        if port_forward_process is not None:
+            stop_port_forward(port_forward_process)
 
 
     return STATUS_OK

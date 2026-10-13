@@ -2,9 +2,32 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 import requests
 
+from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, String, Float, Text
+
+from sqlalchemy import inspect
+
 import MTG_SQL as Msql
+
+# ============================================================
+# Configuration
+# ============================================================
+
+KUBE_CONTEXT = "kind-carddata"
+DATABASE_NAME = "MTGDATA"
+
+DB_PORT = 5436
+
+# PostgreSQL Kubernetes Service
+DB_SERVICE = "postgres"
+
+# PostgreSQL credentials
+DB_USER = "postgres"
+DB_PASSWORD = "postgres"
+
 
 SQL_CHECK_SCRIPT = Path(__file__).parent / "036_SQL_service_checking.py"
 LOG_FILE = Path(__file__).parent / "sql_service_checking.log"
@@ -65,8 +88,17 @@ card_data = [
     "edhrec_rank",
     "penny_rank",
 ]
+Tables_to_Create = [
+    "Legendary_creatures"
+
+]
+Force = 1
+
 
 def main():
+
+    deploy_yaml_path = "../Kubernetes_cluster_initiation_SQL_database/postgreSQL_deployment__credentials.yaml"
+    DB_USER, DB_PASSWORD  = get_sql_credentials(deployment_yaml = deploy_yaml_path)
 
     LOG = open(LOG_FILE,"w")
     print("Starting SQL table creation and update", file = LOG)
@@ -88,8 +120,58 @@ def main():
     for column_name in scryfall_card_descriptors:
         if column_name not in card_data:
             print(f"{column_name} not relevant. Skipping for table creation.", file = LOG )
-
     LOG.close()
+
+
+    port_forward_process = None
+    engine = None
+
+
+    try:
+        port_forward_process = start_port_forward()
+
+        engine = create_engine(
+            f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}"
+            f"@127.0.0.1:{DB_PORT}/{DATABASE_NAME}",
+            connect_args={"connect_timeout": 5}
+        )
+
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            print(f"SQLAlchemy connection successful: {result.scalar()}")
+
+    finally:
+        print( "SQLAlchemy engine created. Connected.")
+
+    inspector = inspect(engine)
+    Table_names = inspector.get_table_names()
+
+    #Table_names = engine.table_names()
+    print(Table_names)
+
+    # Create a MetaData object
+
+    #Inspector = inspect(engine)
+
+    for Table_name in Tables_to_Create:
+        if Table_name not in Table_names:
+            metadata = MetaData()
+
+            legendary_table = Table( "legendary_table", metadata )            
+            print( "Generating Table..." )
+            
+            #Adding Table elements
+            for column_name in card_data:
+                legendary_table.append_column( Column(column_name, Text) )
+
+            legendary_table.create(engine, checkfirst=True)
+    if engine is not None:
+        engine.dispose()
+
+    if port_forward_process is not None:
+        stop_port_forward(port_forward_process)
+
+
     return 1
 
 
@@ -121,6 +203,90 @@ def get_card_data(card_name: str) -> dict:
     response.raise_for_status()
     return response.json()
 
+
+
+
+def start_port_forward():
+    """Start kubectl port-forward in the background."""
+
+    command = [
+        "kubectl",
+        "--context", KUBE_CONTEXT,
+        "port-forward",
+        f"service/{DB_SERVICE}",
+        f"{DB_PORT}:{DB_PORT}",
+    ]
+
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    # Wait until the local port becomes available.
+    import socket
+
+    for _ in range(50):
+        if process.poll() is not None:
+            error = process.stderr.read()
+            raise RuntimeError(
+                f"Port forwarding failed:\n{error}"
+            )
+
+        try:
+            with socket.create_connection(
+                ("127.0.0.1", DB_PORT), timeout=0.2
+            ):
+                print(
+                    f"Port forwarding active on "
+                    f"localhost:{DB_PORT}"
+                )
+                return process
+        except OSError:
+            time.sleep(0.2)
+
+    process.terminate()
+    process.wait(timeout=5)
+    raise RuntimeError("Timed out waiting for port forwarding.")
+
+#Getting User data from deployment YAML:
+
+def get_sql_credentials(deployment_yaml):
+    """
+    Read PostgreSQL username and password from a Kubernetes
+    Deployment YAML file.
+
+    Returns:
+        tuple[str, str]: username, password
+    """
+
+    with open(deployment_yaml, "r", encoding="utf-8") as file:
+        deployment = yaml.safe_load(file)
+
+    containers = deployment["spec"]["template"]["spec"]["containers"]
+
+    for container in containers:
+        for env in container.get("env", []):
+
+            if env["name"] == "POSTGRES_USER":
+                username = env["value"]
+
+            elif env["name"] == "POSTGRES_PASSWORD":
+                password = env["value"]
+
+    return username, password
+
+def stop_port_forward(process):
+    """Stop the kubectl port-forward subprocess."""
+
+    if process is not None and process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -20,6 +20,23 @@
 ## Overview
 
 
+The purpose of this repository is to make the calculations and statistics I do for different TCGs public available. I write about these statistics to get a deeper understanding and also explore the vast data that exists in TCGs.
+
+An example is looking at statistics on lands in hand statistics with different land counts in deck:
+
+<a href="Plots/Chapter_4_4__exactALLland_plot__ 2026-07-27.png">
+
 ---
 
 ## Structure
+
+The Repository is structured into Plots, Scripts, Data and Other results.
+
+Scripts are numbered according to a logical sequence on how to explore the data generally. Executing the scripts should make it possible to easily generate the same data and adjust for your own projects. 
+
+Plots are also named by the chapter where they occur in my writing project. If you come from this project over here, that should make it easy to find any plot you are interested in. 
+
+
+
+
+

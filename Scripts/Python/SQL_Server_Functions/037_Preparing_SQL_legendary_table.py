@@ -1,10 +1,9 @@
 import subprocess
 import sys
 from pathlib import Path
-
 import yaml
-
 import requests
+import time
 
 from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, String, Float, Text
 
@@ -165,6 +164,22 @@ def main():
                 legendary_table.append_column( Column(column_name, Text) )
 
             legendary_table.create(engine, checkfirst=True)
+
+    OUT = open("Commanders_by_years.txt","w")
+    for year in range(1994,2027):
+        print( f"Checking year {year} for legendary creatures....")
+
+        Scryfall_Query = f"type:legendary is:firstprinting year:{year} is:commander"
+        print( Scryfall_Query )
+        Search_results_scryfall = get_all_cards(search_query = Scryfall_Query)
+        #Put here preparations for the database
+
+
+        #Print the general information for later use.
+
+        print( str(year)+"\t"+str(len(Search_results_scryfall)), file = OUT  )
+    OUT.close()
+
     if engine is not None:
         engine.dispose()
 
@@ -182,7 +197,7 @@ def main():
 
 
 
-import requests
+
 
 def get_card_data(card_name: str) -> dict:
     url = "https://api.scryfall.com/cards/named"
@@ -203,7 +218,59 @@ def get_card_data(card_name: str) -> dict:
     response.raise_for_status()
     return response.json()
 
+def get_all_cards(search_query):
+    time.sleep(0.1)
 
+    url = "https://api.scryfall.com/cards/search"
+    params = {"q": search_query}
+
+    headers = {
+        "User-Agent": "MagicDeckStatistics/1.0"
+    }
+
+    all_cards = []
+
+    while url:
+        response = requests.get(
+            url,
+            params=params,
+            headers=headers
+        )
+
+        response.raise_for_status()
+        data = response.json()
+
+        all_cards.extend(data["data"])
+
+        if data["has_more"]:
+            url = data["next_page"]
+            params = None
+            time.sleep(0.1)
+        else:
+            url = None
+
+    return all_cards
+
+
+def number_of_cards(search_query):
+    time.sleep(0.1)
+    url = "https://api.scryfall.com/cards/search"
+
+    headers = {
+        "User-Agent": "MagicDeckStatistics/1.0"
+    }
+
+    response = requests.get(
+        url,
+        params={"q": search_query},
+        headers=headers
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    return data["total_cards"]
 
 
 def start_port_forward():

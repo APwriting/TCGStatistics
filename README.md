@@ -24,7 +24,7 @@ The purpose of this repository is to make the calculations and statistics I do f
 
 An example is looking at statistics on lands in hand statistics with different land counts in deck:
 
-<a href="Plots/Chapter_4_4__exactALLland_plot__ 2026-07-27.png">
+<a href="Plots/Chapter_4_4__exactALLland_plot__ 2026-07-27.png"></a>
 
 ---
 

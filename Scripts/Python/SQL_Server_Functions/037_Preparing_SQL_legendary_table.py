@@ -166,6 +166,7 @@ def main():
             legendary_table.create(engine, checkfirst=True)
 
     OUT = open("Commanders_by_years.txt","w")
+    print("Year\tCount",file = OUT)
     for year in range(1994,2027):
         print( f"Checking year {year} for legendary creatures....")
 

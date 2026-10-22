@@ -180,6 +180,21 @@ def main():
 
         print( str(year)+"\t"+str(len(Search_results_scryfall)), file = OUT  )
     OUT.close()
+    OUT = open("Total_cards_by_years.txt","w")
+    print("Year\tCount",file = OUT)
+    for year in range(1994,2027):
+        print( f"Checking year {year} for legendary creatures....")
+
+        Scryfall_Query = f"is:firstprinting year:{year}"
+        print( Scryfall_Query )
+        Search_results_scryfall = get_all_cards(search_query = Scryfall_Query)
+        #Put here preparations for the database
+
+
+        #Print the general information for later use.
+
+        print( str(year)+"\t"+str(len(Search_results_scryfall)), file = OUT  )
+    OUT.close()
 
     if engine is not None:
         engine.dispose()

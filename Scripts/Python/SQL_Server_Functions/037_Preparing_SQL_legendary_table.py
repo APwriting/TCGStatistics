@@ -182,7 +182,7 @@ def main():
     OUT.close()
     OUT = open("Total_cards_by_years.txt","w")
     print("Year\tCount",file = OUT)
-    for year in range(1994,2027):
+    for year in range(1993,2027):
         print( f"Checking year {year} for legendary creatures....")
 
         Scryfall_Query = f"is:firstprinting year:{year}"
@@ -213,6 +213,47 @@ def main():
 
 
 
+def insert_scryfall_results(engine, table_name, search_results):
+    """
+    Insert Scryfall search results into an SQL table.
+
+    Parameters
+    ----------
+    engine : sqlalchemy.Engine
+        Database connection engine.
+    table_name : str
+        Name of the existing SQL table.
+    search_results : dict
+        JSON response from Scryfall's /cards/search endpoint.
+    """
+
+    metadata = MetaData()
+    table = Table(table_name, metadata, autoload_with=engine)
+
+    # Extract the list of cards from the Scryfall response
+    cards = search_results.get("data", [])
+
+    if not cards:
+        return 0
+
+    # Keep only columns that exist in the SQL table
+    valid_columns = set(table.columns.keys())
+
+    rows = [
+        {
+            key: value
+            for key, value in card.items()
+            if key in valid_columns
+        }
+        for card in cards
+    ]
+
+    # Insert all rows in a single transaction
+    with Session(engine) as session:
+        session.execute(table.insert(), rows)
+        session.commit()
+
+    return len(rows)
 
 
 def get_card_data(card_name: str) -> dict:

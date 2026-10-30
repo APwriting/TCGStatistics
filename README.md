@@ -24,7 +24,7 @@ The purpose of this repository is to make the calculations and statistics I do f
 
 An example is looking at statistics on lands in hand with different land counts in the deck:
 
-<img src="Plots/Chapter_4_4__exactALLland_plot__ 2026-07-27.png" alt="Chapter 4.4">
+<img src="Plots/Chapter_4_4__exactALLland_plot__2026-07-27.png" alt="Chapter 4.4">
 
 This is a very basic plot, but it shows the idea of not only knowing certain numbers but really exploring how changing the numbers in a deck changes the statistics and what we can expect.
 ---

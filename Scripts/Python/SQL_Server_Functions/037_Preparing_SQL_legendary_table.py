@@ -6,7 +6,7 @@ import requests
 import time
 
 from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, String, Float, Text
-
+from sqlalchemy.orm import Session
 from sqlalchemy import inspect
 
 import MTG_SQL as Msql
@@ -163,6 +163,9 @@ def main():
             for column_name in card_data:
                 legendary_table.append_column( Column(column_name, Text) )
 
+
+
+
             legendary_table.create(engine, checkfirst=True)
 
     OUT = open("Commanders_by_years.txt","w")
@@ -174,6 +177,23 @@ def main():
         print( Scryfall_Query )
         Search_results_scryfall = get_all_cards(search_query = Scryfall_Query)
         #Put here preparations for the database
+
+        #print( Search_results_scryfall )
+        #sys.exit()
+
+        ##!!!!!!!!!!!!EDIT THIS IN THE FUTURE
+        # Example: search_results is the JSON response from Scryfall
+        # search_results = response.json()
+        for card in Search_results_scryfall:
+            inserted = insert_scryfall_results(
+                engine=engine,
+                table_name="legendary_table",
+                search_results=card
+            )
+
+            print(f"Inserted {inserted} cards.")
+
+
 
 
         #Print the general information for later use.
@@ -192,6 +212,7 @@ def main():
 
 
         #Print the general information for later use.
+
 
         print( str(year)+"\t"+str(len(Search_results_scryfall)), file = OUT  )
     OUT.close()
@@ -254,6 +275,75 @@ def insert_scryfall_results(engine, table_name, search_results):
         session.commit()
 
     return len(rows)
+
+
+
+
+def insert_scryfall_results(engine, table_name, search_results):
+    """
+    Insert Scryfall card data into an existing SQL table.
+
+    Accepts:
+        - A single card dictionary
+        - A list of card dictionaries
+        - A complete Scryfall search response
+    """
+
+    metadata = MetaData()
+    table = Table(table_name, metadata, autoload_with=engine)
+
+    # Normalize input into a list of cards
+    if isinstance(search_results, dict):
+        if search_results.get("object") == "list":
+            cards = search_results.get("data", [])
+        elif search_results.get("object") == "card":
+            cards = [search_results]
+        else:
+            raise ValueError("Unrecognized Scryfall response format.")
+
+    elif isinstance(search_results, list):
+        cards = search_results
+
+    else:
+        raise TypeError("Expected a dictionary or list.")
+
+    if not cards:
+        return 0
+
+    # Get valid SQL table columns
+    valid_columns = set(table.columns.keys())
+
+    # Extract matching fields from each card
+    rows = []
+
+    for card in cards:
+        row = {
+            key: value
+            for key, value in card.items()
+            if key in valid_columns
+        }
+
+        if row:
+            rows.append(row)
+
+    if not rows:
+        return 0
+
+    # Ensure all rows have identical parameter keys
+    all_keys = set().union(*(row.keys() for row in rows))
+
+    rows = [
+        {key: row.get(key) for key in all_keys}
+        for row in rows
+    ]
+
+    # Insert into database
+    with Session(engine) as session:
+        session.execute(table.insert(), rows)
+        session.commit()
+
+    return len(rows)
+
 
 
 def get_card_data(card_name: str) -> dict:

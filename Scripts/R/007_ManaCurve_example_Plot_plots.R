@@ -95,7 +95,7 @@ Mana_value_plot = Mana_value_plot+
 Mana_value_plot;
 
 #Plot saving
-plot_name = paste("Chapter_5_1__Mana_curve_example_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_5_1__Mana_curve_example_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Mana_value_plot, 
        width = 8, height = 8, dpi = 300);
 

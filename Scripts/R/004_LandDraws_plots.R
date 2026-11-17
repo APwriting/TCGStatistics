@@ -92,10 +92,10 @@ SD_whole_plot = plot_grid(plotlist = plot_list, labels = paste( "lands ", as.cha
 SD_whole_plot;
 #Saving Plot
 
-plot_name = paste("Chapter_4_5__mean_drawn_dep_land_plot", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_5__mean_drawn_dep_land_plot", Sys.Date()  ,".png")
 ggsave(plot_name, plot = exact_draw_sim_plot, 
        width = 6, height = 4, dpi = 300);
-plot_name = paste("Chapter_4_5__mean_drawn_SD_dep_land_plot", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_5__mean_drawn_SD_dep_land_plot", Sys.Date()  ,".png")
 ggsave(plot_name, plot = SD_whole_plot, 
        width = 6, height = 4, dpi = 300);
 

@@ -84,6 +84,6 @@ Base_break_plot;
 
 #Saving the plot
 
-plot_name = paste("Chapter_4_7__breakpoint_illustration_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_7__breakpoint_illustration_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Base_break_plot, 
        width = 6, height = 6, dpi = 300);

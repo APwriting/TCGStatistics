@@ -84,10 +84,12 @@ Life_plot;
 
 
 #Saving plots and/or data if necessary
-
-ggsave("Chapter_4_1__Baseline_plot__06072026.png", plot = Base_plot, 
+plot_name = paste0("Chapter_4_1__Baseline_plot__", Sys.Date()  ,".png");
+ggsave(plot_name, plot = Base_plot, 
        width = 6, height = 4, dpi = 300);
-ggsave("Chapter_4_1__Lifeline_plot__06072026.png", plot = Life_plot, 
+
+plot_name = paste0("Chapter_4_1__Lifeline_plot__", Sys.Date()  ,".png");
+ggsave(plot_name, plot = Life_plot, 
        width = 6, height = 4, dpi = 300);
 
 

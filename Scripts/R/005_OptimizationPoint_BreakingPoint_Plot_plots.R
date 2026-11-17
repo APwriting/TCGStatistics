@@ -69,7 +69,7 @@ Comparison_plot_Opti_point;
 
 
 #Saving of Plot
-plot_name = paste("Chapter_4_6__Opti_Point_comparison__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_6__Opti_Point_comparison__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Comparison_plot_Opti_point, 
        width = 9, height = 9, dpi = 300);
 

@@ -28,6 +28,7 @@ legendary.plot;
 
 
 
-plot_name = paste("Chapter_2_legendary_creatur_count__plot__", Sys.Date()  ,".png",sep = "");
+plot_name = paste0("Chapter_2_legendary_creatur_count__plot__", Sys.Date()  ,".png",sep = "");
+plot_name;
 ggsave(plot_name, plot = legendary.plot, 
        width =4, height =3, dpi = 300);

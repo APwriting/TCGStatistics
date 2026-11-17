@@ -67,10 +67,10 @@ exact_2and3_land_base;
 
 
 #Saving
-plot_name = paste("Chapter_4_4__exactALLland_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_4__exactALLland_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = exact_ALL_land_base, 
        width = 6, height = 4, dpi = 300);
-plot_name = paste("Chapter_4_4__exactALLland_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_4_4__exactALLland_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = exact_2and3_land_base, 
        width = 6, height = 4, dpi = 300);
 

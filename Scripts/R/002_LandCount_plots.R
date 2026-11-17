@@ -111,12 +111,16 @@ Plot3_draws;
 #Saving the plots
 
 
+plot_name = paste0("Chapter_4_3__exact1land_plot__", Sys.Date()  ,".png");
+ggsave(plot_name, plot = exact1_land_base, 
+       width = 6, height = 4, dpi = 300);
 
-ggsave("Chapter_4_3__exact1land_plot__09072026.png", plot = exact1_land_base, 
+plot_name = paste0("Chapter_4_3__ATLEAST1land_plot__", Sys.Date()  ,".png");
+ggsave(plot_name, plot = atleast1_land_base, 
        width = 6, height = 4, dpi = 300);
-ggsave("Chapter_4_3__ATLEAST1land_plot__09072026.png", plot = atleast1_land_base, 
-       width = 6, height = 4, dpi = 300);
-ggsave("Chapter_4_3__NextDraw1land_plot__09072026.png", plot = Plot3_draws, 
+
+plot_name = paste0("Chapter_4_3__NextDraw1land_plot__", Sys.Date()  ,".png");
+ggsave(plot_name, plot = Plot3_draws, 
        width = 6, height = 6, dpi = 300);
 
 

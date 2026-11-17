@@ -37,7 +37,7 @@ Curve_types
 Curve_plots = list()
 
 for (type in Curve_types){
-  print(type);
+  print(type);How does delete needs to be written to delete arrays in Heap-memory? C++
   Bar_plot_per_type = Create_Bar_plot( data.df = mv_example.df[which(mv_example.df$Mana_curve_type == type),],
                                        title = type);
   Curve_plots = append(Curve_plots,Bar_plot_per_type);
@@ -49,6 +49,6 @@ Complete_Plot = plot_grid(plotlist = Curve_plots, nrow = 1);
 Complete_Plot;
 #Save Plot
 
-plot_name = paste("Chapter_5_1_3__Mana_curve_by_format_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_5_1_3__Mana_curve_by_format_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Complete_Plot, 
        width = 8, height = 4, dpi = 300);

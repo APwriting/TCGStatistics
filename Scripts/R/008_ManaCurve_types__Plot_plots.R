@@ -51,6 +51,6 @@ Complete_Plot = plot_grid(plotlist = Curve_plots,nrow = 2);
 Complete_Plot;
 #Save Plot
 
-plot_name = paste("Chapter_5_1_2__Mana_curve_types_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_5_1_2__Mana_curve_types_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Complete_Plot, 
        width = 10, height = 6, dpi = 300);

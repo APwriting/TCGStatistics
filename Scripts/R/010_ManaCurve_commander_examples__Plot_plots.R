@@ -88,7 +88,7 @@ Commander.deck.df = decks[[4]];
 
 #Saving
 setwd(current_path);
-plot_name = paste("Chapter_5_2_1_mv_commander_plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_5_2_1_mv_commander_plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = Whole_mv_plot, 
        width =10, height =10, dpi = 300);
 

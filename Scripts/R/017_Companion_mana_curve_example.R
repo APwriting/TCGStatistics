@@ -123,7 +123,7 @@ Mana_value_plot.commander;
 
 file.remove("combined.png");
 #Plot saving
-plot_name = paste("Chapter_5_8_1__Mana_curve_companion_example_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_5_8_1__Mana_curve_companion_example_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = Mana_value_plot.commander, 
        width = 8, height = 6, dpi = 300);
 

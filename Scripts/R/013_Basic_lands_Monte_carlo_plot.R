@@ -24,6 +24,6 @@ Simplot = ggplot( data.df, aes( x = Total_runs, y = Proportion_of_Starting_failu
 Simplot;
 #Saving the plot
 
-plot_name = paste("Chapter_7_2_1_simulation_plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_7_2_1_simulation_plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = Simplot, 
        width =6, height =6, dpi = 300);

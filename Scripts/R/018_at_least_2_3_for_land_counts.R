@@ -77,7 +77,7 @@ combined.plot;
 #Saving the plots
 
 
-plot_name = paste("Chapter_6_2_1__at_least_x_lands_plot__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_6_2_1__at_least_x_lands_plot__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = combined.plot, 
        width = 6, height = 4, dpi = 300);
 

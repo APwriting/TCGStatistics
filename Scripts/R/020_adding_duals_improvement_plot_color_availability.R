@@ -101,11 +101,11 @@ dual3_plot;
 #Saving the plots
 
 
-plot_name = paste("Chapter_7_3_1__dual_land_increase_2_color__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_7_3_1__dual_land_increase_2_color__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = dual2_plot, 
        width = 6, height = 4, dpi = 300);
 
-plot_name = paste("Chapter_7_3_2__dual_land_increase_3_color__", Sys.Date()  ,".png")
+plot_name = paste0("Chapter_7_3_2__dual_land_increase_3_color__", Sys.Date()  ,".png")
 ggsave(plot_name, plot = dual3_plot, 
        width = 6, height = 4, dpi = 300);
 

@@ -158,12 +158,12 @@ yearly.all_pips.plot;
 
 #Saving the plot
 
-plot_name = paste("Chapter_8_7_1_number_all_cards_multi_pips__plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_8_7_1_number_all_cards_multi_pips__plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = all_pips.plot, 
        width =8, height =9, dpi = 300);
 
 
-plot_name = paste("Chapter_8_7_2__number_printed_multipip_per_year__plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_8_7_2__number_printed_multipip_per_year__plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = yearly.all_pips.plot, 
        width =8, height =8, dpi = 300);
 

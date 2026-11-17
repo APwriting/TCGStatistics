@@ -45,7 +45,7 @@ for (i in 1:5){
 
 #Plot saving
 setwd(current_path);
-plot_name = paste("Chapter_7_2_2_mv_commander_plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_7_2_2_mv_commander_plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = Comb.plot, 
        width =8, height =10, dpi = 300);
   

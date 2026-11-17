@@ -159,11 +159,11 @@ color.3.starting.hand.plot;
 
 #Saving the plot
 
-plot_name = paste("Chapter_7_5_1_simulation_average_turns__adding_fetch_lands__plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_7_5_1_simulation_average_turns__adding_fetch_lands__plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = All_average_turn_plots, 
        width =10, height =10, dpi = 300);
 
 
-plot_name = paste("Chapter_7_5_2__3_color_improvement_starting_colors__fetches__plot__", Sys.Date()  ,".png");
+plot_name = paste0("Chapter_7_5_2__3_color_improvement_starting_colors__fetches__plot__", Sys.Date()  ,".png");
 ggsave(plot_name, plot = color.3.starting.hand.plot, 
        width =6, height =6, dpi = 300);

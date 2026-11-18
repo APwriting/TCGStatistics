@@ -59,7 +59,7 @@ def main():
         logger.info("Requesting website")
 
         #Start with Archideckt only.
-        html = RequestHandler.get(BASE_URLS["archideckt"])
+        html = request_handler.get(BASE_URLS["archideckt"])
 
         # 3. Parse website
         logger.info("Parsing website")
